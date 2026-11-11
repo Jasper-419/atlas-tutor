@@ -9,20 +9,27 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource/instrument-sans": "^5.2.5",
+    "@fontsource/instrument-serif": "^5.2.5",
+    "@xyflow/react": "^12.10.0",
+    "katex": "0.19.1",
+    "lucide-react": "^0.468.0",
     "next": "16.4.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "@xyflow/react": "^12.10.0",
-    "lucide-react": "^0.468.0",
     "react-markdown": "^10.1.0",
+    "rehype-highlight": "7.0.2",
+    "rehype-katex": "7.0.1",
     "remark-gfm": "^4.0.1",
-    "@fontsource/instrument-sans": "^5.2.5",
-    "@fontsource/instrument-serif": "^5.2.5"
+    "remark-math": "6.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "katex": "$katex"
   }
 }

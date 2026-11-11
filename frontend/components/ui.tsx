@@ -15,12 +15,13 @@ import {
   RefreshCw,
   Upload,
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import type { Citation, Course } from "@/lib/types";
 import { api, useResource } from "@/lib/api";
 import type { AgentTask } from "@/lib/types";
+import { Markdown } from "./markdown";
 import "./learning-panels.css";
+
+export { Markdown } from "./markdown";
 
 export function AtlasMark({ size = 30 }: { size?: number }) {
   return (
@@ -183,24 +184,6 @@ export function CourseRow({ course }: { course: Course }) {
       <Status value={course.status} />
       <ArrowRight size={17} />
     </Link>
-  );
-}
-export function Markdown({ children }: { children: string }) {
-  return (
-    <div className="markdown">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          a: ({ children, ...props }) => (
-            <a {...props} target="_blank" rel="noopener noreferrer">
-              {children}
-            </a>
-          ),
-        }}
-      >
-        {children}
-      </ReactMarkdown>
-    </div>
   );
 }
 export function Citations({ items }: { items: Citation[] }) {

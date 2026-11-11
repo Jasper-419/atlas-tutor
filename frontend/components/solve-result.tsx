@@ -1,4 +1,5 @@
 import { Markdown } from "./ui";
+import { CodeBlock } from "./markdown";
 import "./solve-result.css";
 
 type SolveCheck = { expression?: string; expected?: unknown; actual?: unknown; passed?: boolean };
@@ -23,7 +24,7 @@ export function SolveResult({ result, detailed = false, evidence = [] }: { resul
       const boundVerification = !!step.verification?.evidence_id && step.verification.plan_version === plan.version && !!step.verification.checks_passed;
       const verified = step.method === "python" && step.status === "verified" && (evidenceVerified || boundVerification);
       const label = verified ? "执行校验" : step.status === "reasoned" ? "推理说明" : step.status === "verified" ? "尚未验证" : statuses[step.status || ""] || "待处理";
-      return <li key={step.id}><div><span>{step.title}</span><small className={verified ? "is-verified" : ""}>{label}</small></div>{step.explanation && <p>{step.explanation}</p>}</li>;
+      return <li key={step.id}><div><span>{step.title}</span><small className={verified ? "is-verified" : ""}>{label}</small></div>{step.explanation && <div className="atlas-solve-explanation"><Markdown>{step.explanation}</Markdown></div>}</li>;
     })}</ol></>}
     {detailed && executions.map((execution, index) => <Execution key={execution.id || execution.evidence_id || index} execution={execution} />)}
     {result.status === "error" && result.error && <p className="atlas-solve-error">{result.error}</p>}
@@ -40,6 +41,6 @@ function Execution({ execution }: { execution: SolveExecution }) {
     {typeof execution.stdout === "string" && <div><span>实际输出</span><pre>{execution.stdout || "（无输出）"}</pre></div>}
     {error && <div className="atlas-solve-error"><span>执行错误</span><pre>{error}</pre></div>}
     {checks.length > 0 && <ul className="atlas-solve-checks">{checks.map((check, index) => <li key={index}><div><code>{check.expression || `检查 ${index + 1}`}</code><span className={check.passed === true ? "is-verified" : ""}>{check.passed === true ? "通过" : check.passed === false ? "未通过" : "无记录"}</span></div><p>预期 {textValue(check.expected)} · 实际 {textValue(check.actual)}</p></li>)}</ul>}
-    {execution.code && <details><summary>运行代码</summary><pre>{execution.code}</pre></details>}
+    {execution.code && <details><summary>运行代码</summary><CodeBlock language="python" source={execution.code}><code>{execution.code}</code></CodeBlock></details>}
   </div>;
 }

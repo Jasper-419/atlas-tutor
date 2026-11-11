@@ -4,6 +4,7 @@ import "@fontsource/instrument-sans/500.css";
 import "@fontsource/instrument-sans/600.css";
 import "@fontsource/instrument-serif/400.css";
 import "@xyflow/react/dist/style.css";
+import "katex/dist/katex.min.css";
 import "./globals.css";
 import "./learning-desktop.css";
 import "./progress-desktop.css";
