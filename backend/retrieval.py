@@ -16,7 +16,7 @@ from urllib.request import getproxies, proxy_bypass
 from urllib.parse import unquote
 from collections import Counter
 from urllib.parse import urlsplit, urljoin
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, CData, NavigableString, Tag
 from fastapi import HTTPException
 from sqlalchemy import cast, func, or_, and_, tuple_
 from pgvector.sqlalchemy import Vector
@@ -450,6 +450,54 @@ class PinnedHTTPS(http.client.HTTPSConnection):
         self.sock = self._context.wrap_socket(sock, server_hostname=self.origin_host)
 
 
+HTML_TEXT_BLOCKS = set(
+    "address article blockquote br dd details div dl dt figcaption figure "
+    "h1 h2 h3 h4 h5 h6 hr li main ol p pre section summary td th tr ul".split()
+)
+
+
+def _html_text(root):
+    blocks, inline = [], []
+
+    def finish_block():
+        paragraph = re.sub(r"[ \t\r\n\f]+", " ", "".join(inline)).strip()
+        if paragraph:
+            blocks.append(paragraph)
+        inline.clear()
+
+    stack = [(root.name, iter(root.children))]
+    while stack:
+        parent, children = stack[-1]
+        node = next(children, None)
+        if node is None:
+            stack.pop()
+            if parent in HTML_TEXT_BLOCKS:
+                finish_block()
+        elif isinstance(node, Tag):
+            if node.name in HTML_TEXT_BLOCKS:
+                finish_block()
+            if node.name == "pre":
+                code = node.find("code") or node
+                for line_break in code.find_all("br"):
+                    line_break.replace_with("\n")
+                body = code.get_text().strip("\r\n")
+                if body.strip():
+                    language = code.get("language") or next(
+                        (name[9:] for name in code.get("class", []) if name.startswith("language-")),
+                        "",
+                    )
+                    if not re.fullmatch(r"[a-zA-Z0-9_+.-]{1,32}", language):
+                        language = ""
+                    fence = "`" * max(3, 1 + max(map(len, re.findall(r"`+", body)), default=0))
+                    blocks.append(f"{fence}{language}\n{body}\n{fence}")
+            else:
+                stack.append((node.name, iter(node.children)))
+        elif type(node) in (NavigableString, CData):
+            inline.append(str(node))
+    finish_block()
+    return "\n\n".join(blocks)
+
+
 def _fetch(url):
     for _ in range(4):
         parsed, ip = validate_public_url(url)
@@ -513,9 +561,7 @@ def _fetch(url):
                 ["script", "style", "nav", "header", "footer", "aside", "noscript"]
             ):
                 tag.decompose()
-            text = (soup.find("main") or soup.find("article") or soup).get_text(
-                "\n", strip=True
-            )
+            text = _html_text(soup.find("main") or soup.find("article") or soup)
         if len(text.strip()) < 100:
             raise ValueError("网页可提取的正文不足。")
         return url, title[:255], text[:MAX_TEXT]

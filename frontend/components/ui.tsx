@@ -228,11 +228,29 @@ export function SourceDialog({ sourceId, version = 1, citation, editable = false
   const [task, setTask] = useState<AgentTask | null>(null);
   const [notice, setNotice] = useState("");
   const focus = useRef<HTMLElement>(null);
+  const reader = useRef<HTMLDivElement>(null);
   const file = useRef<HTMLInputElement>(null);
+  const webText = source?.kind === "web" && !source.pages?.length;
+  // The old HTML extractor put even standalone punctuation on its own line.
+  const fragmentedWeb = webText && !/\n[ \t\r]*\n/.test(source.content)
+    && (source.content.match(/^[()[\]{},.:;=]+\r?$/gm)?.length ?? 0) >= 4;
+  const markdownSource = source && !source.pages?.length && !fragmentedWeb && (
+    webText || /\.md$/i.test(source.filename || "") || /^ {0,3}(?:`{3,}|~{3,})/m.test(source.content)
+  );
+  const excerpt = citation?.excerpt?.trim();
+  const needle = excerpt?.replace(/^[.…\s]+|[.…\s]+$/g, "") || "";
+  const matchStart = markdownSource && needle.length > 5 ? source.content.indexOf(needle) : -1;
   useEffect(() => { if (source) { setTitle(source.title); setContent(source.content || ""); } }, [source]);
   useEffect(() => {
-    if (source && !editing) focus.current?.scrollIntoView({ block: "center" });
-  }, [source, editing]);
+    if (!source || editing) return;
+    const body = reader.current;
+    if ((webText || markdownSource) && body) {
+      const target = body.querySelector("[data-source-citation]") || focus.current;
+      if (target) body.scrollTop += target.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    } else {
+      focus.current?.scrollIntoView({ block: "center" });
+    }
+  }, [source, editing, webText, markdownSource, needle]);
   useEffect(() => {
     if (!task || ["succeeded", "failed", "cancelled"].includes(task.status)) return;
     let active = true;
@@ -258,17 +276,14 @@ export function SourceDialog({ sourceId, version = 1, citation, editable = false
   }, [task?.id, task?.status, sourceId, onChanged, setData]);
   const current = !!source && source.version === source.current_version;
   const replacing = !!task && !["succeeded", "failed", "cancelled"].includes(task.status);
-  const excerpt = citation?.excerpt?.trim();
   function locatedText(text: string) {
-    if (!excerpt) return text;
-    const needle = excerpt.replace(/^[.…\s]+|[.…\s]+$/g, "");
     const index = needle.length > 5 ? text.indexOf(needle) : -1;
     if (index < 0) return text;
     return <>{text.slice(0, index)}<mark ref={focus}>{text.slice(index, index + needle.length)}</mark>{text.slice(index + needle.length)}</>;
   }
   return <Modal title={source?.title || "资料原文"} className="source-document-modal" onClose={onClose}>
     {loading ? <Loading label="正在读取原文…" /> : error || !source ? <ErrorBox message={error || "资料暂时不可用"} retry={reload} /> : <>
-      <div className="source-document-toolbar"><span>{source.kind.toUpperCase()} · v{source.version}{!current && ` · 当前为 v${source.current_version}`}{citation?.section && ` · ${citation.section}`}</span><div>
+      <div className="source-document-toolbar"><span>{source.kind.toUpperCase()} · v{source.version}{!current && ` · 当前为 v${source.current_version}`}{citation?.section && ` · ${citation.section}`}{fragmentedWeb && source.url && " · 完整排版见原始来源"}</span><div>
         {source.url && <a className="text-button" href={source.url} target="_blank" rel="noopener noreferrer">原始来源 ↗</a>}
         <a className="button" href={`/api/sources/${encodeURIComponent(sourceId)}/download?version=${source.version}`} download><Download size={14} />下载</a>
         {editable && current && !editing && <button className="button" disabled={busy || replacing} onClick={() => { setEditing(true); setSaveError(""); }}><Pencil size={14} />编辑文本</button>}
@@ -309,9 +324,12 @@ export function SourceDialog({ sourceId, version = 1, citation, editable = false
           const updated = await api<SourceDocument>(`/sources/${encodeURIComponent(sourceId)}`, { method: "PUT", body: JSON.stringify({ title, content, expected_version: source.current_version }) });
           setData({ ...source, ...updated, title, content, pages: updated.pages || [], current_version: updated.current_version || updated.version }); setEditing(false); setNotice("新版本已保存，相关讲义可重新生成。"); onChanged?.();
         } catch (e) { setSaveError((e as Error).message); } finally { setBusy(false); }
-      }}><label>资料标题<input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={200} /></label><label>资料正文<textarea rows={16} value={content} onChange={(e) => setContent(e.target.value)} required minLength={20} maxLength={200000} /></label><div className="learning-actions"><button type="button" className="button" disabled={busy} onClick={() => { setEditing(false); setTitle(source.title); setContent(source.content); }}>取消</button><button className="button primary" disabled={busy || !content.trim()}>{busy ? "正在保存…" : "保存新版本"}</button></div></form> : <div className="source-document-body">
-        {citation && <div className="source-citation-location" ref={!source.pages?.length ? focus as React.RefObject<HTMLDivElement> : undefined}><strong>引用位置{citation.page_start ? ` · 第 ${citation.page_start}${citation.page_end && citation.page_end !== citation.page_start ? `–${citation.page_end}` : ""} 页` : typeof citation.chunk_index === "number" ? ` · 片段 ${citation.chunk_index + 1}` : ""}</strong>{citation.excerpt && <p>{citation.excerpt}</p>}</div>}
-        {source.pages?.length ? source.pages.map((page) => <section key={page.page} ref={citation?.page_start === page.page ? focus as React.RefObject<HTMLElement> : undefined} className={citation?.page_start === page.page ? "source-page cited-page" : "source-page"}><h3>第 {page.page} 页</h3><div className="source-plain-text">{locatedText(page.text)}</div></section>) : citation ? <div className="source-plain-text">{locatedText(source.content)}</div> : <Markdown>{source.content}</Markdown>}
+      }}><label>资料标题<input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={200} /></label><label>资料正文<textarea rows={16} value={content} onChange={(e) => setContent(e.target.value)} required minLength={20} maxLength={200000} /></label><div className="learning-actions"><button type="button" className="button" disabled={busy} onClick={() => { setEditing(false); setTitle(source.title); setContent(source.content); }}>取消</button><button className="button primary" disabled={busy || !content.trim()}>{busy ? "正在保存…" : "保存新版本"}</button></div></form> : <div className="source-document-body" ref={reader}>
+        {citation && <div className="source-citation-location" ref={!source.pages?.length ? focus as React.RefObject<HTMLDivElement> : undefined}><strong>引用位置{citation.page_start ? ` · 第 ${citation.page_start}${citation.page_end && citation.page_end !== citation.page_start ? `–${citation.page_end}` : ""} 页` : typeof citation.chunk_index === "number" ? ` · 片段 ${citation.chunk_index + 1}` : ""}</strong>{matchStart < 0 && citation.excerpt && <p>{citation.excerpt}</p>}</div>}
+        {source.pages?.length ? source.pages.map((page) => <section key={page.page} ref={citation?.page_start === page.page ? focus as React.RefObject<HTMLElement> : undefined} className={citation?.page_start === page.page ? "source-page cited-page" : "source-page"}><h3>第 {page.page} 页</h3><div className="source-plain-text">{locatedText(page.text)}</div></section>)
+          : markdownSource ? <Markdown citationRange={matchStart < 0 ? null : [matchStart, matchStart + needle.length]}>{source.content}</Markdown>
+          : citation || fragmentedWeb ? <div className={fragmentedWeb ? "source-plain-text source-fragmented-web" : "source-plain-text"}>{locatedText(source.content)}</div>
+          : <Markdown>{source.content}</Markdown>}
       </div>}
     </>}
   </Modal>;

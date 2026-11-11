@@ -7,6 +7,8 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import type { Root } from "hast";
+import type { Plugin } from "unified";
 import { remarkPresentation } from "@/lib/markdown-format";
 import "./markdown.css";
 
@@ -32,9 +34,9 @@ function CopyButton({ label, readText }: { label: string; readText: () => string
   </button>;
 }
 
-export function CodeBlock({ language, children, source }: { language?: string; children: ReactNode; source?: string }) {
+export function CodeBlock({ language, children, source, cited }: { language?: string; children: ReactNode; source?: string; cited?: boolean }) {
   const body = useRef<HTMLPreElement>(null);
-  return <div className="atlas-output-block atlas-code-block">
+  return <div className="atlas-output-block atlas-code-block" data-source-citation={cited || undefined}>
     <div className="atlas-output-header">
       <span>{language || "代码"}</span>
       <CopyButton label="复制代码" readText={() => source ?? (body.current?.textContent || "").replace(/\n$/, "")} />
@@ -68,7 +70,7 @@ const components: Components = {
     const language = Array.isArray(classes)
       ? classes.find((value): value is string => typeof value === "string" && value.startsWith("language-"))?.slice(9, 41)
       : undefined;
-    return <CodeBlock language={language}>{children}</CodeBlock>;
+    return <CodeBlock language={language} cited={node?.properties.dataSourceCitation === true}>{children}</CodeBlock>;
   },
   span: ({ node: _node, className, children, ...props }) =>
     className?.split(" ").includes("katex-display")
@@ -76,12 +78,26 @@ const components: Components = {
       : <span {...props} className={className}>{children}</span>,
 };
 
-export function Markdown({ children }: { children: string }) {
+type CitationRange = [start: number, end: number];
+
+const rehypeCitedBlocks: Plugin<[CitationRange | null | undefined], Root> = (range) => (tree) => {
+  if (!range) return;
+  for (const node of tree.children) {
+    if (node.type !== "element" || node.tagName === "hr") continue;
+    const start = node.position?.start.offset;
+    const end = node.position?.end.offset;
+    if (start !== undefined && end !== undefined && start < range[1] && end > range[0]) {
+      node.properties.dataSourceCitation = true;
+    }
+  }
+};
+
+export function Markdown({ children, citationRange }: { children: string; citationRange?: CitationRange | null }) {
   return (
     <div className="markdown">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath, remarkPresentation]}
-        rehypePlugins={[[rehypeKatex, { trust: false, maxSize: 20 }], [rehypeHighlight, { detect: false }]]}
+        remarkPlugins={citationRange === undefined ? [remarkGfm, remarkMath, remarkPresentation] : [remarkGfm, remarkMath]}
+        rehypePlugins={[[rehypeCitedBlocks, citationRange], [rehypeKatex, { trust: false, maxSize: 20 }], [rehypeHighlight, { detect: false }]]}
         components={components}
       >
         {children}

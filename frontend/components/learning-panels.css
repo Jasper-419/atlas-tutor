@@ -32,6 +32,8 @@
 .source-page h3 { font-size: 12px; font-weight: 500; color: var(--muted, #61666b); margin: 0 0 14px; }
 .source-plain-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.9; }
 .source-plain-text mark { background: #e1eeeb; color: inherit; padding: 2px 0; scroll-margin-top: 32px; }
+.source-plain-text.source-fragmented-web { white-space: normal; }
+.source-document-body [data-source-citation] { background: #e1eeeb; }
 .source-document-editor textarea { max-height: calc(100dvh - 390px); min-height: 240px; }
 .modal.learning-notes-modal { width: min(1060px, calc(100vw - 80px)); max-width: none; height: min(780px, calc(100dvh - 64px)); max-height: calc(100dvh - 64px); margin-right: 32px; display: flex; flex-direction: column; }
 .learning-notes-modal:not([open]) { display: none; }
