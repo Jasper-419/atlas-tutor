@@ -358,6 +358,9 @@ def export_me(user: User = AUTH, db: DBSession = DB):
         MemoryRevision,
         MemoryProfile,
         MemoryWriteReceipt,
+        MemoryRecordCursor,
+        MemoryOrganizeRun,
+        MemorySuppression,
     ]:
         data[model.__tablename__.removeprefix("atlas_")] = [
             exercise_json(item)

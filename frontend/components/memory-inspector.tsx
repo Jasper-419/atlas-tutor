@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api, ApiError, formatDate, post, uid } from "@/lib/api";
+import { api, ApiError, formatDate, post, uid, useResource } from "@/lib/api";
 import type { Course, Memory } from "@/lib/types";
 import { ErrorBox, Loading, Modal } from "./ui";
 import "./memory-inspector.css";
 
-type Evidence = { kind: string; status: string; label: string; quote?: string; url?: string | null; turn_id?: string; seq?: number; attempt_id?: string; exercise_id?: string };
+type Evidence = { kind: string; status: string; label: string; quote?: string; url?: string | null; turn_id?: string; seq?: number; attempt_id?: string; exercise_id?: string; note_id?: string; note_version?: number; score?: number };
 type Revision = { revision: number; content: string; category: string; status: string; created_at: string; origin?: string; evidence?: Evidence[] };
 export type MemoryDetail = { memory: Memory; evidence: Evidence[]; history: Revision[] };
 type Profile = { status: "empty" | "pending" | "ready" | "stale" | "failed"; updated_at?: string; groups: { label: string; claims: { quote: string; memory_id: string; revision: number }[] }[] };
+type RecordAudit = { checked: number; valid: number; partial: number; unavailable: number; legacy: number };
+type RecordRun = {
+  status: "empty" | "pending" | "succeeded" | "failed";
+  counts?: { chat: number; note: number; practice: number; created: number; merged: number; suppressed: number; changed: number };
+  audit?: RecordAudit;
+  has_more?: boolean;
+  message?: string;
+};
 
 export function memoryStatus(status?: string) {
   return ({ active: "有效", forgotten: "已忘记", superseded: "已被更新", stale: "来源已失效", invalidated: "来源已失效", source_missing: "来源缺失", source_changed: "来源已变化", content_changed: "原始内容已变化", legacy_unverified: "历史记录，待你确认", missing: "来源缺失", unavailable: "来源不可用", valid: "来源有效", current: "来源有效", legacy: "历史记录，未保留来源", unknown: "来源状态未知", manual: "手动记录" } as Record<string, string>)[status || ""] || (status ? "暂不用于讲解" : "历史记录");
@@ -18,6 +26,85 @@ export function memoryStatus(status?: string) {
 function sourceHref(url?: string | null) {
   // Only application routes are source links; provider URLs or untrusted schemes are never opened.
   return url && /^\/(?!\/)/.test(url) ? url : null;
+}
+
+export function RecordMemory({ courses, onChanged }: { courses: Course[]; onChanged: (message: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [scope, setScope] = useState("");
+  const [busy, setBusy] = useState<"organize" | "audit" | null>(null);
+  const [error, setError] = useState("");
+  const [audit, setAudit] = useState<RecordAudit | null>(null);
+  const request = useRef<string | null>(null);
+  const suffix = scope ? `?course_id=${encodeURIComponent(scope)}` : "";
+  const { data: run, loading, error: loadError, setData, reload } = useResource<RecordRun>(
+    open ? "/me/memory/organize" + suffix : null,
+  );
+
+  async function organize() {
+    setBusy("organize");
+    setError("");
+    if (!request.current) request.current = uid();
+    try {
+      const result = await post<RecordRun>("/me/memory/organize", { course_id: scope || null, request_id: request.current });
+      setData(result);
+      setAudit(null);
+      request.current = null;
+      if (result.status === "succeeded") onChanged("学习记录已整理。");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "整理未完成。");
+      reload();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function checkSources() {
+    setBusy("audit");
+    setError("");
+    try {
+      setAudit(await api<RecordAudit>("/me/memory/audit" + suffix));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "来源暂时无法核查。");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const counts = run?.counts;
+  const checked = audit || run?.audit;
+  return (
+    <details className="memory-profile" onToggle={(event) => setOpen(event.currentTarget.open)}>
+      <summary>整理学习记录</summary>
+      <div className="memory-profile-body">
+        <p className="settings-hint">按需整理新增或更新的聊天、笔记和练习，保留可核对的原文与作答来源。</p>
+        <div className="memory-profile-toolbar">
+          <label>整理范围<select aria-label="学习记录整理范围" value={scope} disabled={!!busy} onChange={(event) => {
+            setScope(event.target.value);
+            setAudit(null);
+            setError("");
+            request.current = null;
+          }}>
+            <option value="">全部学习记录</option>
+            {courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}
+          </select></label>
+          <button className="button" disabled={!!busy || loading || run?.status === "pending"} onClick={() => void organize()}>
+            {busy === "organize" ? "正在整理…" : run?.has_more ? "整理下一批" : "整理新记录"}
+          </button>
+        </div>
+        <button className="text-button" disabled={!!busy} onClick={() => void checkSources()}>{busy === "audit" ? "正在核查…" : "核查来源"}</button>
+        {(error || loadError || run?.status === "failed") && <ErrorBox message={error || loadError || run?.message || "上次整理未完成。"} />}
+        {!busy && run?.status === "pending" && <p className="settings-hint">整理正在进行。 <button className="text-button" onClick={reload}>刷新状态</button></p>}
+        {counts && <p className="settings-hint" role="status">
+          本批聊天 {counts.chat} · 笔记 {counts.note} · 练习 {counts.practice} · 新增 {counts.created} · 合并 {counts.merged}
+          {counts.suppressed > 0 && ` · 跳过已停用 ${counts.suppressed}`}
+          {counts.changed > 0 && ` · 来源变化 ${counts.changed}`}
+        </p>}
+        {checked && <p className="settings-hint" role="status">
+          已核查 {checked.checked} 条 · 有效 {checked.valid} · 部分来源有效 {checked.partial} · 失效 {checked.unavailable} · 待确认 {checked.legacy}
+        </p>}
+      </div>
+    </details>
+  );
 }
 
 export function MemoryInspector({ memory, onClose, onEdit, onChanged }: { memory: Memory; onClose: () => void; onEdit: (memory: Memory) => void; onChanged: (message: string) => void }) {
@@ -60,9 +147,9 @@ export function MemoryInspector({ memory, onClose, onEdit, onChanged }: { memory
       {legacy && <p className="settings-hint">当前服务尚未提供这条记忆的来源与修订记录。</p>}
       {detail && <>
         <section className="memory-detail-section"><h3>来源</h3>{detail.evidence.length ? detail.evidence.map((evidence, index) => <div className="memory-evidence" key={`${evidence.kind}:${evidence.turn_id || evidence.attempt_id || "manual"}:${index}`}>
-          <div className="memory-detail-heading"><strong>{evidence.label || "学习记录"}</strong><span>{memoryStatus(evidence.status)}</span></div>
+          <div className="memory-detail-heading"><strong>{evidence.label || "学习记录"}{evidence.note_version && ` · 第 ${evidence.note_version} 版`}{typeof evidence.score === "number" && ` · ${evidence.score} 分`}</strong><span>{memoryStatus(evidence.status)}</span></div>
           {evidence.quote && <blockquote>{evidence.quote}</blockquote>}
-          {sourceHref(evidence.url) && <a className="text-button" href={sourceHref(evidence.url)!}>查看原始记录</a>}
+          {sourceHref(evidence.url) && <a className="text-button" href={sourceHref(evidence.url)!}>{evidence.kind === "note" ? "下载原笔记" : evidence.kind === "assessment" ? "打开所属课程" : "查看原始记录"}</a>}
         </div>) : <p className="settings-hint">{current.origin === "manual" ? "这条内容由你手动记录。" : "历史记录未保留可核对的来源。"}</p>}</section>
         <section className="memory-detail-section"><h3>修订历史</h3>{detail.history.length ? <ol className="memory-history">{detail.history.map((item) => <li key={item.revision}><div className="memory-detail-heading"><strong>第 {item.revision} 版 · {memoryStatus(item.status)}</strong><time>{formatDate(item.created_at)}</time></div><p>{item.content}</p>{!!item.evidence?.length && <details className="memory-history-evidence"><summary>当时的来源</summary>{item.evidence.map((evidence, index) => <div className="memory-evidence" key={index}><div className="memory-detail-heading"><strong>{evidence.label}</strong><span>{memoryStatus(evidence.status)}</span></div>{evidence.quote && <blockquote>{evidence.quote}</blockquote>}{sourceHref(evidence.url) && <a className="text-button" href={sourceHref(evidence.url)!}>查看原始记录</a>}</div>)}</details>}</li>)}</ol> : <p className="settings-hint">尚无修订记录。</p>}</section>
       </>}

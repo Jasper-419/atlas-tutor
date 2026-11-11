@@ -18,7 +18,7 @@ import { api, ApiError, post, useResource, formatDate } from "@/lib/api";
 import type { Memory, Course, AgentTask } from "@/lib/types";
 import { useAtlas } from "./atlas-app";
 import { AgentRunButton } from "./agent-run-dialog";
-import { MemoryInspector, MemoryProfile, memoryStatus, type MemoryDetail } from "./memory-inspector";
+import { MemoryInspector, MemoryProfile, RecordMemory, memoryStatus, type MemoryDetail } from "./memory-inspector";
 import {
   PageTitle,
   Loading,
@@ -60,6 +60,7 @@ export function MemoriesScreen({ embedded = false }: { embedded?: boolean }) {
     fact: "学习事实",
     misconception: "具体误解",
     note: "学习笔记",
+    practice_record: "练习记录",
   };
   const shown = (memories || []).filter((m) =>
     (includeHistory || !m.status || m.status === "active") && (filter === "all" || m.category === filter));
@@ -108,6 +109,7 @@ export function MemoriesScreen({ embedded = false }: { embedded?: boolean }) {
           {feedback}
         </p>
       )}
+      <RecordMemory courses={courses || []} onChanged={changed} />
       <MemoryProfile courses={courses || []} refreshVersion={profileVersion} onInspect={(id) => {
         const memory = memories?.find((item) => item.id === id);
         if (memory) setInspected(memory);

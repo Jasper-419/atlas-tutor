@@ -9,6 +9,7 @@ import copy
 import hashlib
 import json
 import re
+import unicodedata
 from uuid import uuid4
 from urllib.parse import quote as urlquote
 
@@ -17,7 +18,8 @@ from sqlalchemy import or_
 
 from backend.models.domain import Attempt, Course, Exercise, Memory, Node, User, now
 from backend.models.learning import LearningEvidence
-from backend.models.memory import MemoryMetadata, MemoryProfile, MemoryRevision, MemoryWriteReceipt
+from backend.models.memory import MemoryMetadata, MemoryProfile, MemoryRevision, MemorySuppression, MemoryWriteReceipt
+from backend.models.notebook import NotebookNote
 from backend.models.tutor import TutorEvent, TutorSession, TutorTurn
 
 PREFERENCE_CATEGORIES = {"preference", "learning_preference", "learning_preferences"}
@@ -26,6 +28,35 @@ PROFILE_LABELS = {"学习偏好", "个人背景", "学习目标", "其他记录"
 
 def _hash(value):
     return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def record_content_key(content):
+    normalized = unicodedata.normalize("NFC", content.replace("\r\n", "\n").strip())
+    return _hash(normalized)
+
+
+def record_scope_key(course_id):
+    return "course:" + course_id if course_id is not None else "personal"
+
+
+def record_attempt_key(attempt_id):
+    return _hash(["practice", attempt_id])
+
+
+def _suppress_record(db, memory):
+    scope_key = record_scope_key(memory.course_id)
+    keys = {record_content_key(memory.content)}
+    revision = _revision(db, memory)
+    if revision:
+        keys.update(record_attempt_key(ref["attempt_id"]) for ref in revision.evidence
+                    if isinstance(ref, dict) and ref.get("kind") == "assessment" and ref.get("attempt_id"))
+    known = {key for key, in db.query(MemorySuppression.content_hash).filter(
+        MemorySuppression.user_id == memory.user_id, MemorySuppression.scope_key == scope_key,
+        MemorySuppression.content_hash.in_(keys),
+    )}
+    db.add_all(MemorySuppression(user_id=memory.user_id, course_id=memory.course_id,
+                                 scope_key=scope_key, content_hash=key) for key in keys - known)
+    db.flush()
 
 
 def _text(value, label="记忆", maximum=4000):
@@ -138,6 +169,9 @@ def _evidence_status(db, memory, evidence, lock=False):
     if not isinstance(evidence, dict):
         return "source_missing"
     kind = evidence.get("kind")
+    quote = evidence.get("quote", "")
+    if not isinstance(quote, str):
+        return "source_changed"
     if kind == "manual":
         return "valid" if isinstance(evidence.get("quote"), str) and evidence["quote"] else "source_missing"
     if kind == "turn":
@@ -161,32 +195,51 @@ def _evidence_status(db, memory, evidence, lock=False):
             return "source_changed"
         if not isinstance(text, str):
             return "source_missing"
-        return "valid" if _hash(text) == evidence.get("source_hash") and evidence.get("quote", "") in text else "source_changed"
+        return "valid" if _hash(text) == evidence.get("source_hash") and quote in text else "source_changed"
+    if kind == "note":
+        query = db.query(NotebookNote).filter_by(id=evidence.get("note_id"), user_id=memory.user_id).populate_existing()
+        note = (query.with_for_update() if lock else query).first()
+        if not note or note.course_id != memory.course_id or note.course_id != evidence.get("source_course_id"):
+            return "source_missing"
+        if note.version != evidence.get("note_version") or _hash(note.content) != evidence.get("source_hash"):
+            return "source_changed"
+        return "valid" if quote in note.content else "source_changed"
     if kind == "assessment":
-        attempt = db.query(Attempt).filter_by(id=evidence.get("attempt_id"), user_id=memory.user_id).populate_existing()
-        attempt = (attempt.with_for_update() if lock else attempt).first()
+        # Match the exercise-repair lock order before reading the graded rows.
         exercise = db.query(Exercise).filter_by(id=evidence.get("exercise_id"), user_id=memory.user_id).populate_existing()
         exercise = (exercise.with_for_update() if lock else exercise).first()
-        if not attempt or not exercise or attempt.exercise_id != exercise.id:
+        if not exercise:
             return "source_missing"
-        node = db.query(Node).filter_by(id=attempt.node_id, user_id=memory.user_id).populate_existing().first()
-        learning = db.query(LearningEvidence).filter_by(attempt_id=attempt.id, user_id=memory.user_id).populate_existing().first()
-        if not node or node.course_id != memory.course_id or not learning:
+        node_query = db.query(Node).filter_by(id=exercise.node_id, user_id=memory.user_id).populate_existing()
+        node = (node_query.with_for_update() if lock else node_query).first()
+        attempt_query = db.query(Attempt).filter_by(
+            id=evidence.get("attempt_id"), user_id=memory.user_id,
+            exercise_id=exercise.id, node_id=exercise.node_id,
+        ).populate_existing()
+        attempt = (attempt_query.with_for_update() if lock else attempt_query).first()
+        if not attempt:
+            return "source_missing"
+        learning = db.query(LearningEvidence).filter_by(
+            attempt_id=attempt.id, user_id=memory.user_id, exercise_id=exercise.id, node_id=attempt.node_id,
+        ).populate_existing().first()
+        if not node or node.course_id != memory.course_id or (not learning and not evidence.get("grade_only")):
             return "source_missing"
         if attempt.voided or exercise.voided or memory.category == "invalidated_assessment":
             return "invalidated"
         fingerprint = _assessment_fingerprint(attempt, exercise, learning)
-        return "valid" if fingerprint == evidence.get("source_hash") else "source_changed"
+        return "valid" if fingerprint == evidence.get("source_hash") and quote in attempt.answer else "source_changed"
     return "source_missing"
 
 
 def _assessment_fingerprint(attempt, exercise, learning):
     # Include grading and learning evidence, not merely exercise revision:
     # repaired scores must invalidate an in-flight consolidation too.
-    return _hash({"answer": attempt.answer, "score": float(attempt.score), "feedback": attempt.feedback,
-                  "passed": attempt.passed, "voided": attempt.voided,
-                  "exercise_revision": exercise.revision, "exercise_voided": exercise.voided,
-                  "evidence_id": learning.id, "evidence_score": float(learning.score),
+    grade = {"answer": attempt.answer, "score": float(attempt.score), "feedback": attempt.feedback,
+             "passed": attempt.passed, "voided": attempt.voided,
+             "exercise_revision": exercise.revision, "exercise_voided": exercise.voided}
+    if learning is None:
+        return _hash({**grade, "evidence_id": None})
+    return _hash({**grade, "evidence_id": learning.id, "evidence_score": float(learning.score),
                   "independent": learning.independent, "misconception": learning.misconception,
                   "criteria_scores": learning.criteria_scores})
 
@@ -204,7 +257,12 @@ def _source_status(db, memory, meta=None, rev=None, lock=False):
         return "content_changed"
     if not rev.evidence:
         return "legacy_unverified" if meta.origin == "legacy" else "source_missing"
-    statuses = [_evidence_status(db, memory, ref, lock) for ref in rev.evidence]
+    refs = [ref for ref in rev.evidence if not (isinstance(ref, dict) and ref.get("supplemental"))]
+    if not refs:
+        return "source_missing"
+    statuses = [_evidence_status(db, memory, ref, lock) for ref in refs]
+    if meta.origin == "record" and "valid" in statuses:
+        return "valid"
     return next((status for status in statuses if status != "valid"), "valid")
 
 
@@ -221,7 +279,7 @@ def _dto(db, memory, lock=False):
 
 def _public_evidence(db, memory, ref):
     kind = ref.get("kind")
-    result = {"kind": kind, "label": {"manual": "手动确认的原文", "turn": "用户对话原文", "assessment": "真实作答记录"}.get(kind, "历史记录"),
+    result = {"kind": kind, "label": {"manual": "手动确认的原文", "turn": "用户对话原文", "note": "学习笔记原文", "assessment": "真实作答记录"}.get(kind, "历史记录"),
               "quote": str(ref.get("quote", ""))[:4000], "status": _evidence_status(db, memory, ref), "url": None}
     if kind == "turn":
         result.update(turn_id=ref.get("turn_id"), seq=ref.get("seq"))
@@ -229,8 +287,14 @@ def _public_evidence(db, memory, ref):
             result["url"] = "/chat?session=" + urlquote(str(ref["session_id"]), safe="")
     elif kind == "assessment":
         result.update(attempt_id=ref.get("attempt_id"), exercise_id=ref.get("exercise_id"))
+        if isinstance(ref.get("score"), (int, float)):
+            result["score"] = ref["score"]
         if result["status"] == "valid" and memory.course_id:
             result["url"] = "/chat?course=" + urlquote(memory.course_id, safe="")
+    elif kind == "note":
+        result.update(note_id=ref.get("note_id"), note_version=ref.get("note_version"))
+        if result["status"] == "valid":
+            result["url"] = "/api/notes/" + urlquote(str(ref["note_id"]), safe="") + "/export"
     return result
 
 
@@ -300,6 +364,7 @@ def _save(db, user_id, content, category, course_id, facet, request_key, origin,
                 MemoryMetadata.status == "active").populate_existing().all():
             meta = _metadata(db, old)
             rev = _revision(db, old, meta)
+            _suppress_record(db, old)
             meta.current_revision += 1
             meta.status = "superseded"
             old.updated_at = now()
@@ -354,6 +419,8 @@ def update_memory(db, user_id, memory_id, content, expected_revision=None):
     _check_revision(meta, expected_revision)
     meta = meta or _materialize(db, memory)
     # Even unchanged legacy text is a new explicit manual confirmation.
+    if record_content_key(memory.content) != record_content_key(content):
+        _suppress_record(db, memory)
     memory.content, memory.updated_at = content, now()
     meta.current_revision += 1
     meta.origin = "manual"
@@ -367,6 +434,7 @@ def forget_memory(db, user_id, memory_id, expected_revision=None):
     meta = _metadata(db, memory)
     _check_revision(meta, expected_revision)
     meta = meta or _materialize(db, memory)
+    _suppress_record(db, memory)
     if meta.status != "forgotten":
         rev = _revision(db, memory, meta)
         meta.current_revision += 1
@@ -381,6 +449,7 @@ def delete_memory(db, user_id, memory_id, expected_revision=None):
     memory = _owned(db, Memory, memory_id, user_id, True)
     meta = _metadata(db, memory)
     _check_revision(meta, expected_revision)
+    _suppress_record(db, memory)
     # A permanent delete must erase verbatim derivatives too, including old
     # snapshots that are hidden from recall but still included in owned export.
     # Keep the nonusable request receipt so replay cannot run the model again.

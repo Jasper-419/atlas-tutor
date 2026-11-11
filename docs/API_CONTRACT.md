@@ -66,6 +66,8 @@ Node 另返回 `lesson_citations:Citation[]`，用于刷新和跨会话恢复讲
 
 ## 资料、记忆、分析和任务
 
+跨记录记忆通过 `POST /me/memory/organize` 接收 `{request_id,course_id?}`，返回整理状态、聊天/笔记/练习数量、合并数量、核查统计和 `has_more`。省略 course_id 处理全部自有范围，记忆继承来源范围。同一请求键复用结果。 `GET /me/memory/organize?course_id=` 读取最近一次整理，`GET /me/memory/audit?course_id=` 按原始来源核查有效性。
+
 - `POST /courses/{id}/sources` multipart `file` → Source，支持 PDF/TXT/MD/DOCX。
 - `POST /courses/{id}/sources/text` `{title,content,url?}` → Source。
 - `DELETE /sources/{id}` → `{ok:true}`。
