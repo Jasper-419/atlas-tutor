@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowUp, Check, Loader2, NotebookPen, Paperclip, Plus, RefreshCw, Square } from "lucide-react";
 import { api, post, uid, useResource } from "@/lib/api";
 import type { AgentTask, Attempt, Citation, Course, CourseDetail, Exercise } from "@/lib/types";
@@ -14,6 +15,8 @@ import "./tutor.css";
 
 type Mode = "outline" | "study" | "review";
 type Capability = "tutor" | "solve";
+type DraftContext = { courseId: string; nodeId: string; mode: Mode; capability: Capability };
+type ResumeTarget = { kind: "session"; id: string } | { kind: "new"; context: DraftContext };
 type Session = { id: string; title: string; course_id: string | null; node_id: string | null; mode: Mode; updated_at: string };
 type Change = { path: string; before: unknown; after: unknown };
 type Action = { action_id: string; title: string; changes?: Change[]; question?: string; kind?: string; exercise_id?: string };
@@ -34,11 +37,38 @@ function readStore<T>(key: string, fallback: T): T {
 function saveStore(key: string, value: unknown) {
   try { sessionStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage may be disabled. The server remains authoritative. */ }
 }
+function readResume(scope: string): ResumeTarget | null {
+  const key = `${scope}:resume`;
+  try {
+    const stored = JSON.parse(localStorage.getItem(key) || "null");
+    if (stored) return stored;
+  } catch { /* Fall back to the current tab. */ }
+  const stored = readStore<ResumeTarget | null>(key, null);
+  if (stored) return stored;
+  const legacy = readStore<string | null>(`${scope}:selected`, null);
+  // Older versions also used "new" for mode changes and empty history.
+  return legacy && legacy !== "new" ? { kind: "session", id: legacy } : null;
+}
+function rememberChat(scope: string, target: ResumeTarget) {
+  const key = `${scope}:resume`;
+  saveStore(key, target);
+  try { localStorage.setItem(key, JSON.stringify(target)); } catch { /* The tab still remembers its selection. */ }
+}
+function newDraftKey(scope: string, context: DraftContext) {
+  const { courseId, nodeId, mode, capability } = context;
+  return `${scope}:draft:new:${courseId}:${nodeId}:${mode}${capability === "solve" ? ":solve" : ""}`;
+}
 function message(error: unknown) { return error instanceof Error ? error.message : "请求未完成，请重试。"; }
 
-export function TutorScreen() { return <Tutor />; }
+function RoutedTutor() {
+  return <Tutor navigation={useSearchParams().toString()} />;
+}
 
-export function Tutor({ courseId: fixedCourse, nodeId: fixedNode, onChanged, incomingRequest }: { courseId?: string; nodeId?: string; onChanged?: () => void; incomingRequest?: { id: string; content: string } | null }) {
+export function TutorScreen() {
+  return <Suspense fallback={<Loading label="正在恢复学习对话…" />}><RoutedTutor /></Suspense>;
+}
+
+export function Tutor({ courseId: fixedCourse, nodeId: fixedNode, onChanged, incomingRequest, navigation }: { courseId?: string; nodeId?: string; onChanged?: () => void; incomingRequest?: { id: string; content: string } | null; navigation?: string }) {
   const { user } = useAtlas();
   const scopeKey = `atlas:tutor:${user.id}:${fixedCourse || "all"}:${fixedNode || "all"}`;
   const { data: courses, error: coursesError, reload: reloadCourses } = useResource<Course[]>("/courses");
@@ -65,6 +95,7 @@ export function Tutor({ courseId: fixedCourse, nodeId: fixedNode, onChanged, inc
   const receivedRequest = useRef("");
   const mounted = useRef(true);
   const loadVersion = useRef(0);
+  const consumedNavigation = useRef<string | null>(null);
   const sessionRef = useRef<Session | null>(null);
   const sendLock = useRef(false);
   const pendingRequest = useRef<{ content: string; capability: Capability; sessionId: string; id: string } | null>(null);
@@ -75,66 +106,98 @@ export function Tutor({ courseId: fixedCourse, nodeId: fixedNode, onChanged, inc
   const attemptsRef = useRef(attempts); attemptsRef.current = attempts;
   const activeTurn = [...turns].reverse().find((turn) => !terminal(turn.status));
   const blocked = busy || uploading || running(activeTurn) || activeTurn?.status === "waiting_confirmation";
-  const newDraftKey = (course: string, node: string, nextMode: Mode, nextCapability: Capability) => `${scopeKey}:draft:new:${course}:${node}:${nextMode}${nextCapability === "solve" ? ":solve" : ""}`;
-  const draftKey = session ? `${scopeKey}:draft:${session.id}` : newDraftKey(courseId, nodeId, mode, capability);
+  const draftContext = { courseId, nodeId, mode, capability };
+  const draftKey = session ? `${scopeKey}:draft:${session.id}` : newDraftKey(scopeKey, draftContext);
 
   useEffect(() => { mounted.current = true; setImportTask(readStore(`${scopeKey}:import`, null)); return () => { mounted.current = false; }; }, [scopeKey]);
-  const selectSession = useCallback(async (id: string) => {
+  const clearChatLink = useCallback(() => {
+    const url = new URL(window.location.href);
+    const before = url.search;
+    for (const key of ["session", "course", "prompt", "mode"]) url.searchParams.delete(key);
+    if (url.search === before) return;
+    consumedNavigation.current = url.searchParams.toString();
+    window.history.replaceState(null, "", url);
+  }, []);
+  const openDraft = useCallback((context: DraftContext, preservedDraft?: string) => {
+    ++loadVersion.current;
+    sessionRef.current = null; setSession(null); setTurns([]); setLoading(false); setError("");
+    setCourseId(context.courseId); setNodeId(context.nodeId); setMode(context.mode); setCapability(context.capability);
+    setRepairs({}); seenRepairs.current.clear();
+    const key = newDraftKey(scopeKey, context);
+    const nextDraft = preservedDraft ?? readStore(key, "");
+    setDraft(nextDraft); saveStore(key, nextDraft);
+    pendingRequest.current = null;
+  }, [scopeKey]);
+  const selectSession = useCallback(async (id: string, fromPicker = false) => {
     const version = ++loadVersion.current;
-    setLoading(true); setError(""); setTurns([]); setRepairs({}); seenRepairs.current.clear();
+    setLoading(true); setError("");
     try {
       const detail = await api<SessionDetail>(`/tutor/sessions/${encodeURIComponent(id)}`);
       if (!mounted.current || version !== loadVersion.current) return;
       if ((fixedCourse && detail.course_id !== fixedCourse) || (fixedNode && detail.node_id !== fixedNode)) throw new Error("这段对话不属于当前学习范围，请从原课程打开。");
       sessionRef.current = detail; setSession(detail); setTurns(detail.turns);
+      setSessions((items) => items.some((item) => item.id === detail.id) ? items : [detail, ...items]);
+      setRepairs({}); seenRepairs.current.clear();
       setCourseId(detail.course_id || ""); setNodeId(detail.node_id || ""); setMode(detail.mode);
       const savedCapability = readStore<Capability | null>(`${scopeKey}:capability:${detail.id}`, null);
       setCapability(savedCapability === "solve" || (!savedCapability && detail.turns.at(-1)?.capability === "solve") ? "solve" : "tutor");
       pendingRequest.current = null;
-      saveStore(`${scopeKey}:selected`, detail.id);
+      rememberChat(scopeKey, { kind: "session", id: detail.id });
       setDraft(readStore(`${scopeKey}:draft:${detail.id}`, ""));
+      if (fromPicker) clearChatLink();
     } catch (e) { if (mounted.current && version === loadVersion.current) setError(message(e)); }
     finally { if (mounted.current && version === loadVersion.current) setLoading(false); }
-  }, [scopeKey, fixedCourse, fixedNode]);
+  }, [scopeKey, fixedCourse, fixedNode, clearChatLink]);
 
   useEffect(() => {
+    const consumed = consumedNavigation.current;
+    consumedNavigation.current = null;
+    if (consumed !== null && consumed === navigation) return;
     let disposed = false;
+    const version = ++loadVersion.current;
+    const params = new URLSearchParams(navigation ?? window.location.search);
     const query = new URLSearchParams();
     if (fixedCourse) query.set("course_id", fixedCourse);
     if (fixedNode) query.set("node_id", fixedNode);
+    setLoading(true); setError("");
     void api<Session[]>(`/tutor/sessions?${query}`).then(async (items) => {
       if (disposed) return;
+      if (version !== loadVersion.current) {
+        const ids = new Set(items.map((item) => item.id));
+        setSessions((current) => [...current.filter((item) => !ids.has(item.id)), ...items]);
+        return;
+      }
       setSessions(items);
-      const params = new URLSearchParams(window.location.search);
       const requestedSession = params.get("session");
       if (requestedSession) {
         // Resolve through the owned-session API; errors stay visible and never select another conversation.
-        sessionRef.current = null; setSession(null); setDraft(""); pendingRequest.current = null;
+        sessionRef.current = null; setSession(null); setTurns([]); setDraft(""); pendingRequest.current = null;
         await selectSession(requestedSession);
         return;
       }
       const requestedCourse = !fixedCourse && params.get("course");
       const prompt = params.get("prompt");
       if (requestedCourse || prompt) {
-        const nextCourse = requestedCourse || fixedCourse || "";
-        const nextMode = params.get("mode") === "study" ? "study" : prompt ? "outline" : "study";
-        startNew(nextCourse, fixedNode || "", nextMode, "tutor");
-        setDraft(prompt || "");
-        saveStore(`${scopeKey}:draft:new:${nextCourse}:${fixedNode || ""}:${nextMode}`, prompt || "");
-        window.history.replaceState(window.history.state, "", window.location.pathname);
+        const context: DraftContext = {
+          courseId: requestedCourse || fixedCourse || "", nodeId: fixedNode || "",
+          mode: params.get("mode") === "study" ? "study" : prompt ? "outline" : "study", capability: "tutor",
+        };
+        openDraft(context, prompt || "");
+        rememberChat(scopeKey, { kind: "new", context });
+        clearChatLink();
         return;
       }
-      const saved = readStore<string | null>(`${scopeKey}:selected`, null);
-      if (saved === "new") {
-        const context = readStore(`${scopeKey}:new`, { courseId: fixedCourse || "", nodeId: fixedNode || "", mode: "study" as Mode, capability: "tutor" as Capability });
-        startNew(context.courseId, context.nodeId, context.mode, context.capability || "tutor"); return;
+      const saved = readResume(scopeKey);
+      if (saved?.kind === "new") {
+        openDraft(saved.context);
+        return;
       }
-      const selected = items.find((item) => item.id === saved) || items[0];
+      const selected = items.find((item) => item.id === saved?.id) || items[0];
       if (selected) await selectSession(selected.id);
-      else { startNew(fixedCourse || "", fixedNode || "", "study", "tutor"); }
-    }).catch((e) => { if (!disposed) { setError(message(e)); setLoading(false); } });
-    return () => { disposed = true; ++loadVersion.current; };
-  }, [scopeKey, fixedCourse, fixedNode, selectSession, reload]);
+      else openDraft({ courseId: fixedCourse || "", nodeId: fixedNode || "", mode: "study", capability: "tutor" });
+    }).catch((e) => { if (!disposed && version === loadVersion.current) { setError(message(e)); setLoading(false); } });
+    return () => { disposed = true; };
+  }, [scopeKey, fixedCourse, fixedNode, selectSession, openDraft, clearChatLink, navigation, reload]);
 
   useEffect(() => {
     if (!importTask || terminal(importTask.status) || importTask.status === "succeeded") return;
@@ -178,39 +241,50 @@ export function Tutor({ courseId: fixedCourse, nodeId: fixedNode, onChanged, inc
     changed();
   }, [changed]);
   function startNew(nextCourse = courseId, nextNode = nodeId, nextMode = mode, nextCapability: Capability = capability, preservedDraft?: string) {
-    ++loadVersion.current; sessionRef.current = null; setSession(null); setTurns([]); setLoading(false); setError("");
-    setCourseId(nextCourse); setNodeId(nextNode); setMode(nextMode); setCapability(nextCapability);
-    setRepairs({}); seenRepairs.current.clear();
-    saveStore(`${scopeKey}:selected`, "new");
-    saveStore(`${scopeKey}:new`, { courseId: nextCourse, nodeId: nextNode, mode: nextMode, capability: nextCapability });
-    const nextKey = newDraftKey(nextCourse, nextNode, nextMode, nextCapability);
-    const nextDraft = preservedDraft ?? readStore(nextKey, "");
-    setDraft(nextDraft); saveStore(nextKey, nextDraft);
-    pendingRequest.current = null;
+    const context = { courseId: nextCourse, nodeId: nextNode, mode: nextMode, capability: nextCapability };
+    const keepNew = !sessionRef.current && readResume(scopeKey)?.kind === "new";
+    openDraft(context, preservedDraft);
+    if (keepNew) rememberChat(scopeKey, { kind: "new", context });
+    clearChatLink();
+  }
+  function startExplicitNew() {
+    startNew(courseId, nodeId, mode, capability, "");
+    rememberChat(scopeKey, { kind: "new", context: draftContext });
   }
   async function ensureSession() {
     if (sessionRef.current) return sessionRef.current;
+    const version = loadVersion.current;
+    const saved = JSON.stringify(readResume(scopeKey));
     const created = await post<Session>("/tutor/sessions", { course_id: courseId || null, node_id: nodeId || null, mode });
-    sessionRef.current = created;
     saveStore(`${scopeKey}:draft:${created.id}`, draft);
     saveStore(`${scopeKey}:capability:${created.id}`, capability);
-    if (mounted.current) { setSession(created); setSessions((items) => [created, ...items]); saveStore(`${scopeKey}:selected`, created.id); }
+    if (version === loadVersion.current) {
+      if (mounted.current || JSON.stringify(readResume(scopeKey)) === saved) {
+        rememberChat(scopeKey, { kind: "session", id: created.id });
+      }
+      if (mounted.current) {
+        sessionRef.current = created; setSession(created);
+        setSessions((items) => [created, ...items]);
+      }
+    }
     return created;
   }
   async function send(content = draft) {
     const text = content.trim();
-    if (!text || sendLock.current || blocked) return;
+    if (!text || sendLock.current || blocked || loading) return;
     sendLock.current = true; setBusy(true); setError("");
     const turnCapability = activeTurn?.status === "waiting_input" ? activeTurn.capability || "tutor" : capability;
     const requestSessionId = sessionRef.current?.id || "new";
     if (pendingRequest.current?.content !== text || pendingRequest.current.capability !== turnCapability || pendingRequest.current.sessionId !== requestSessionId) pendingRequest.current = { content: text, capability: turnCapability, sessionId: requestSessionId, id: uid() };
+    const request = pendingRequest.current;
     try {
       const selected = await ensureSession();
-      pendingRequest.current.sessionId = selected.id;
+      request.sessionId = selected.id;
       const turn = activeTurn?.status === "waiting_input"
         ? await post<Turn>(`/tutor/turns/${activeTurn.id}/respond`, { content: text })
-        : await post<Turn>(`/tutor/sessions/${selected.id}/turns`, { content: text, request_id: pendingRequest.current.id, ...(turnCapability === "solve" ? { capability: turnCapability } : {}) });
-      saveStore(draftKey, ""); pendingRequest.current = null;
+        : await post<Turn>(`/tutor/sessions/${selected.id}/turns`, { content: text, request_id: request.id, ...(turnCapability === "solve" ? { capability: turnCapability } : {}) });
+      saveStore(draftKey, "");
+      if (pendingRequest.current === request) pendingRequest.current = null;
       saveStore(`${scopeKey}:draft:${selected.id}`, "");
       if (mounted.current && sessionRef.current?.id === selected.id) {
         setDraft(""); setTurns((items) => items.some((item) => item.id === turn.id) ? items.map((item) => item.id === turn.id ? turn : item) : [...items, turn]);
@@ -263,8 +337,8 @@ export function Tutor({ courseId: fixedCourse, nodeId: fixedNode, onChanged, inc
     <section className="atlas-tutor" aria-label="Atlas 学习对话">
       <header className="atlas-tutor-header">
         <h1>{fixedNode ? "学习对话" : "Atlas"}</h1>
-        <label className="tutor-session-select"><span className="sr-only">切换会话</span><select aria-label="切换会话" value={session?.id || ""} disabled={busy || loading} onChange={(e) => e.target.value ? void selectSession(e.target.value) : startNew()}><option value="">新对话</option>{sessions.map((item) => <option key={item.id} value={item.id}>{item.title || "学习对话"}</option>)}</select></label>
-        <button className="icon-button" aria-label="新建对话" title="新建对话" disabled={busy} onClick={() => startNew()}><Plus size={19} /></button>
+        <label className="tutor-session-select"><span className="sr-only">切换会话</span><select aria-label="切换会话" value={session?.id || ""} disabled={busy || loading} onChange={(e) => e.target.value ? void selectSession(e.target.value, true) : startExplicitNew()}><option value="">新对话</option>{sessions.map((item) => <option key={item.id} value={item.id}>{item.title || "学习对话"}</option>)}</select></label>
+        <button className="icon-button" aria-label="新建对话" title="新建对话" disabled={busy} onClick={startExplicitNew}><Plus size={19} /></button>
         <button className="icon-button" aria-label={courseId ? "课程笔记" : "个人笔记"} title="学习笔记" onClick={() => { setSavedNote(null); setNotesOpen(true); }}><NotebookPen size={18} /></button>
       </header>
       <div className="atlas-tutor-context">
@@ -318,7 +392,13 @@ function TutorTurn({ turn, storageKey, blocked, attempts, attemptsReady, repairs
     const cached = saved.filter((event) => typeof event.seq === "number" && typeof event.type === "string");
     const collected: TutorEvent[] = [...new Map([...cached, ...(turn.events || [])].map((event) => [event.seq, event])).values()].sort((a, b) => a.seq - b.seq);
     collected.filter((event) => event.type === "question_repaired").forEach((event) => onRepaired(event.payload as unknown as RepairReceipt));
-    let seq = readStore<number>(`${storageKey}:cursor`, cached.reduce((last, event) => Math.max(last, event.seq), 0));
+    // The server's detail response omits text deltas. Resume only past events we
+    // actually have, even if a previous tab failed to save its event cache.
+    let seq = 0;
+    for (const event of collected) {
+      if (event.seq !== seq + 1) break;
+      seq = event.seq;
+    }
     setEvents([...collected]); setStreamError("");
     if (terminal(turn.status) || (collected.length && seq >= turn.last_seq && !running(turn))) return () => { disposed = true; controller.abort(); };
     let failures = 0;
@@ -340,7 +420,7 @@ function TutorTurn({ turn, storageKey, blocked, attempts, attemptsReady, repairs
           const index = collected.findIndex((item) => item.seq === event.seq);
           if (index >= 0) collected[index] = event; else collected.push(event);
           collected.sort((a, b) => a.seq - b.seq);
-          saveStore(storageKey, collected); saveStore(`${storageKey}:cursor`, seq); setEvents([...collected]); failures = 0; setStreamError("");
+          saveStore(storageKey, collected); setEvents([...collected]); failures = 0; setStreamError("");
           if (event.type === "done" && event.payload.turn) { onUpdate(event.payload.turn as Turn); onChanged(); }
           if (event.type === "status") {
             const status = typeof event.payload.status === "string" ? event.payload.status : null;

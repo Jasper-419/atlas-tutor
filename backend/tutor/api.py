@@ -83,7 +83,7 @@ def sessions(
         query = query.filter_by(node_id=node_id)
     return [
         store.serialize_session(item)
-        for item in query.order_by(TutorSession.updated_at.desc()).limit(100)
+        for item in query.order_by(TutorSession.updated_at.desc(), TutorSession.id.desc())
     ]
 
 
