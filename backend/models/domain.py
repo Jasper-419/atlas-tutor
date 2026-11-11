@@ -107,6 +107,8 @@ class Course(Owned, Base):
     status = Column(String(20), default="planning", nullable=False)
     task_id = Column(String(40), nullable=True)
     plan_version = Column(Integer, default=0)
+    knowledge_engine = Column(String(24), nullable=False, default="auto", server_default="atlas")
+    knowledge_index = Column(JSON, nullable=False, default=dict, server_default="{}")
     updated_at = Column(String(40), default=now, onupdate=now, nullable=False)
 
 

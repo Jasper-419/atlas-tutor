@@ -129,7 +129,7 @@ export type Trace = {
 export type AgentTask = {
   id: string;
   course_id: string | null;
-  kind: "plan" | "research" | "replan" | "ingest" | "reindex";
+  kind: "plan" | "research" | "replan" | "ingest" | "reindex" | "knowledge_index" | "knowledge_page";
   status: string;
   progress: number;
   message: string;

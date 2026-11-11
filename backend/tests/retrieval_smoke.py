@@ -17,7 +17,7 @@ async def main():
             db.add_all([User(id=1, email='one@fixture.invalid', hashed_password='fixture'),
                         User(id=2, email='two@fixture.invalid', hashed_password='fixture')])
             db.flush()
-            db.add_all([Course(id='c1', user_id=1, title='本课', goal='测试'),
+            db.add_all([Course(id='c1', user_id=1, title='本课', goal='测试', knowledge_engine='atlas'),
                         Course(id='c2', user_id=1, title='其他课', goal='测试'),
                         Course(id='c3', user_id=2, title='他人课', goal='测试')])
             db.flush()

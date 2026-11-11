@@ -6,7 +6,7 @@ from backend.models.tutor import TutorTurn
 
 async def retrieve_materials(inv):
     inv.course()
-    from backend.retrieval_agent import retrieve
+    from backend.retrieval_agent import retrieve, retrieval_event
     history = [{"role": "user", "content": item.input[:1500]} for item in inv.db.query(TutorTurn).filter(
         TutorTurn.user_id == inv.user_id, TutorTurn.session_id == inv.session.id,
         TutorTurn.id != inv.turn.id, TutorTurn.status == "completed",
@@ -17,11 +17,7 @@ async def retrieve_materials(inv):
     citations = result["citations"]
     await inv.context.emit("citations", {"citations": citations})
     meta = result["retrieval"]
-    await inv.context.emit("retrieval_result", {"strategy": meta.get("mode", "auto"),
-        "query_count": len(meta.get("queries", [])), "candidate_count": meta.get("candidate_count", 0),
-        "source_count": len(citations), "warnings": meta.get("warnings", []),
-        "rewritten": meta.get("rewrite", {}).get("status") == "succeeded",
-        "reranked": meta.get("rerank", {}).get("status") == "succeeded"})
+    await inv.context.emit("retrieval_result", retrieval_event(meta, citations))
     return {"sources": [{"citation": i, **citation} for i, citation in enumerate(citations, 1)], "retrieval": meta}
 
 

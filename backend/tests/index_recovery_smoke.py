@@ -58,12 +58,17 @@ def main():
             template = ok(owner.get("/api/templates"))[0]
             course = ok(owner.post(f"/api/templates/{template['id']}/enroll"))
             original = "\n".join(f"chapter {n}: " + ("atlas recovery " * 60) for n in range(60))
-            with patch("backend.retrieval.embeddings", old_vectors):
-                source = ok(owner.post(f"/api/courses/{course['id']}/sources/text", json={
-                    "title": "Index recovery fixture", "content": original,
-                }))
+            source = ok(owner.post(f"/api/courses/{course['id']}/sources/text", json={
+                "title": "Index recovery fixture", "content": original,
+            }))
             source_id = source["id"]
             url = f"/api/sources/{source_id}"
+            # Automatic upload is searchable before its queued embedding work runs.
+            assert ok(owner.get(url))["index"]["state"] == "lexical"
+            initial_task = claim_task()
+            assert initial_task
+            with patch("backend.indexing.embeddings", old_vectors):
+                asyncio.run(run_task(initial_task))
             initial = snapshot(source_id)
             assert BATCH_SIZE < len(initial[2]) <= 2 * BATCH_SIZE
             assert initial[1] == embedding_signature()

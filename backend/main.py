@@ -39,7 +39,7 @@ from backend.security import (
 from backend.serializers import *
 from backend.schemas import *
 from backend.templates import TEMPLATES
-from backend.retrieval import add_source, search, parse_document
+from backend.retrieval import add_source, search, parse_document, prepare_source
 from backend.llm import complete, stream_chat, ModelError
 from backend.connections import router as connections_router, resolve_model_config
 from backend.workflows import worker_loop, dispatch
@@ -410,6 +410,9 @@ async def delete_me(
     db.delete(user)
     db.commit()
     delete_upload_spools(uploads)
+    from backend.knowledge_graph import remove_workspace
+
+    await asyncio.to_thread(remove_workspace, user.id)
     await purge_checkpoints(user.id, task_ids)
     response.delete_cookie(
         "atlas_session",
@@ -573,6 +576,9 @@ async def delete_course(course_id: str, user: User = AUTH, db: DBSession = DB):
     db.delete(course)
     db.commit()
     delete_upload_spools(uploads)
+    from backend.knowledge_graph import remove_workspace
+
+    await asyncio.to_thread(remove_workspace, user.id, course_id)
     await purge_task_checkpoints(user.id, task_ids)
     return {"ok": True}
 
@@ -969,7 +975,9 @@ def complete_review(
 async def upload_source(
     course_id: str, file: UploadFile = File(...), user: User = AUTH, db: DBSession = DB
 ):
-    owned(db, Course, course_id, user)
+    from backend.knowledge_jobs import dispatch_indexes, enqueue_source_indexes
+
+    course = owned(db, Course, course_id, user)
     data = await file.read(settings.max_upload_bytes + 1)
     await file.close()
     if len(data) > settings.max_upload_bytes:
@@ -978,6 +986,7 @@ async def upload_source(
         )
     filename = Path(file.filename or "document").name
     text_content = await asyncio.to_thread(parse_document, filename, data)
+    prepared = await prepare_source(text_content, defer_vectors=course.knowledge_engine == "auto")
     source = await add_source(
         db,
         user.id,
@@ -985,9 +994,12 @@ async def upload_source(
         filename,
         text_content,
         kind=filename.rsplit(".", 1)[-1].lower(),
+        prepared=prepared,
     )
+    indexes = enqueue_source_indexes(db, course, source, None)
     activity(db, user, "添加课程资料", filename)
     db.commit()
+    dispatch_indexes(indexes)
     return source_json(source)
 
 
@@ -995,21 +1007,39 @@ async def upload_source(
 async def source_text(
     course_id: str, body: SourceText, user: User = AUTH, db: DBSession = DB
 ):
-    owned(db, Course, course_id, user)
+    from backend.knowledge_jobs import dispatch_indexes, enqueue_source_indexes
+
+    course = owned(db, Course, course_id, user)
+    prepared = await prepare_source(body.content, defer_vectors=course.knowledge_engine == "auto")
     source = await add_source(
-        db, user.id, course_id, body.title, body.content, body.url
+        db, user.id, course_id, body.title, body.content, body.url, prepared=prepared,
     )
+    indexes = enqueue_source_indexes(db, course, source, None)
     db.commit()
+    dispatch_indexes(indexes)
     return source_json(source)
 
 
 @api.delete("/sources/{source_id}")
 def delete_source(source_id: str, user: User = AUTH, db: DBSession = DB):
-    source = owned(db, Source, source_id, user)
+    from backend.knowledge import graph_index
+    from backend.knowledge_graph import remove_workspace
     from backend.library import mark_lessons_stale
+    from backend.tutor.store import write_lock
+
+    user_id = user.id
+    write_lock(db)
+    source = db.query(Source).filter_by(id=source_id, user_id=user_id).first()
+    if not source:
+        raise HTTPException(404, "资料不存在。")
+    course_id = source.course_id
+    course = db.query(Course).filter_by(id=course_id, user_id=user_id).with_for_update().first()
+    graph = graph_index(course.knowledge_index or {}).get("graph") if course else None
     mark_lessons_stale(db, source)
     db.delete(source)
     db.commit()
+    if graph:
+        remove_workspace(user_id, course_id, graph)
     return {"ok": True}
 
 

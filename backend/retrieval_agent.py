@@ -62,7 +62,8 @@ async def _model(user_id, step, instruction, payload):
 
 
 async def retrieve(db, user_id, course_id, query, *, node_id=None, history=None,
-                   limit=6, mode='auto', source_ids=None, source_kinds=None):
+                   limit=6, mode='auto', source_ids=None, source_kinds=None,
+                   allow_index_jobs=False):
     if not isinstance(query, str) or not query.strip() or len(query) > 2000:
         raise HTTPException(422, '检索词不能为空，且不得超过 2000 字符。')
     limit = _bounded_int(limit, 'limit', 1, 20)
@@ -74,11 +75,12 @@ async def retrieve(db, user_id, course_id, query, *, node_id=None, history=None,
                 'rerank': {'status': 'skipped'}, 'warnings': []}
     # No embedding configuration is needed; failed optional embeddings also leave
     # the original lexical query available. Dimension drift remains visible here.
-    async def run(q):
+    async def run(q, *, initial=False):
         try:
             return await search(db, user_id, course_id, q, min(20, max(limit, MAX_CANDIDATES)),
                                 source_ids=source_ids, source_kinds=source_kinds,
-                                use_embeddings=mode != 'lexical', diagnostics=metadata)
+                                use_embeddings=mode != 'lexical', diagnostics=metadata,
+                                allow_supplement=initial, allow_index_jobs=initial and allow_index_jobs)
         except Exception as exc:
             if mode == 'lexical':
                 raise
@@ -86,8 +88,9 @@ async def retrieve(db, user_id, course_id, query, *, node_id=None, history=None,
             if marker not in metadata['warnings']:
                 metadata['warnings'].append(marker)
             return await search(db, user_id, course_id, q, min(20, max(limit, MAX_CANDIDATES)),
-                                source_ids=source_ids, source_kinds=source_kinds, use_embeddings=False)
-    original = _dedupe(await run(query))
+                                source_ids=source_ids, source_kinds=source_kinds, use_embeddings=False,
+                                diagnostics=metadata)
+    original = _dedupe(await run(query, initial=True))
     pools = [original]
     ambiguous = bool(REFERENCE.search(query))
     may_rewrite = mode != 'lexical' and bool(context) and (ambiguous or mode == 'enhanced')
@@ -154,6 +157,17 @@ async def retrieve(db, user_id, course_id, query, *, node_id=None, history=None,
             metadata['rerank'] = {'status': 'fallback', 'reason': 'unavailable_or_invalid'}
             fused = original
     return {'citations': fused[:limit], 'retrieval': metadata}
+
+
+def retrieval_event(metadata, citations):
+    return {
+        "strategy": metadata.get("mode", "auto"), "engine": metadata.get("engine", "atlas"),
+        "route_reason": metadata.get("route_reason"),
+        "engines_used": metadata.get("engines_used", []), "warnings": metadata.get("warnings", []),
+        "query_count": len(metadata.get("queries", [])), "candidate_count": metadata.get("candidate_count", 0),
+        "source_count": len(citations), "rewritten": metadata.get("rewrite", {}).get("status") == "succeeded",
+        "reranked": metadata.get("rerank", {}).get("status") == "succeeded",
+    }
 
 
 def read_material(db, user_id, course_id, source_id, *, version=None,

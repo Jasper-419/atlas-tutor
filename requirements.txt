@@ -17,3 +17,7 @@ langgraph-checkpoint-postgres>=3.0,<4
 celery>=5.4,<6
 redis>=5,<7
 pgvector>=0.3,<1
+llama-index-core>=0.14,<0.15
+llama-index-retrievers-bm25>=0.7,<0.8
+pageindex>=0.5.3,<0.6
+lightrag-hku>=1.5.7,<1.6

@@ -233,6 +233,21 @@
 .course-tab-content > .sources-header h2 {
   font-size: 16px;
 }
+.knowledge-engine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 28px;
+  padding: 12px 0;
+  font-size: 13px;
+}
+.knowledge-engine .text-button {
+  margin-left: auto;
+}
+.knowledge-error {
+  color: var(--negative);
+}
 .course-tab-content > .source-search {
   margin: 0;
   padding: 0 28px 24px;

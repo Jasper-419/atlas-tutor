@@ -7,10 +7,10 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from backend import learning, library, notes, teaching
+from backend import knowledge, learning, library, notes, teaching
 from backend.database import get_db
 from backend.indexing import embedding_available, embedding_signature, index_state
-from backend.models.domain import Node, Source, Task
+from backend.models.domain import Course, Node, Source, Task
 from backend.models.tutor import TutorSession
 from backend.retrieval import prepare_source
 from backend.security import current_user
@@ -32,6 +32,51 @@ class SourceUpdate(BaseModel):
 
 class ReindexSource(BaseModel):
     expected_version: int = Field(ge=1)
+
+
+class KnowledgeEngineUpdate(BaseModel):
+    engine: Literal["auto", "atlas", "llamaindex", "pageindex", "lightrag"]
+
+
+@router.get("/courses/{course_id}/knowledge")
+def get_knowledge(course_id: str, user=AUTH, db=DB):
+    return knowledge.state(db, owned(db, Course, course_id, user.id))
+
+
+@router.post("/courses/{course_id}/knowledge", status_code=202)
+def set_knowledge(course_id: str, body: KnowledgeEngineUpdate, user=AUTH, db=DB):
+    from backend.workflows import dispatch
+
+    user_id = user.id
+    write_lock(db)
+    course = db.query(Course).filter_by(id=course_id, user_id=user_id).with_for_update().first()
+    if not course:
+        raise HTTPException(404, "课程不存在。")
+    requirement = knowledge.engine_requirement(body.engine)
+    if requirement:
+        raise HTTPException(409, requirement)
+    active = db.query(Task).filter(
+        Task.user_id == user_id, Task.course_id == course_id, Task.kind == "knowledge_index",
+        Task.status.in_(["queued", "running"]),
+        Task.payload["purpose"].as_string().is_(None),
+    ).first()
+    if active:
+        if active.payload.get("engine") == body.engine:
+            return {**task_json(db, active), "engine": body.engine}
+        raise HTTPException(409, "课程知识库正在构建，请稍后再切换。")
+    task = Task(
+        user_id=user_id, course_id=course_id, kind="knowledge_index",
+        payload={
+            "engine": body.engine,
+            "previous": (course.knowledge_index or {}).get("generation"),
+            "rebuild_vectors": course.knowledge_engine == body.engine == "llamaindex",
+        },
+        message="等待构建课程检索索引",
+    )
+    db.add(task)
+    db.commit()
+    dispatch(task.id)
+    return {**task_json(db, task), "engine": body.engine}
 
 
 class Feedback(BaseModel):
@@ -95,10 +140,17 @@ def download_source(
 
 @router.put("/sources/{source_id}")
 async def update_source(source_id: str, body: SourceUpdate, user=AUTH, db=DB):
+    from backend.knowledge_jobs import dispatch_indexes, enqueue_source_indexes
+
     source = owned(db, Source, source_id, user.id)
-    prepared = await prepare_source(body.content)
+    course_id, user_id = source.course_id, user.id
+    course = owned(db, Course, course_id, user_id)
+    prepared = await prepare_source(body.content, defer_vectors=course.knowledge_engine == "auto")
     write_lock(db)
-    source = owned(db, Source, source_id, user.id)
+    course = db.query(Course).filter_by(id=course_id, user_id=user_id).with_for_update().first()
+    if not course:
+        raise HTTPException(404, "课程不存在。")
+    source = owned(db, Source, source_id, user_id)
     result = library.replace_index(
         db,
         source,
@@ -107,12 +159,16 @@ async def update_source(source_id: str, body: SourceUpdate, user=AUTH, db=DB):
         body.title,
         expected_version=body.expected_version,
     )
+    revision = library.ensure_revision(db, result)
+    indexes = enqueue_source_indexes(db, course, result, revision)
     db.commit()
+    dispatch_indexes(indexes)
     return {**source_json(result), "index": index_state(db, result)}
 
 
 @router.post("/sources/{source_id}/reindex")
 def reindex_source(source_id: str, body: ReindexSource, user=AUTH, db=DB):
+    from backend.knowledge_jobs import new_vector_task
     from backend.workflows import dispatch
 
     user_id = user.id
@@ -130,19 +186,12 @@ def reindex_source(source_id: str, body: ReindexSource, user=AUTH, db=DB):
         Task.user_id == user_id, Task.course_id == source.course_id,
         Task.kind == "reindex", Task.status.in_(["queued", "running"]),
         Task.payload["source_id"].as_string() == source.id,
+        Task.payload["expected_version"].as_integer() == source.version,
+        Task.payload["embedding_signature"].as_string() == embedding_signature(),
     ).first()
     if active:
         return task_json(db, active)
-    task = Task(
-        user_id=user_id, course_id=source.course_id, kind="reindex",
-        payload={
-            "source_id": source.id,
-            "expected_version": source.version,
-            "embedding_signature": embedding_signature(),
-            "previous_index": [source.embedding_signature, source.embedding_dimension],
-        },
-        message="等待重建资料索引",
-    )
+    task = new_vector_task(source)
     db.add(task)
     db.commit()
     dispatch(task.id)

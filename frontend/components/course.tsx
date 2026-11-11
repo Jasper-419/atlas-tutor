@@ -52,6 +52,7 @@ import {
   SourceDialog,
 } from "./ui";
 import { NotesButton, TeachingPanel } from "./learning-panels";
+import { KnowledgeEngine } from "./knowledge-engine";
 
 export function CourseScreen({ id }: { id: string }) {
   const router = useRouter(),
@@ -750,6 +751,7 @@ function SourcesPanel({
         {importTask?.message || "等待导入"}{importTask?.error && ` · ${importTask.error}`}{" "}
         <Link href={`/tasks?task=${importId || importTask?.id}`}>查看任务</Link>
       </p>}
+      <KnowledgeEngine key={c.id} courseId={c.id} />
       <div className="sources-grid">
         <section className="panel">
           {c.sources.length ? (

@@ -20,6 +20,25 @@ Agent 可先 `retrieve_materials` 找候选，再 `read_material` 按 source_id�
 
 `.venv-atlas/bin/python -m backend.tests.index_recovery_smoke` 使用隔离 SQLite、真实任务和受控向量响应检查中断、租约接管、重试复用和陈旧任务拒绝。
 
+## 课程知识库检索引擎
+
+每门课程的资料构成一个知识库。新课程和沿用旧默认设置的课程使用自动检索，升级保留明确选过的手动引擎。上传先提交原文和可搜索片段；带原件的文本 PDF 和配置了 Embedding 的资料再补建页级或向量索引。「课程资料 → 高级检索设置」可手动指定引擎。切换和重建保留原始资料、版本、片段与历史引用。
+
+| 引擎 | 检索方式 | 使用条件 |
+| --- | --- | --- |
+| Atlas | 原有词法检索与可选向量融合 | 作为通用后备和手动选项 |
+| LlamaIndex | `BM25Retriever` 与 `SimpleVectorStore` 分别召回，使用 RRF 融合 | 向量需配置 `EMBEDDING_MODEL`、`EMBEDDING_BASE_URL` 和服务所需的密钥；未配置时使用 BM25 |
+| PageIndex | PageIndex Flash 在本地提取 PDF 章节树，Atlas 在限定的候选页中选取证据 | 至少一份带文本层且保留原件的 PDF；其他格式由 Atlas 检索 |
+| LightRAG | LightRAG SDK 在课程独立工作区提取实体和关系，使用 `mix` 检索图谱与向量证据 | 可用的聊天模型和 Embedding 服务；每库最多 600 个资料片段 |
+
+自动模式按问题路由。常规查询用 LlamaIndex，页码与章节问题优先检索已就绪的 PageIndex，明确涉及多份资料的关系问题优先使用与当前资料清单匹配的 LightRAG。通用检索为空时，LLM 可以从已就绪、符合资料范围的引擎中选择一次补查。模型选择失败后保留已有检索结果。
+
+已有 DeepSeek 聊天配置可用于 PageIndex 候选页判断与 LightRAG 实体关系提取。向量请求使用独立的 Embedding 配置。自动模式会在课程对话中补建缺失的旧资料索引，LlamaIndex 本地索引限 3,000 个片段。自动图谱需要用户明确询问跨资料关系、至少两份资料且总计不超过 40 个片段，每个资料版本与 Embedding 配置组合最多自动构建一次，课程自动构建间隔一小时。图谱构建期间继续通用检索。
+
+自动 PageIndex 逐个资料版本构建，LightRAG 图谱绑定完整资料清单。资料变化时旧图谱停止用于新查询。LightRAG 图谱由 SDK 在 Atlas 本地进程中构建，部署时 API 与 Worker 需共享 `ATLAS_DATA_DIR` 下的 `knowledge/` 目录。
+
+Agent 继续通过 `retrieve_materials` 选取候选，通过 `read_material` 回读原文。PageIndex 的页码和 LightRAG 的片段引用都会映射回所属课程的 Atlas 快照。Agent 运行详情可看到使用的引擎和回退原因。
+
 ## 记忆、画像与上下文各有职责
 
 | 层次 | 持久内容 | 约束 |
@@ -55,4 +74,4 @@ Agent 可先 `retrieve_materials` 找候选，再 `read_material` 按 source_id�
 - 真实 `deepseek-flash`：保存实际用户偏好→摘录画像→新会话 recall→forget→不再召回且画像 stale，3 个真实 Agent 轮次通过；报告 `data/memory-evals/live.json`。
 - 现有 Tutor 生命周期、修题/笔记 smoke 与 9 项隔离 Agent 任务契约通过；Next.js 生产构建和 TypeScript 通过。
 
-没有实现 GraphRAG、独立向量记忆服务、全量对话自动提取、分布式 exactly-once 或通用外部 Agent 委派。当前是有来源、可撤回和可解释的应用内 Agent 能力，不声称 DeepTutor 全平台等价。更大真实语料、多 trial 和人工评审应由实际失败驱动。
+尚未接入 Microsoft GraphRAG、独立向量记忆服务、全量对话自动提取、分布式 exactly-once 或通用外部 Agent 委派。当前是有来源、可撤回和可解释的应用内 Agent 能力。更大真实语料、多 trial 和人工评审应由实际失败驱动。

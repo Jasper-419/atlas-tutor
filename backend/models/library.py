@@ -23,6 +23,7 @@ class SourceRevision(Owned, Base):
     pages = Column(JSON, nullable=False, default=list)
     file_path = Column(Text, nullable=True)
     filename = Column(String(255), nullable=True)
+    page_index = Column(JSON(none_as_null=True), nullable=True)
     __table_args__ = (UniqueConstraint("source_id", "version"),)
 
 

@@ -408,6 +408,7 @@ async def import_document_task(task_id):
         course = db.query(Course).filter_by(id=course_id, user_id=user_id).first()
         if not course:
             raise Cancelled()
+        automatic = course.knowledge_engine == "auto"
     check_live(task_id, run_id)
     update_progress(task_id, 12, "读取并解析上传资料", run_id)
     text = await asyncio.to_thread(_parse_uploaded_file, payload.get("upload_path"), payload.get("filename"))
@@ -434,7 +435,7 @@ async def import_document_task(task_id):
     checkpoint = IndexCheckpoint(task_id, run_id, replacing)
     if not existing or replacing:
         update_progress(task_id, 45, "切分资料并建立检索索引", run_id)
-        prepared = await prepare_source(text, checkpoint=checkpoint)
+        prepared = await prepare_source(text, checkpoint=checkpoint, defer_vectors=automatic)
         check_live(task_id, run_id)
     update_progress(task_id, 88, "提交资料与导入结果", run_id)
     with SessionLocal() as db:
@@ -465,7 +466,10 @@ async def import_document_task(task_id):
                                       Path(payload["filename"]).name, text, kind="file",
                                       source_id=source_id, prepared=prepared)
         from backend.library import ensure_revision
-        ensure_revision(db, source, text, file_path=payload["upload_path"], filename=payload["filename"])
+        from backend.knowledge_jobs import dispatch_indexes, enqueue_source_indexes
+
+        revision = ensure_revision(db, source, text, file_path=payload["upload_path"], filename=payload["filename"])
+        indexes = enqueue_source_indexes(db, course, source, revision)
         task.status, task.progress = "succeeded", 100
         task.message = "资料已导入（未重复保存）" if duplicate else "资料导入完成"
         task.result = {"source_id": source.id, "source_ids": [source.id],
@@ -476,6 +480,7 @@ async def import_document_task(task_id):
         db.add(Activity(user_id=user_id, title=task.message, detail=source.title))
         checkpoint.clear(db)
         db.commit()
+        dispatch_indexes(indexes)
     # Keep the server-owned spool file until ordinary upload/account cleanup: a
     # cancelled or restarted import must not lose its only input.
 
@@ -493,6 +498,16 @@ async def execute_graph(task_id):
 
             db.close()
             return await rebuild_source_index(task_id)
+        if task.kind == "knowledge_index":
+            from backend.knowledge_tasks import rebuild_library
+
+            db.close()
+            return await rebuild_library(task_id)
+        if task.kind == "knowledge_page":
+            from backend.knowledge_tasks import build_source_pages
+
+            db.close()
+            return await build_source_pages(task_id)
         if task.kind not in {"plan", "research"}:
             raise ModelError("不支持的任务类型。")
         course = db.get(Course, task.course_id)

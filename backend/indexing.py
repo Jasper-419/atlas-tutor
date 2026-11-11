@@ -18,6 +18,14 @@ RETRIEVAL_WARNINGS = frozenset({
     "embedding_dimension_mismatch",
     "embedding_unavailable",
     "hybrid_unavailable",
+    "knowledge_engine_unavailable",
+    "knowledge_index_stale",
+    "knowledge_source_not_indexed",
+    "knowledge_index_queue_unavailable",
+    "knowledge_pages_not_ready",
+    "knowledge_graph_not_ready",
+    "knowledge_graph_queued",
+    "knowledge_no_specialized_evidence",
 })
 
 

@@ -102,11 +102,14 @@ def split_text(text, size=1100, overlap=180):
     return chunks
 
 
-async def prepare_source(text, *, checkpoint=None):
+async def prepare_source(text, *, checkpoint=None, defer_vectors=False):
     """Do optional embedding I/O before opening the final write transaction."""
     if not text.strip() or len(text) > MAX_TEXT:
         raise HTTPException(422, "资料不能为空，且不得超过 400,000 字符。")
-    return await build_index(split_text(text), embed=embeddings, checkpoint=checkpoint)
+    pieces = split_text(text)
+    if defer_vectors:
+        return PreparedIndex(pieces, [])
+    return await build_index(pieces, embed=embeddings, checkpoint=checkpoint)
 
 
 async def add_source(db, user_id, course_id, title, text, url=None, kind="text", *, source_id=None, prepared=None):
@@ -164,6 +167,20 @@ def cosine(a, b):
 
 
 async def search(db, user_id, course_id, query, limit=6, *, source_kinds=None,
+                 candidate_limit=1600, neighbor_window=1, source_ids=None, use_embeddings=True,
+                 diagnostics=None, allow_supplement=False, allow_index_jobs=False):
+    from backend.knowledge import search as search_library
+
+    return await search_library(
+        db, user_id, course_id, str(query)[:2000], max(1, min(int(limit), 20)),
+        source_ids=source_ids, source_kinds=source_kinds, use_embeddings=use_embeddings,
+        diagnostics=diagnostics, native=_search_native,
+        allow_supplement=allow_supplement, allow_index_jobs=allow_index_jobs,
+        candidate_limit=candidate_limit, neighbor_window=neighbor_window,
+    )
+
+
+async def _search_native(db, user_id, course_id, query, limit=6, *, source_kinds=None,
                  candidate_limit=1600, neighbor_window=1, source_ids=None, use_embeddings=True,
                  diagnostics=None):
     """Scoped, bounded hybrid retrieval, then inexpensive relevance/diversity reranking.

@@ -114,6 +114,18 @@ def agent_detail(db, user_id, identifier):
             public = {key: payload[key] for key in allowed if key in payload and isinstance(payload[key], (int, bool))}
             if payload.get("strategy") in {"auto", "lexical", "enhanced"}:
                 public["strategy"] = payload["strategy"]
+            if kind == "retrieval_result":
+                from backend.knowledge import ENGINES
+                from backend.knowledge_auto import ROUTE_REASONS
+
+                if isinstance(payload.get("engine"), str) and payload["engine"] in ENGINES:
+                    public["engine"] = payload["engine"]
+                if isinstance(payload.get("route_reason"), str) and payload["route_reason"] in ROUTE_REASONS:
+                    public["route_reason"] = payload["route_reason"]
+                if isinstance(payload.get("engines_used"), list):
+                    public["engines_used"] = [
+                        engine for engine in ENGINES if engine in payload["engines_used"]
+                    ]
             if kind == "retrieval_result" and isinstance(payload.get("warnings"), list):
                 from backend.indexing import RETRIEVAL_WARNINGS
 

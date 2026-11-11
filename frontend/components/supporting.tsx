@@ -297,6 +297,8 @@ export function TasksScreen() {
       replan: "路径调整",
       ingest: "资料导入",
       reindex: "资料索引重建",
+      knowledge_index: "课程检索索引",
+      knowledge_page: "PDF 页级索引",
     };
   async function action(id: string, kind: string) {
     setBusy(true);

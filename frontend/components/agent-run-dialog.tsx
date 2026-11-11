@@ -279,6 +279,21 @@ function eventSummary(event: RunEvent) {
   if (["retrieval_result", "memory_recalled", "memory_saved", "memory_forgotten", "memory_profile"].includes(event.type)) {
     // Summarize an explicit public allowlist, never raw queries, facts, quotations or tool results.
     if (event.type === "retrieval_result") {
+      const engineNames: Record<string, string> = { atlas: "Atlas", llamaindex: "LlamaIndex", pageindex: "PageIndex", lightrag: "LightRAG" };
+      if (Array.isArray(payload.engines_used)) {
+        const engines = payload.engines_used.flatMap((engine) => (
+          typeof engine === "string" && Object.hasOwn(engineNames, engine) ? [engineNames[engine]] : []
+        ));
+        if (engines.length) parts.push(engines.join(" + "));
+      }
+      const routeLabels: Record<string, string> = {
+        page_location: "查找原文页码",
+        cross_document: "查找跨资料关系",
+        model_supplement: "模型选择补充检索",
+      };
+      if (typeof payload.route_reason === "string" && Object.hasOwn(routeLabels, payload.route_reason)) {
+        parts.push(routeLabels[payload.route_reason]);
+      }
       const strategy = ({ original: "原查询检索", lexical: "关键词检索", hybrid: "融合检索", fusion: "融合检索", fallback: "原查询回退" } as Record<string, string>)[typeof payload.strategy === "string" ? payload.strategy : ""];
       if (strategy) parts.push(strategy);
       for (const [key, label] of [["query_count", "查询"], ["candidate_count", "候选片段"], ["source_count", "来源"]]) {
@@ -292,6 +307,14 @@ function eventSummary(event: RunEvent) {
         embedding_dimension_mismatch: "向量维度不匹配",
         embedding_unavailable: "向量服务不可用",
         hybrid_unavailable: "融合检索不可用",
+        knowledge_engine_unavailable: "检索引擎不可用，已回退",
+        knowledge_index_stale: "资料索引待更新，已回退",
+        knowledge_source_not_indexed: "部分资料使用 Atlas 检索",
+        knowledge_index_queue_unavailable: "后台索引暂不可用",
+        knowledge_pages_not_ready: "页级索引尚未就绪",
+        knowledge_graph_not_ready: "图谱尚不可用",
+        knowledge_graph_queued: "图谱已排队，先使用通用检索",
+        knowledge_no_specialized_evidence: "已用通用检索补充证据",
       };
       if (Array.isArray(payload.warnings)) {
         for (const warning of payload.warnings) {

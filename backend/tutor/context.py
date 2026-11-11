@@ -56,20 +56,20 @@ async def build_context(session_id, turn_id, on_event=None):
             if session.node_id
             else None
         )
-        from backend.retrieval_agent import retrieve
+        from backend.retrieval_agent import retrieve, retrieval_event
         from backend.memory.service import recall
         previous_requests = [{"role": "user", "content": item.input[:1500]} for item in db.query(TutorTurn).filter(
             TutorTurn.user_id == user.id, TutorTurn.session_id == session.id,
             TutorTurn.id != turn.id, TutorTurn.status == "completed",
         ).order_by(TutorTurn.created_at.desc()).limit(4)][::-1]
         retrieved = await retrieve(db, user.id, course.id, turn.input[:2000],
-            node_id=node.id if node else None, history=previous_requests, limit=5) if course else {"citations": [], "retrieval": {}}
+            node_id=node.id if node else None, history=previous_requests,
+            limit=5, allow_index_jobs=True) if course else {"citations": [], "retrieval": {}}
         citations = retrieved["citations"]
         memory = recall(db, user.id, turn.input, course_id=course.id if course else None, limit=8)
         if on_event:
             if course:
-                meta = retrieved["retrieval"]
-                await on_event("retrieval_result", {"strategy": meta.get("mode", "auto"), "query_count": len(meta.get("queries", [])), "candidate_count": meta.get("candidate_count", 0), "source_count": len(citations), "warnings": meta.get("warnings", []), "rewritten": meta.get("rewrite", {}).get("status") == "succeeded", "reranked": meta.get("rerank", {}).get("status") == "succeeded"})
+                await on_event("retrieval_result", retrieval_event(retrieved["retrieval"], citations))
             await on_event("memory_recalled", {"memory_count": len(memory["memories"]), "profile_status": memory["profile"]["status"]})
         materials = [
             {"citation": index, **item, "excerpt": item["excerpt"][:1300]}
