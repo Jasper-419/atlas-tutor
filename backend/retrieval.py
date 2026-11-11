@@ -15,6 +15,7 @@ import base64
 from urllib.request import getproxies, proxy_bypass
 from urllib.parse import unquote
 from collections import Counter
+from functools import lru_cache
 from urllib.parse import urlsplit, urljoin
 from bs4 import BeautifulSoup, CData, NavigableString, Tag
 from fastapi import HTTPException
@@ -424,7 +425,7 @@ def proxy_headers(proxy):
 
 
 class PinnedHTTPS(http.client.HTTPSConnection):
-    def __init__(self, host, ip, port, proxy=None):
+    def __init__(self, host, ip, port, proxy=None, *, timeout=15):
         self.origin_host = host
         self.pinned_ip = ip
         self.proxy = proxy
@@ -434,11 +435,11 @@ class PinnedHTTPS(http.client.HTTPSConnection):
         )
         if proxy:
             super().__init__(
-                proxy.hostname, port=proxy.port or 80, timeout=15, context=context
+                proxy.hostname, port=proxy.port or 80, timeout=timeout, context=context
             )
             self.set_tunnel(ip, port, headers=proxy_headers(proxy))
         else:
-            super().__init__(host, port=port, timeout=15, context=context)
+            super().__init__(host, port=port, timeout=timeout, context=context)
 
     def connect(self):
         # Both direct and proxied connections target the validated IP. The original host is only used for SNI/verification.
@@ -454,15 +455,20 @@ HTML_TEXT_BLOCKS = set(
     "address article blockquote br dd details div dl dt figcaption figure "
     "h1 h2 h3 h4 h5 h6 hr li main ol p pre section summary td th tr ul".split()
 )
+HTML_HEADINGS = {f"h{level}": "#" * level + " " for level in range(1, 7)}
+HTML_TEXT_ALIASES = {*HTML_HEADINGS, "p"}
 
 
 def _html_text(root):
     blocks, inline = [], []
+    prefix = ""
 
     def finish_block():
-        paragraph = re.sub(r"[ \t\r\n\f]+", " ", "".join(inline)).strip()
+        nonlocal prefix
+        paragraph = re.sub(r"[ \t\r\n\f]+", " ", "".join(inline)).strip(" \u200b")
         if paragraph:
-            blocks.append(paragraph)
+            blocks.append(prefix + paragraph)
+            prefix = ""
         inline.clear()
 
     stack = [(root.name, iter(root.children))]
@@ -473,10 +479,18 @@ def _html_text(root):
             stack.pop()
             if parent in HTML_TEXT_BLOCKS:
                 finish_block()
+            if parent in HTML_HEADINGS or parent == "li":
+                prefix = ""
         elif isinstance(node, Tag):
-            if node.name in HTML_TEXT_BLOCKS:
+            alias = node.get("data-as")
+            tag = alias if alias in HTML_TEXT_ALIASES else node.name
+            if tag in HTML_TEXT_BLOCKS:
                 finish_block()
-            if node.name == "pre":
+            if tag in HTML_HEADINGS:
+                prefix = HTML_HEADINGS[tag]
+            elif tag == "li":
+                prefix = "1. " if node.parent.name == "ol" else "- "
+            if tag == "pre":
                 code = node.find("code") or node
                 for line_break in code.find_all("br"):
                     line_break.replace_with("\n")
@@ -491,25 +505,25 @@ def _html_text(root):
                     fence = "`" * max(3, 1 + max(map(len, re.findall(r"`+", body)), default=0))
                     blocks.append(f"{fence}{language}\n{body}\n{fence}")
             else:
-                stack.append((node.name, iter(node.children)))
+                stack.append((tag, iter(node.children)))
         elif type(node) in (NavigableString, CData):
             inline.append(str(node))
     finish_block()
     return "\n\n".join(blocks)
 
 
-def _fetch(url):
+def _fetch(url, *, archived_text=None, timeout=15):
     for _ in range(4):
         parsed, ip = validate_public_url(url)
         port = parsed.port or (443 if parsed.scheme == "https" else 80)
         proxy = proxy_for(parsed)
         connection = (
-            PinnedHTTPS(parsed.hostname, ip, port, proxy)
+            PinnedHTTPS(parsed.hostname, ip, port, proxy, timeout=timeout)
             if parsed.scheme == "https"
             else http.client.HTTPConnection(
                 proxy.hostname if proxy else ip,
                 port=(proxy.port or 80) if proxy else port,
-                timeout=15,
+                timeout=timeout,
             )
         )
         path = (parsed.path or "/") + ("?" + parsed.query if parsed.query else "")
@@ -542,6 +556,8 @@ def _fetch(url):
             kind = response.getheader("Content-Type", "").split(";")[0].lower()
         finally:
             connection.close()
+        if archived_text is not None and "html" not in kind:
+            raise ValueError("原始来源未返回网页。")
         if kind == "application/pdf" or parsed.path.lower().endswith(".pdf"):
             return url, parsed.hostname, parse_document("research.pdf", data)
         if kind not in {
@@ -561,15 +577,26 @@ def _fetch(url):
                 ["script", "style", "nav", "header", "footer", "aside", "noscript"]
             ):
                 tag.decompose()
-            text = _html_text(soup.find("main") or soup.find("article") or soup)
+            root = soup.find("main") or soup.find("article") or soup
+            if archived_text is not None and root.get_text("\n", strip=True) != archived_text:
+                raise ValueError("原始来源与已保存的快照不一致。")
+            text = _html_text(root)
         if len(text.strip()) < 100:
             raise ValueError("网页可提取的正文不足。")
         return url, title[:255], text[:MAX_TEXT]
     raise ValueError("文档重定向次数过多。")
 
 
-async def safe_fetch(url):
+@lru_cache(maxsize=16)
+def _restore_web_layout(url, archived_text):
+    # Only successful, verified readings are cached. Reopening can retry failures.
+    return _fetch(url, archived_text=archived_text, timeout=5)
+
+
+async def safe_fetch(url, *, archived_text=None):
     try:
+        if archived_text is not None:
+            return await asyncio.to_thread(_restore_web_layout, url, archived_text)
         return await asyncio.to_thread(_fetch, url)
     except (OSError, ssl.SSLError, http.client.HTTPException):
         raise ValueError("公开文档抓取失败或 TLS 验证失败。") from None

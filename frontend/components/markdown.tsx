@@ -88,6 +88,7 @@ const rehypeCitedBlocks: Plugin<[CitationRange | null | undefined], Root> = (ran
     const end = node.position?.end.offset;
     if (start !== undefined && end !== undefined && start < range[1] && end > range[0]) {
       node.properties.dataSourceCitation = true;
+      break;
     }
   }
 };

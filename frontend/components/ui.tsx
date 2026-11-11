@@ -207,6 +207,37 @@ export function Citations({ items }: { items: Citation[] }) {
 
 type LocatedCitation = Citation & { source_version?: number; page_start?: number | null; page_end?: number | null; section?: string | null };
 type SourceDocument = { id: string; title: string; content: string; version: number; current_version: number; kind: string; url?: string | null; filename?: string | null; pages?: { page: number; text: string }[]; index?: { state: string; can_rebuild: boolean } };
+type WebPreview = { content: string; version: number };
+
+function citationRangeIn(text: string, excerpt: string, restored: boolean): [number, number] | null {
+  if (excerpt.length <= 5) return null;
+  const start = text.indexOf(excerpt);
+  if (start >= 0) return [start, start + excerpt.length];
+  if (!restored) return null;
+
+  // Restored layouts change the spacing and add Markdown markers. Use a unique word sequence.
+  const words = excerpt.match(/[\p{L}\p{N}_]+/gu)?.slice(0, 8) || [];
+  if (words.length < 4) return null;
+  const separator = "[^\\p{L}\\p{N}_]+";
+  const pattern = new RegExp(`(?<![\\p{L}\\p{N}_])${words.join(separator)}(?![\\p{L}\\p{N}_])`, "gu");
+  const match = pattern.exec(text);
+  return match && !pattern.exec(text) ? [match.index, match.index + match[0].length] : null;
+}
+
+function archivedParagraphs(content: string) {
+  const text = content.replace(/\s+/g, " ").replace(/\s+([,.;!?，。；！？])/g, "$1").trim();
+  const paragraphs: string[] = [];
+  let paragraph = "";
+  for (const { segment } of new Intl.Segmenter(undefined, { granularity: "sentence" }).segment(text)) {
+    paragraph += segment;
+    if (paragraph.length >= 300) {
+      paragraphs.push(paragraph.trim());
+      paragraph = "";
+    }
+  }
+  if (paragraph) paragraphs.push(paragraph.trim());
+  return paragraphs;
+}
 
 const indexLabels: Record<string, string> = {
   ready: "向量索引就绪",
@@ -231,26 +262,35 @@ export function SourceDialog({ sourceId, version = 1, citation, editable = false
   const reader = useRef<HTMLDivElement>(null);
   const file = useRef<HTMLInputElement>(null);
   const webText = source?.kind === "web" && !source.pages?.length;
-  // The old HTML extractor put even standalone punctuation on its own line.
-  const fragmentedWeb = webText && !/\n[ \t\r]*\n/.test(source.content)
-    && (source.content.match(/^[()[\]{},.:;=]+\r?$/gm)?.length ?? 0) >= 4;
-  const markdownSource = source && !source.pages?.length && !fragmentedWeb && (
-    webText || /\.md$/i.test(source.filename || "") || /^ {0,3}(?:`{3,}|~{3,})/m.test(source.content)
+  const hasCodeFence = /^ {0,3}(?:`{3,}|~{3,})/m.test(source?.content || "");
+  const fragmentedWeb = webText && !hasCodeFence && (
+    (source.content.match(/^[()[\]{},.:;=，。：；]+\r?$/gm)?.length ?? 0) >= 4
+    || (!/\n[ \t\r]*\n/.test(source.content) && source.content.split("\n", 6).length === 6)
+  );
+  const previewPath = !editing && fragmentedWeb && source.url
+    ? `/sources/${encodeURIComponent(sourceId)}/web-preview?version=${source.version}` : null;
+  const { data: preview, error: previewError } = useResource<WebPreview>(previewPath);
+  const restoredText = previewPath && preview?.version === source?.version ? preview?.content : undefined;
+  const restoring = !!previewPath && !restoredText && !previewError;
+  const readableText = restoredText ?? source?.content ?? "";
+  const markdownSource = source && !source.pages?.length && (!fragmentedWeb || !!restoredText) && (
+    webText || /\.md$/i.test(source.filename || "") || hasCodeFence
   );
   const excerpt = citation?.excerpt?.trim();
   const needle = excerpt?.replace(/^[.…\s]+|[.…\s]+$/g, "") || "";
-  const matchStart = markdownSource && needle.length > 5 ? source.content.indexOf(needle) : -1;
+  const citationRange = markdownSource ? citationRangeIn(readableText, needle, !!restoredText) : null;
+  const citationStart = citationRange?.[0];
   useEffect(() => { if (source) { setTitle(source.title); setContent(source.content || ""); } }, [source]);
   useEffect(() => {
     if (!source || editing) return;
     const body = reader.current;
     if ((webText || markdownSource) && body) {
-      const target = body.querySelector("[data-source-citation]") || focus.current;
-      if (target) body.scrollTop += target.getBoundingClientRect().top - body.getBoundingClientRect().top;
+      const target = body.querySelector("[data-source-citation]");
+      if (target) body.scrollTop += target.getBoundingClientRect().top - body.getBoundingClientRect().top - 12;
     } else {
       focus.current?.scrollIntoView({ block: "center" });
     }
-  }, [source, editing, webText, markdownSource, needle]);
+  }, [source, editing, webText, markdownSource, citationStart, restoredText]);
   useEffect(() => {
     if (!task || ["succeeded", "failed", "cancelled"].includes(task.status)) return;
     let active = true;
@@ -283,7 +323,7 @@ export function SourceDialog({ sourceId, version = 1, citation, editable = false
   }
   return <Modal title={source?.title || "资料原文"} className="source-document-modal" onClose={onClose}>
     {loading ? <Loading label="正在读取原文…" /> : error || !source ? <ErrorBox message={error || "资料暂时不可用"} retry={reload} /> : <>
-      <div className="source-document-toolbar"><span>{source.kind.toUpperCase()} · v{source.version}{!current && ` · 当前为 v${source.current_version}`}{citation?.section && ` · ${citation.section}`}{fragmentedWeb && source.url && " · 完整排版见原始来源"}</span><div>
+      <div className="source-document-toolbar"><span>{source.kind.toUpperCase()} · v{source.version}{!current && ` · 当前为 v${source.current_version}`}{citation?.section && ` · ${citation.section}`}</span><div>
         {source.url && <a className="text-button" href={source.url} target="_blank" rel="noopener noreferrer">原始来源 ↗</a>}
         <a className="button" href={`/api/sources/${encodeURIComponent(sourceId)}/download?version=${source.version}`} download><Download size={14} />下载</a>
         {editable && current && !editing && <button className="button" disabled={busy || replacing} onClick={() => { setEditing(true); setSaveError(""); }}><Pencil size={14} />编辑文本</button>}
@@ -325,10 +365,24 @@ export function SourceDialog({ sourceId, version = 1, citation, editable = false
           setData({ ...source, ...updated, title, content, pages: updated.pages || [], current_version: updated.current_version || updated.version }); setEditing(false); setNotice("新版本已保存，相关讲义可重新生成。"); onChanged?.();
         } catch (e) { setSaveError((e as Error).message); } finally { setBusy(false); }
       }}><label>资料标题<input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={200} /></label><label>资料正文<textarea rows={16} value={content} onChange={(e) => setContent(e.target.value)} required minLength={20} maxLength={200000} /></label><div className="learning-actions"><button type="button" className="button" disabled={busy} onClick={() => { setEditing(false); setTitle(source.title); setContent(source.content); }}>取消</button><button className="button primary" disabled={busy || !content.trim()}>{busy ? "正在保存…" : "保存新版本"}</button></div></form> : <div className="source-document-body" ref={reader}>
-        {citation && <div className="source-citation-location" ref={!source.pages?.length ? focus as React.RefObject<HTMLDivElement> : undefined}><strong>引用位置{citation.page_start ? ` · 第 ${citation.page_start}${citation.page_end && citation.page_end !== citation.page_start ? `–${citation.page_end}` : ""} 页` : typeof citation.chunk_index === "number" ? ` · 片段 ${citation.chunk_index + 1}` : ""}</strong>{matchStart < 0 && citation.excerpt && <p>{citation.excerpt}</p>}</div>}
-        {source.pages?.length ? source.pages.map((page) => <section key={page.page} ref={citation?.page_start === page.page ? focus as React.RefObject<HTMLElement> : undefined} className={citation?.page_start === page.page ? "source-page cited-page" : "source-page"}><h3>第 {page.page} 页</h3><div className="source-plain-text">{locatedText(page.text)}</div></section>)
-          : markdownSource ? <Markdown citationRange={matchStart < 0 ? null : [matchStart, matchStart + needle.length]}>{source.content}</Markdown>
-          : citation || fragmentedWeb ? <div className={fragmentedWeb ? "source-plain-text source-fragmented-web" : "source-plain-text"}>{locatedText(source.content)}</div>
+        {citation && !webText && <div className="source-citation-location" ref={!source.pages?.length ? focus as React.RefObject<HTMLDivElement> : undefined}><strong>引用位置{citation.page_start ? ` · 第 ${citation.page_start}${citation.page_end && citation.page_end !== citation.page_start ? `–${citation.page_end}` : ""} 页` : typeof citation.chunk_index === "number" ? ` · 片段 ${citation.chunk_index + 1}` : ""}</strong>{!citationRange && citation.excerpt && <p>{citation.excerpt}</p>}</div>}
+        {webText ? <div className="source-web-reader">
+          {restoring ? <Loading label="正在恢复网页排版…" /> : <>
+            {excerpt && !citationRange && <details className="source-citation-location">
+              <summary>引用片段</summary>
+              {archivedParagraphs(excerpt).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+            </details>}
+            {markdownSource ? <Markdown citationRange={citationRange}>{readableText}</Markdown> : <>
+              <p className="source-archive-notice">以下为已保存的文字。网页原有排版暂不可用。</p>
+              <div className="markdown">
+                {archivedParagraphs(source.content).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+              </div>
+            </>}
+          </>}
+        </div>
+          : source.pages?.length ? source.pages.map((page) => <section key={page.page} ref={citation?.page_start === page.page ? focus as React.RefObject<HTMLElement> : undefined} className={citation?.page_start === page.page ? "source-page cited-page" : "source-page"}><h3>第 {page.page} 页</h3><div className="source-plain-text">{locatedText(page.text)}</div></section>)
+          : markdownSource ? <Markdown citationRange={citationRange}>{readableText}</Markdown>
+          : citation ? <div className="source-plain-text">{locatedText(source.content)}</div>
           : <Markdown>{source.content}</Markdown>}
       </div>}
     </>}

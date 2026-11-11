@@ -12,7 +12,7 @@ from backend.database import get_db
 from backend.indexing import embedding_available, embedding_signature, index_state
 from backend.models.domain import Course, Node, Source, Task
 from backend.models.tutor import TutorSession
-from backend.retrieval import prepare_source
+from backend.retrieval import prepare_source, safe_fetch
 from backend.security import current_user
 from backend.serializers import source_json, task_json
 from backend.tutor.api import import_file
@@ -136,6 +136,21 @@ def download_source(
             "Content-Disposition": "attachment; filename*=UTF-8''" + quote(filename)
         },
     )
+
+
+@router.get("/sources/{source_id}/web-preview")
+async def read_web_preview(
+    source_id: str, version: int = Query(ge=1), user=AUTH, db=DB
+):
+    source = library.source_detail(db, user.id, source_id, version)
+    if source["kind"] != "web" or not source["url"] or source["pages"]:
+        raise HTTPException(404, "该资料没有网页快照。")
+    db.close()
+    try:
+        _, _, content = await safe_fetch(source["url"], archived_text=source["content"])
+    except ValueError as error:
+        raise HTTPException(409, "暂时无法恢复网页快照的排版。") from error
+    return {"content": content, "version": source["version"]}
 
 
 @router.put("/sources/{source_id}")
