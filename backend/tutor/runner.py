@@ -18,7 +18,7 @@ from backend.llm import ModelError
 from backend.models.tutor import TutorSession, TutorTurn
 from backend.models.domain import now
 from backend.tutor import store
-from backend.tutor.citations import CITATION_GUIDANCE, normalize_citation_labels
+from backend.tutor.citations import CITATION_GUIDANCE, has_unknown_citations, normalize_citation_labels
 from backend.tutor.context import budget_messages, build_context, estimate_tokens
 from backend.tutor.mutations import mutation_scope
 from backend.tutor.providers import model_round
@@ -284,9 +284,28 @@ async def run_turn(identifier, token):
                 store.checkpoint(identifier, token, cp)
                 continue
             citations = cp.get("citations", [])
-            if isinstance(result.get("content"), str):
-                result["content"] = normalize_citation_labels(result["content"], citations)
-            final_output = round_output + normalize_citation_labels(output[len(round_output):], citations)
+            answer = result.get("content")
+            suffix = normalize_citation_labels(output[len(round_output):], citations)
+            if isinstance(answer, str):
+                result["content"] = normalize_citation_labels(answer, citations)
+                if policy.profile == "qa" and citations and has_unknown_citations(answer, citations):
+                    if not cp["agent"].get("citation_retry") and cp["rounds"] <= policy.max_rounds:
+                        cp["agent"]["citation_retry"] = True
+                        cp["messages"].append({
+                            "role": "system",
+                            "content": (
+                                "上一版引用了本轮未登记的编号。请重新核对资料原文与 citation 字段后作答。"
+                                "表格中的事项编号和页码不能作为引用编号。"
+                                "如果找不到支持结论的已登记来源，请说明资料不足。"
+                            ),
+                        })
+                        output = round_output
+                        cp["stable_output"] = output
+                        store.emit(identifier, "content_reset", {"text": output}, token, cp)
+                        continue
+                    suffix = "未能核对本次回答所用的资料引用，请尝试指定资料或缩小问题范围。"
+                    result["content"] = suffix
+            final_output = round_output + suffix
             cp.update(stage="complete", stable_output=final_output)
             if final_output != output:
                 store.emit(identifier, "content_reset", {"text": final_output}, token, cp)

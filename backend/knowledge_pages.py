@@ -99,6 +99,7 @@ def page_candidates(query, sources, revisions, sections, exact_page=None):
 
 
 async def search(db, sources, sections, query, limit, *, exact_page=None):
+    from backend.retrieval import relevant_excerpt, tokens
     from backend.retrieval_agent import read_material
 
     revisions = current_revisions(db, sources)
@@ -107,9 +108,11 @@ async def search(db, sources, sections, query, limit, *, exact_page=None):
         return []
     allowed = {number: row for number, row in enumerate(ranked, 1)}
     selections = [number for number, row in allowed.items() if row[0] > 0 or exact_page is not None][:limit]
+    query_terms = set(tokens(query))
     if len(ranked) > 1 and exact_page is None:
         # The model may rank verified candidate pages, and may only return their keys.
-        candidates = [{"key": key, "page": row[2], "section": row[3], "text": row[4][:850]}
+        candidates = [{"key": key, "page": row[2], "section": row[3],
+                       "text": relevant_excerpt(row[4], query_terms, 850)}
                       for key, row in allowed.items()]
         try:
             result = await complete([
@@ -124,7 +127,9 @@ async def search(db, sources, sections, query, limit, *, exact_page=None):
             ], sources[0].user_id, "pageindex_select_pages", json_mode=True)
             keys = result.get("pages") if isinstance(result, dict) else None
             if isinstance(keys, list) and all(type(key) is int and key in allowed for key in keys):
-                selections = list(dict.fromkeys(keys))[:limit]
+                # A short model shortlist can omit the best text match. Keep it
+                # as another candidate when there is room for both.
+                selections = list(dict.fromkeys([*keys, *selections[:1]]))[:limit] if keys else []
         except ModelError:
             pass
     citations = []
@@ -133,7 +138,8 @@ async def search(db, sources, sections, query, limit, *, exact_page=None):
         revision = revisions[source_id]
         try:
             result = read_material(db, revision.user_id, sources[0].course_id, source_id,
-                                   version=revision.version, page=page, max_chars=2400)
+                                   version=revision.version, page=page, max_chars=2400,
+                                   focus_terms=query_terms)
         except HTTPException as exc:
             if exc.status_code not in {404, 409, 422}:
                 raise

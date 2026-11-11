@@ -159,6 +159,18 @@ def tokens(text):
     return words
 
 
+def relevant_excerpt(text, query_terms, size):
+    """Keep a contiguous passage with the most query terms, including page tails."""
+    if len(text) <= size or not query_terms:
+        return text[:size]
+    last = len(text) - size
+    starts = [*range(0, last, max(1, size // 2)), last]
+    return max(
+        (text[start : start + size] for start in starts),
+        key=lambda passage: len(query_terms.intersection(tokens(passage))),
+    )
+
+
 def cosine(a, b):
     if len(a) != len(b):
         return 0

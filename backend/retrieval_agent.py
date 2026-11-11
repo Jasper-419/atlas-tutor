@@ -13,7 +13,7 @@ from fastapi import HTTPException
 from backend.llm import complete
 from backend.library import chunk_locator, content_hash, page_sections
 from backend.models import Chunk, Node, Source, SourceRevision
-from backend.retrieval import search, split_text
+from backend.retrieval import relevant_excerpt, search, split_text
 
 MODEL_TIMEOUT = 18
 MAX_CANDIDATES = 12
@@ -171,7 +171,7 @@ def retrieval_event(metadata, citations):
 
 
 def read_material(db, user_id, course_id, source_id, *, version=None,
-                  chunk_indices=None, page=None, max_chars=6000):
+                  chunk_indices=None, page=None, max_chars=6000, focus_terms=None):
     """Read owned immutable revision text, never a path supplied by tool/model."""
     max_chars = _bounded_int(max_chars, 'max_chars', 1, 12000)
     if version is not None:
@@ -234,7 +234,7 @@ def read_material(db, user_id, course_id, source_id, *, version=None,
         if room <= 0:
             truncated = True
             break
-        excerpt = text[:room]
+        excerpt = relevant_excerpt(text, focus_terms, room) if page is not None else text[:room]
         content += separator + excerpt
         primary = indices[0] if indices else 0
         current = current_chunks.get(primary)

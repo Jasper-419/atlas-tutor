@@ -71,8 +71,10 @@ async def build_context(session_id, turn_id, on_event=None):
             if course:
                 await on_event("retrieval_result", retrieval_event(retrieved["retrieval"], citations))
             await on_event("memory_recalled", {"memory_count": len(memory["memories"]), "profile_status": memory["profile"]["status"]})
+        # Keep the matched passage intact. The context budget below drops lower
+        # ranked passages as units instead of removing text inside their locators.
         materials = [
-            {"citation": index, **item, "excerpt": item["excerpt"][:1300]}
+            {"citation": index, **item}
             for index, item in enumerate(citations, 1)
         ]
         state = (
