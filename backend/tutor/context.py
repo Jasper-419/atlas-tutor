@@ -67,7 +67,7 @@ async def build_context(session_id, turn_id, on_event=None):
         if on_event:
             if course:
                 meta = retrieved["retrieval"]
-                await on_event("retrieval_result", {"strategy": meta.get("mode", "auto"), "query_count": len(meta.get("queries", [])), "candidate_count": meta.get("candidate_count", 0), "source_count": len(citations), "rewritten": meta.get("rewrite", {}).get("status") == "succeeded", "reranked": meta.get("rerank", {}).get("status") == "succeeded"})
+                await on_event("retrieval_result", {"strategy": meta.get("mode", "auto"), "query_count": len(meta.get("queries", [])), "candidate_count": meta.get("candidate_count", 0), "source_count": len(citations), "warnings": meta.get("warnings", []), "rewritten": meta.get("rewrite", {}).get("status") == "succeeded", "reranked": meta.get("rerank", {}).get("status") == "succeeded"})
             await on_event("memory_recalled", {"memory_count": len(memory["memories"]), "profile_status": memory["profile"]["status"]})
         materials = [
             {"citation": index, **item, "excerpt": item["excerpt"][:1300]}

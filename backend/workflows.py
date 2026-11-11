@@ -429,9 +429,12 @@ async def import_document_task(task_id):
                 source_id = str(uuid5(NAMESPACE_URL, source_id + ":reimport:" + task_id))
                 existing = db.query(Source).filter_by(id=source_id, user_id=user_id, course_id=course_id).first()
     prepared = None
+    from backend.index_tasks import IndexCheckpoint
+
+    checkpoint = IndexCheckpoint(task_id, run_id, replacing)
     if not existing or replacing:
         update_progress(task_id, 45, "切分资料并建立检索索引", run_id)
-        prepared = await prepare_source(text)
+        prepared = await prepare_source(text, checkpoint=checkpoint)
         check_live(task_id, run_id)
     update_progress(task_id, 88, "提交资料与导入结果", run_id)
     with SessionLocal() as db:
@@ -467,9 +470,11 @@ async def import_document_task(task_id):
         task.message = "资料已导入（未重复保存）" if duplicate else "资料导入完成"
         task.result = {"source_id": source.id, "source_ids": [source.id],
                        "filename": source.title, "chunk_count": source.chunk_count,
-                       "deduplicated": duplicate, "version": source.version}
+                       "deduplicated": duplicate, "version": source.version,
+                       "reused_batches": prepared.reused_batches if prepared else 0}
         task.error, task.lease_until = None, None
         db.add(Activity(user_id=user_id, title=task.message, detail=source.title))
+        checkpoint.clear(db)
         db.commit()
     # Keep the server-owned spool file until ordinary upload/account cleanup: a
     # cancelled or restarted import must not lose its only input.
@@ -481,7 +486,13 @@ async def execute_graph(task_id):
         if not task:
             raise Cancelled()
         if task.kind == "ingest":
+            db.close()
             return await import_document_task(task_id)
+        if task.kind == "reindex":
+            from backend.index_tasks import rebuild_source_index
+
+            db.close()
+            return await rebuild_source_index(task_id)
         if task.kind not in {"plan", "research"}:
             raise ModelError("不支持的任务类型。")
         course = db.get(Course, task.course_id)

@@ -24,3 +24,14 @@ class SourceRevision(Owned, Base):
     file_path = Column(Text, nullable=True)
     filename = Column(String(255), nullable=True)
     __table_args__ = (UniqueConstraint("source_id", "version"),)
+
+
+class IndexBatch(Base):
+    """Unpublished vectors owned by a durable task."""
+
+    __tablename__ = "atlas_index_batches"
+    task_id = Column(String(40), ForeignKey("atlas_tasks.id", ondelete="CASCADE"), primary_key=True)
+    offset = Column(Integer, primary_key=True)
+    source_id = Column(String(40), ForeignKey("atlas_sources.id", ondelete="CASCADE"), index=True)
+    fingerprint = Column(String(64), nullable=False)
+    vectors = Column(JSON, nullable=False)

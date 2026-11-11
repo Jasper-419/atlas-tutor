@@ -180,7 +180,14 @@ async def embeddings(texts):
             raise ModelError(
                 f"Embedding 服务返回 HTTP {response.status_code}；资料尚未保存，请检查配置。"
             )
-        items = sorted(response.json()["data"], key=lambda item: item["index"])
+        items = response.json()["data"]
+        if not isinstance(items, list) or any(
+            not isinstance(item, dict) or type(item.get("index")) is not int for item in items
+        ):
+            raise ModelError("Embedding 服务返回了无效的片段编号。")
+        items.sort(key=lambda item: item["index"])
+        if [item["index"] for item in items] != list(range(len(texts))):
+            raise ModelError("Embedding 服务返回的片段编号缺失或重复。")
         vectors = [item["embedding"] for item in items]
         if (
             len(vectors) != len(texts)
@@ -197,5 +204,5 @@ async def embeddings(texts):
         ):
             raise ModelError("Embedding 服务未返回有效且维度一致的全部向量。")
         return vectors
-    except (httpx.HTTPError, KeyError, ValueError):
+    except (httpx.HTTPError, KeyError, ValueError, TypeError, OverflowError):
         raise ModelError("Embedding 请求失败；请检查模型、服务地址和网络。") from None

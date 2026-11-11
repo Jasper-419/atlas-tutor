@@ -9,11 +9,12 @@ from pydantic import BaseModel, Field
 
 from backend import learning, library, notes, teaching
 from backend.database import get_db
-from backend.models.domain import Node, Source
+from backend.indexing import embedding_available, embedding_signature, index_state
+from backend.models.domain import Node, Source, Task
 from backend.models.tutor import TutorSession
 from backend.retrieval import prepare_source
 from backend.security import current_user
-from backend.serializers import source_json
+from backend.serializers import source_json, task_json
 from backend.tutor.api import import_file
 from backend.tutor.store import write_lock
 from backend.tutor.tools import owned
@@ -26,6 +27,10 @@ UPLOAD, EXPECTED_VERSION = File(...), Form(..., ge=1)
 class SourceUpdate(BaseModel):
     content: str = Field(min_length=12, max_length=400000)
     title: str | None = Field(default=None, min_length=1, max_length=255)
+    expected_version: int = Field(ge=1)
+
+
+class ReindexSource(BaseModel):
     expected_version: int = Field(ge=1)
 
 
@@ -65,6 +70,8 @@ def read_source(
 ):
     result = library.source_detail(db, user.id, source_id, version)
     result.pop("_file_path", None)
+    if result["version"] == result["current_version"]:
+        result["index"] = index_state(db, owned(db, Source, source_id, user.id))
     return result
 
 
@@ -101,7 +108,45 @@ async def update_source(source_id: str, body: SourceUpdate, user=AUTH, db=DB):
         expected_version=body.expected_version,
     )
     db.commit()
-    return source_json(result)
+    return {**source_json(result), "index": index_state(db, result)}
+
+
+@router.post("/sources/{source_id}/reindex")
+def reindex_source(source_id: str, body: ReindexSource, user=AUTH, db=DB):
+    from backend.workflows import dispatch
+
+    user_id = user.id
+    write_lock(db)
+    source = db.query(Source).filter_by(id=source_id, user_id=user_id).with_for_update().first()
+    if not source:
+        raise HTTPException(404, "资料不存在。")
+    if source.version != body.expected_version:
+        raise HTTPException(409, "资料已更新，请打开当前版本再重建。")
+    if not embedding_available():
+        raise HTTPException(409, "请先配置可用的 embedding 服务。")
+    if not source.chunk_count:
+        raise HTTPException(409, "资料没有可建立索引的片段。")
+    active = db.query(Task).filter(
+        Task.user_id == user_id, Task.course_id == source.course_id,
+        Task.kind == "reindex", Task.status.in_(["queued", "running"]),
+        Task.payload["source_id"].as_string() == source.id,
+    ).first()
+    if active:
+        return task_json(db, active)
+    task = Task(
+        user_id=user_id, course_id=source.course_id, kind="reindex",
+        payload={
+            "source_id": source.id,
+            "expected_version": source.version,
+            "embedding_signature": embedding_signature(),
+            "previous_index": [source.embedding_signature, source.embedding_dimension],
+        },
+        message="等待重建资料索引",
+    )
+    db.add(task)
+    db.commit()
+    dispatch(task.id)
+    return task_json(db, task)
 
 
 @router.post("/sources/{source_id}/replace")

@@ -294,6 +294,7 @@ export function TasksScreen() {
       research: "资料研究",
       replan: "路径调整",
       ingest: "资料导入",
+      reindex: "资料索引重建",
     };
   async function action(id: string, kind: string) {
     setBusy(true);

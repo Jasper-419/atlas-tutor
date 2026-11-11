@@ -286,6 +286,18 @@ function eventSummary(event: RunEvent) {
       }
       if (payload.rewritten === true) parts.push("已扩展查询");
       if (payload.reranked === true) parts.push("已核对候选排序");
+      const warnings: Record<string, string> = {
+        embedding_unverified: "旧向量待重建",
+        embedding_model_changed: "索引模型已变化",
+        embedding_dimension_mismatch: "向量维度不匹配",
+        embedding_unavailable: "向量服务不可用",
+        hybrid_unavailable: "融合检索不可用",
+      };
+      if (Array.isArray(payload.warnings)) {
+        for (const warning of payload.warnings) {
+          if (typeof warning === "string" && warnings[warning]) parts.push(warnings[warning]);
+        }
+      }
     }
     if (hasNumber(payload.memory_count) && payload.memory_count >= 0) parts.push(`${number(Math.trunc(payload.memory_count))} 条记忆`);
     const profile = ({ empty: "尚无学习画像", pending: "画像整理中", ready: "画像有效", stale: "画像已过期", failed: "画像整理未完成" } as Record<string, string>)[typeof payload.profile_status === "string" ? payload.profile_status : ""];

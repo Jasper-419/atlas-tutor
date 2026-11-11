@@ -18,10 +18,13 @@ from collections import Counter
 from urllib.parse import urlsplit, urljoin
 from bs4 import BeautifulSoup
 from fastapi import HTTPException
-from sqlalchemy import cast, func, or_, and_
+from sqlalchemy import cast, func, or_, and_, tuple_
 from pgvector.sqlalchemy import Vector
 from backend.models import Source, Chunk
-from backend.llm import embeddings
+from backend.llm import ModelError, embeddings
+from backend.indexing import (
+    PreparedIndex, build_index, embedding_available, embedding_signature, vector_filter,
+)
 from backend.library import ensure_revision, chunk_locator
 
 MAX_TEXT = 400000
@@ -99,23 +102,19 @@ def split_text(text, size=1100, overlap=180):
     return chunks
 
 
-async def prepare_source(text):
+async def prepare_source(text, *, checkpoint=None):
     """Do optional embedding I/O before opening the final write transaction."""
     if not text.strip() or len(text) > MAX_TEXT:
         raise HTTPException(422, "资料不能为空，且不得超过 400,000 字符。")
-    pieces = split_text(text)
-    vectors = []
-    for offset in range(0, len(pieces), 48):
-        batch = await embeddings(pieces[offset : offset + 48])
-        if batch:
-            vectors.extend(batch)
-    if vectors and len(vectors) != len(pieces):
-        raise HTTPException(422, "Embedding 返回的资料片段数量不完整，未保存资料。")
-    return pieces, vectors
+    return await build_index(split_text(text), embed=embeddings, checkpoint=checkpoint)
 
 
 async def add_source(db, user_id, course_id, title, text, url=None, kind="text", *, source_id=None, prepared=None):
-    pieces, vectors = prepared if prepared is not None else await prepare_source(text)
+    if prepared is None:
+        prepared = await prepare_source(text)
+    elif not isinstance(prepared, PreparedIndex):
+        prepared = PreparedIndex(*prepared)
+    pieces, vectors = prepared.pieces, prepared.vectors
     source = Source(
         **({"id": source_id} if source_id else {}),
         user_id=user_id,
@@ -125,6 +124,7 @@ async def add_source(db, user_id, course_id, title, text, url=None, kind="text",
         kind=kind,
         chunk_count=len(pieces),
     )
+    prepared.bind(source)
     db.add(source)
     db.flush()
     offset = 0
@@ -185,9 +185,9 @@ async def search(db, user_id, course_id, query, limit=6, *, source_kinds=None,
     sources = {s.id: s for s in sources_query}
     if not sources or not query_tokens:
         return []
-    base = db.query(Chunk).filter(
+    base = db.query(Chunk).join(Source, Source.id == Chunk.source_id).filter(
         Chunk.user_id == user_id, Chunk.course_id == course_id,
-        Chunk.source_id.in_(sources),
+        tuple_(Source.id, Source.version).in_([(source.id, source.version) for source in sources.values()]),
     )
     # Candidate memory and Python tokenization stay bounded even for big courses.
     chunks = base.order_by(Chunk.created_at.desc(), Chunk.chunk_index).limit(candidate_limit).all()
@@ -205,29 +205,66 @@ async def search(db, user_id, course_id, query, limit=6, *, source_kinds=None,
         if matches:
             chunks = matches
     semantic_ids = []
-    query_vector = None
-    if use_embeddings and any(c.embedding is not None for c in chunks):
-        result = await embeddings([query])
-        if result:
-            query_vector = result[0]
-            dimension = len(query_vector)
-            if any(c.embedding is not None and len(c.embedding) != dimension for c in chunks):
-                raise HTTPException(409, "Embedding 维度与已索引资料不一致。请恢复原 embedding 模型，或删除并重新上传本课程资料。")
-            if db.bind.dialect.name == "postgresql":
-                vector_column = cast(Chunk.embedding, Vector())
-                distance = vector_column.cosine_distance(query_vector)
-                ranked = base.with_entities(Chunk.id, distance.label("distance")).filter(
-                    Chunk.embedding.isnot(None), func.vector_dims(vector_column) == dimension,
-                ).order_by(distance).limit(40).all()
-                semantic_ids = [(identifier, 1 - float(value)) for identifier, value in ranked]
-                missing = [identifier for identifier, _ in semantic_ids
-                           if identifier not in {c.id for c in chunks}]
-                if missing:
-                    chunks.extend(base.filter(Chunk.id.in_(missing)).all())
-        elif diagnostics is not None:
+
+    def warn(reason):
+        if diagnostics is not None:
             warnings = diagnostics.setdefault("warnings", [])
-            if "embedding_unavailable" not in warnings:
-                warnings.append("embedding_unavailable")
+            if reason not in warnings:
+                warnings.append(reason)
+
+    if use_embeddings:
+        signature = embedding_signature()
+        signed = [source for source in sources.values() if source.embedding_signature and source.embedding_dimension]
+        unsigned_ids = set(sources) - {source.id for source in signed}
+        if unsigned_ids and base.filter(Chunk.source_id.in_(unsigned_ids), vector_filter(db)).first():
+            warn("embedding_unverified")
+        if signed and not embedding_available():
+            warn("embedding_unavailable")
+        elif signed:
+            matching = [source for source in signed if source.embedding_signature == signature]
+            if len(matching) < len(signed):
+                warn("embedding_model_changed")
+            if matching:
+                try:
+                    result = await embeddings([query])
+                except ModelError:
+                    result = None
+                if not result:
+                    warn("embedding_unavailable")
+                elif signature != embedding_signature():
+                    warn("embedding_model_changed")
+                else:
+                    query_vector = result[0]
+                    dimension = len(query_vector)
+                    if any(source.embedding_dimension != dimension for source in matching):
+                        warn("embedding_dimension_mismatch")
+                    # Check identity in the same query that reads vectors. A concurrent
+                    # rebuild may publish after the initial source read.
+                    compatible = base.filter(
+                        Source.embedding_signature == signature,
+                        Source.embedding_dimension == dimension,
+                        vector_filter(db),
+                    )
+                    if db.bind.dialect.name == "postgresql":
+                        vector_column = cast(Chunk.embedding, Vector())
+                        distance = vector_column.cosine_distance(query_vector)
+                        ranked = compatible.with_entities(Chunk.id, distance.label("distance")).filter(
+                            func.vector_dims(vector_column) == dimension,
+                        ).order_by(distance).limit(40).all()
+                        semantic_ids = [(identifier, 1 - float(value)) for identifier, value in ranked]
+                        loaded = {chunk.id for chunk in chunks}
+                        missing = [identifier for identifier, _ in semantic_ids if identifier not in loaded]
+                        if missing:
+                            chunks.extend(base.filter(Chunk.id.in_(missing)).all())
+                    else:
+                        vectors = compatible.with_entities(Chunk.id, Chunk.embedding).filter(
+                            Chunk.id.in_([chunk.id for chunk in chunks]),
+                        ).all()
+                        semantic_ids = sorted(
+                            ((identifier, cosine(vector, query_vector)) for identifier, vector in vectors
+                             if len(vector) == dimension),
+                            key=lambda item: item[1], reverse=True,
+                        )[:40]
     if not chunks:
         return []
     term_counts = [Counter(tokens(c.content)) for c in chunks]
@@ -249,14 +286,9 @@ async def search(db, user_id, course_id, query, limit=6, *, source_kinds=None,
             lexical.append((i, score))
     lexical.sort(key=lambda item: item[1], reverse=True)
     scores = {i: 1 / (60 + rank) for rank, (i, _) in enumerate(lexical[:120], 1)}
-    if query_vector:
-        if semantic_ids:
-            by_id = {c.id: i for i, c in enumerate(chunks)}
-            semantic = [(by_id[identifier], value) for identifier, value in semantic_ids if identifier in by_id]
-        else:
-            semantic = sorted(((i, cosine(c.embedding, query_vector))
-                               for i, c in enumerate(chunks) if c.embedding is not None),
-                              key=lambda item: item[1], reverse=True)[:40]
+    if semantic_ids:
+        by_id = {c.id: i for i, c in enumerate(chunks)}
+        semantic = [(by_id[identifier], value) for identifier, value in semantic_ids if identifier in by_id]
         for rank, (i, value) in enumerate(semantic, 1):
             if value > 0.15:
                 scores[i] = scores.get(i, 0) + 1 / (60 + rank)

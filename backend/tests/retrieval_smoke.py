@@ -107,19 +107,45 @@ async def main():
             embedded.embedding = [1., 0.]
             db.flush()
             from unittest.mock import AsyncMock
-            with patch('backend.retrieval.embeddings', AsyncMock(return_value=[[1.]])):
-                drift = await retrieve(db, 1, 'c1', '2.6.8')
-                assert 'embedding_dimension_mismatch' in drift['retrieval']['warnings']
-                assert drift['citations'][0]['source_id'] == 'exact'
-            with patch('backend.retrieval.embeddings', AsyncMock(return_value=None)):
-                unavailable = await retrieve(db, 1, 'c1', '2.6.8')
-                assert unavailable['retrieval']['warnings'] == ['embedding_unavailable'], unavailable
-                assert unavailable['citations'][0]['source_id'] == 'exact'
-                diagnostics = {}
-                assert await search(db, 1, 'c1', '2.6.8', diagnostics=diagnostics)
-                assert diagnostics['warnings'] == ['embedding_unavailable']
-                explicit_lexical = await retrieve(db, 1, 'c1', '2.6.8', mode='lexical')
-                assert explicit_lexical['retrieval']['warnings'] == []
+            from backend.config import get_settings
+            from backend.indexing import embedding_signature
+            indexed = db.get(Source, 'exact')
+            settings = get_settings()
+            with patch.object(settings, 'embedding_model', 'fixture-model-a'), patch.object(settings, 'embedding_key', 'fixture'):
+                with patch('backend.retrieval.embeddings', AsyncMock(return_value=[[1., 0.]])) as embed:
+                    legacy = await retrieve(db, 1, 'c1', '2.6.8')
+                    assert legacy['retrieval']['warnings'] == ['embedding_unverified']
+                    assert legacy['citations'][0]['source_id'] == 'exact'
+                    embed.assert_not_awaited()
+                indexed.embedding_signature = embedding_signature()
+                indexed.embedding_dimension = 2
+                db.flush()
+                with patch.object(settings, 'embedding_model', 'fixture-model-b'), patch('backend.retrieval.embeddings', AsyncMock(return_value=[[1., 0.]])) as embed:
+                    drift = await retrieve(db, 1, 'c1', '2.6.8')
+                    assert drift['retrieval']['warnings'] == ['embedding_model_changed']
+                    assert drift['citations'][0]['source_id'] == 'exact'
+                    embed.assert_not_awaited()
+                    compatible = db.get(Source, 'noise')
+                    compatible.embedding_signature = embedding_signature()
+                    compatible.embedding_dimension = 2
+                    compatible_chunk = db.query(Chunk).filter_by(source_id='noise').one()
+                    compatible_chunk.embedding = [1., 0.]
+                    semantic = await retrieve(db, 1, 'c1', 'semanticprobe')
+                    assert {item['source_id'] for item in semantic['citations']} == {'noise'}
+                    assert semantic['retrieval']['warnings'] == ['embedding_model_changed']
+                    compatible.embedding_signature = compatible.embedding_dimension = None
+                    compatible_chunk.embedding = None
+                with patch('backend.retrieval.embeddings', AsyncMock(return_value=[[1.]])):
+                    drift = await retrieve(db, 1, 'c1', '2.6.8')
+                    assert 'embedding_dimension_mismatch' in drift['retrieval']['warnings']
+                    assert drift['citations'][0]['source_id'] == 'exact'
+                with patch('backend.retrieval.embeddings', AsyncMock(return_value=None)):
+                    unavailable = await retrieve(db, 1, 'c1', '2.6.8')
+                    assert unavailable['retrieval']['warnings'] == ['embedding_unavailable'], unavailable
+                    assert unavailable['citations'][0]['source_id'] == 'exact'
+                    explicit_lexical = await retrieve(db, 1, 'c1', '2.6.8', mode='lexical')
+                    assert explicit_lexical['retrieval']['warnings'] == []
+            indexed.embedding_signature = indexed.embedding_dimension = None
             embedded.embedding = None
             db.flush()
             with patch('backend.retrieval.embeddings', side_effect=AssertionError('No vectors: no provider call')):

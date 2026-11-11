@@ -114,6 +114,13 @@ def agent_detail(db, user_id, identifier):
             public = {key: payload[key] for key in allowed if key in payload and isinstance(payload[key], (int, bool))}
             if payload.get("strategy") in {"auto", "lexical", "enhanced"}:
                 public["strategy"] = payload["strategy"]
+            if kind == "retrieval_result" and isinstance(payload.get("warnings"), list):
+                from backend.indexing import RETRIEVAL_WARNINGS
+
+                public["warnings"] = [
+                    value for value in payload["warnings"]
+                    if isinstance(value, str) and value in RETRIEVAL_WARNINGS
+                ][:len(RETRIEVAL_WARNINGS)]
             if payload.get("profile_status") in {"empty", "pending", "ready", "stale", "failed"}:
                 public["profile_status"] = payload["profile_status"]
         elif kind == "context_budget":

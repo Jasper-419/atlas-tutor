@@ -174,7 +174,11 @@ def replace_index(
     new_hash = content_hash(content)
     if new_hash == old.content_hash and (title is None or title == source.title):
         return source
-    pieces, vectors = prepared
+    from backend.indexing import PreparedIndex
+
+    if not isinstance(prepared, PreparedIndex):
+        prepared = PreparedIndex(*prepared)
+    pieces, vectors = prepared.pieces, prepared.vectors
     source.version += 1
     source.content_hash = new_hash
     if title:
@@ -197,6 +201,7 @@ def replace_index(
             )
         )
     source.chunk_count = len(pieces)
+    prepared.bind(source)
     db.flush()
     ensure_revision(db, source, content, file_path=file_path, filename=filename)
     mark_lessons_stale(db, source)

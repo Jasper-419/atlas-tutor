@@ -19,7 +19,8 @@ async def retrieve_materials(inv):
     meta = result["retrieval"]
     await inv.context.emit("retrieval_result", {"strategy": meta.get("mode", "auto"),
         "query_count": len(meta.get("queries", [])), "candidate_count": meta.get("candidate_count", 0),
-        "source_count": len(citations), "rewritten": meta.get("rewrite", {}).get("status") == "succeeded",
+        "source_count": len(citations), "warnings": meta.get("warnings", []),
+        "rewritten": meta.get("rewrite", {}).get("status") == "succeeded",
         "reranked": meta.get("rerank", {}).get("status") == "succeeded"})
     return {"sources": [{"citation": i, **citation} for i, citation in enumerate(citations, 1)], "retrieval": meta}
 

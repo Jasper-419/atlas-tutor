@@ -166,6 +166,8 @@ class Source(Owned, Base):
     chunk_count = Column(Integer, default=0)
     version = Column(Integer, nullable=False, default=1, server_default="1")
     content_hash = Column(String(64), nullable=False, default="", server_default="")
+    embedding_signature = Column(String(64), nullable=True)
+    embedding_dimension = Column(Integer, nullable=True)
 
 
 class Chunk(Owned, Base):

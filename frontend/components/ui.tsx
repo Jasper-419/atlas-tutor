@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Download,
   Pencil,
+  RefreshCw,
   Upload,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -222,7 +223,15 @@ export function Citations({ items }: { items: Citation[] }) {
 }
 
 type LocatedCitation = Citation & { source_version?: number; page_start?: number | null; page_end?: number | null; section?: string | null };
-type SourceDocument = { id: string; title: string; content: string; version: number; current_version: number; kind: string; url?: string | null; filename?: string | null; pages?: { page: number; text: string }[] };
+type SourceDocument = { id: string; title: string; content: string; version: number; current_version: number; kind: string; url?: string | null; filename?: string | null; pages?: { page: number; text: string }[]; index?: { state: string; can_rebuild: boolean } };
+
+const indexLabels: Record<string, string> = {
+  ready: "向量索引就绪",
+  lexical: "关键词检索",
+  embedding_unverified: "旧向量待重建 · 关键词检索",
+  embedding_model_changed: "模型已切换 · 关键词检索",
+  embedding_unavailable: "向量服务未配置 · 关键词检索",
+};
 
 export function SourceDialog({ sourceId, version = 1, citation, editable = false, onClose, onChanged }: {
   sourceId: string; version?: number; citation?: LocatedCitation; editable?: boolean; onClose: () => void; onChanged?: () => void;
@@ -254,9 +263,13 @@ export function SourceDialog({ sourceId, version = 1, citation, editable = false
   }, [task?.id, task?.status, onChanged, sourceId, setData]);
   useEffect(() => {
     if (!task || !["succeeded", "failed", "cancelled"].includes(task.status)) return;
-    if (task.status !== "succeeded") { setSaveError(task.error || "替换未完成，可以重新选择文件。"); return; }
+    if (task.status !== "succeeded") {
+      setSaveError(task.error || (task.kind === "reindex" ? "重建未完成，可以在任务页重试。" : "替换未完成，可以重新选择文件。"));
+      return;
+    }
     let active = true;
-    setNotice("新版本已保存，相关讲义可重新生成。"); onChanged?.();
+    setNotice(task.kind === "reindex" ? "资料索引已重建。" : "新版本已保存，相关讲义可重新生成。");
+    onChanged?.();
     void api<SourceDocument>(`/sources/${encodeURIComponent(sourceId)}`).then((latest) => { if (active) setData(latest); }).catch((e) => { if (active) setSaveError((e as Error).message); });
     return () => { active = false; };
   }, [task?.id, task?.status, sourceId, onChanged, setData]);
@@ -285,6 +298,25 @@ export function SourceDialog({ sourceId, version = 1, citation, editable = false
           catch (e) { setSaveError((e as Error).message); } finally { setBusy(false); event.target.value = ""; }
         }} />
       </div></div>
+      {editable && current && !editing && source.index && (
+        <div className="source-document-toolbar">
+          <span>{indexLabels[source.index.state] || "关键词检索"}</span>
+          {source.index.can_rebuild && (
+            <button className="button" disabled={busy || replacing} onClick={async () => {
+              setBusy(true); setSaveError(""); setNotice("");
+              try {
+                setTask(await api<AgentTask>(`/sources/${encodeURIComponent(sourceId)}/reindex`, {
+                  method: "POST", body: JSON.stringify({ expected_version: source.current_version }),
+                }));
+              } catch (e) {
+                setSaveError((e as Error).message);
+              } finally {
+                setBusy(false);
+              }
+            }}><RefreshCw size={14} />重建索引</button>
+          )}
+        </div>
+      )}
       {saveError && <ErrorBox message={saveError} />}
       {notice && <p className="learning-status" role="status">{notice}</p>}
       {task && <p className="muted small" role="status">{task.message || "正在更新资料索引…"} <Link href={`/tasks?task=${task.id}`}>查看任务</Link></p>}

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -686,7 +686,17 @@ function SourcesPanel({
     [query, setQuery] = useState(""),
     [results, setResults] = useState<Citation[] | null>(null),
     [research, setResearch] = useState(""),
-    [selectedSource, setSelectedSource] = useState<Source | null>(null);
+    [selectedSource, setSelectedSource] = useState<Source | null>(null),
+    [importId, setImportId] = useState<string | null>(null);
+  const { data: importTask, error: importError } = useResource<AgentTask>(
+    importId ? `/tasks/${importId}` : null, 1800,
+  );
+  useEffect(() => {
+    if (importId && importTask?.id === importId && ["succeeded", "failed", "cancelled"].includes(importTask.status)) {
+      setImportId(null);
+      if (importTask.status === "succeeded") reload();
+    }
+  }, [importId, importTask, reload]);
   return (
     <>
       <div className="sources-header">
@@ -699,7 +709,7 @@ function SourcesPanel({
         <div className="row-actions">
           <label className="button">
             <Upload size={15} />
-            {busy ? "正在解析…" : "上传资料"}
+            {busy ? "正在提交…" : "上传资料"}
             <input
               type="file"
               accept=".pdf,.txt,.md,.docx"
@@ -713,12 +723,12 @@ function SourcesPanel({
                 const fd = new FormData();
                 fd.append("file", f);
                 try {
-                  await api<Source>(`/courses/${c.id}/sources`, {
+                  const task = await api<AgentTask>(`/courses/${c.id}/imports`, {
                     method: "POST",
                     body: fd,
                   });
-                  reload();
-                  notify("资料已解析并加入课程知识库。");
+                  setImportId(task.id);
+                  notify("资料导入已排队。");
                 } catch (e) {
                   setError((e as Error).message);
                 } finally {
@@ -735,6 +745,11 @@ function SourcesPanel({
         </div>
       </div>
       {error && <ErrorBox message={error} />}
+      {importError && <ErrorBox message={importError} />}
+      {(importId || importTask) && <p className="small muted" role="status">
+        {importTask?.message || "等待导入"}{importTask?.error && ` · ${importTask.error}`}{" "}
+        <Link href={`/tasks?task=${importId || importTask?.id}`}>查看任务</Link>
+      </p>}
       <div className="sources-grid">
         <section className="panel">
           {c.sources.length ? (

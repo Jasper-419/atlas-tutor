@@ -69,6 +69,8 @@ Node 另返回 `lesson_citations:Citation[]`，用于刷新和跨会话恢复讲
 - `POST /courses/{id}/sources` multipart `file` → Source，支持 PDF/TXT/MD/DOCX。
 - `POST /courses/{id}/sources/text` `{title,content,url?}` → Source。
 - `DELETE /sources/{id}` → `{ok:true}`。
+- `GET /sources/{id}?version=` 的当前版本增加 `index: {state, can_rebuild}`。状态为 `ready`、`lexical`、`embedding_unverified`、`embedding_model_changed` 或 `embedding_unavailable`。
+- `POST /sources/{id}/reindex` 接收 `{expected_version}`，返回持久 `reindex` Task。仅资料所有者可操作。版本不符或 embedding 未配置返回 409。同一资料的活动重建返回已有任务，失败或取消后可用原任务接口重试。
 - `GET /courses/{id}/search?q=...` → Citation[]。
 - `GET /me/memories?course_id=&include_history=false` → Memory[]（默认排除 forgotten/superseded）；`POST /me/memories` `{content,category,course_id?,facet?}` → Memory；`PATCH /me/memories/{id}` `{content,expected_revision?}` → Memory，冲突409；`DELETE /me/memories/{id}` → `{ok:true}`（永久删除及清理派生画像文本）。
 - `GET /me/memories/{id}` → `{memory,evidence,history}`，证据为来源类型/标签/逐字片段/受权链接，不公开内部 hash/隐藏答案。
