@@ -1,0 +1,46 @@
+# Python 虚拟环境
+.venv/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code 配置文件
+.vscode/
+
+# 本地配置与凭据
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+dist/
+build/
+
+# Atlas local runtime and build outputs
+.venv-atlas/
+.next/
+frontend/.next/
+frontend/next-env.d.ts
+frontend/out/
+*.tsbuildinfo
+data/
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+.pytest_cache/
+.ruff_cache/
+.taste-skill/
+.superpowers/
+docs/superpowers/
+*.log
+.DS_Store

@@ -1,0 +1,40 @@
+.memory-profile { border: 1px solid var(--border); border-radius: var(--radius-small); margin-bottom: 20px; }
+.memory-profile > summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 14px 16px; font-size: 14px; font-weight: 500; }
+.memory-profile > summary::after { content: "+"; color: var(--muted); margin-left: 12px; }
+.memory-profile[open] > summary::after { content: "−"; }
+.memory-profile > summary > span { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: auto; }
+.memory-profile-body { padding: 0 16px 16px; }
+.memory-profile-toolbar { display: flex; align-items: end; gap: 12px; margin-bottom: 12px; }
+.memory-profile-toolbar > label { display: grid; flex: 1; gap: 6px; font-size: 12px; color: var(--muted); min-width: 0; }
+.memory-profile-toolbar select { width: 100%; height: 36px; padding: 0 12px; border: 1px solid var(--control); border-radius: var(--radius-control); background: var(--surface); color: var(--text); font: inherit; font-size: 13px; }
+.memory-profile-notice { background: var(--frame); padding: 12px; border-radius: var(--radius-small); font-size: 13px; line-height: 1.7; }
+.memory-profile-sections h3, .memory-detail-section h3 { font-size: 14px; font-weight: 500; margin: 0 0 12px; }
+.memory-profile-sections section { margin-top: 18px; }
+.memory-profile-sections ul { list-style: none; padding: 0; margin: 0; }
+.memory-profile-sections li { display: flex; align-items: baseline; gap: 16px; padding: 6px 0; font-size: 13px; line-height: 1.7; }
+.memory-profile-sections li > span { flex: 1; }
+.memory-profile-sections .text-button { white-space: nowrap; font-size: 12px; }
+.memory-history-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.memory-history-toggle input { width: 14px; height: 14px; margin: 0; accent-color: var(--text); }
+.memory-card-controls { display: flex; align-items: center; gap: 14px; padding-top: 12px; }
+.memory-card-controls .text-button { font-size: 12px; }
+.memory-state { font-size: 12px; color: var(--muted); }
+.memory-inspector-modal { max-width: 620px; }
+.memory-inspector { display: grid; gap: 22px; }
+.memory-inspector p { margin: 8px 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; font-size: 14px; }
+.memory-inspector-current { padding: 16px; border-radius: var(--radius-small); background: var(--frame); }
+.memory-detail-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; font-size: 12px; }
+.memory-detail-heading strong { font-weight: 500; }
+.memory-detail-heading > span, .memory-detail-heading time { color: var(--muted); }
+.memory-evidence + .memory-evidence { margin-top: 18px; }
+.memory-evidence blockquote { margin: 10px 0; border-left: 2px solid var(--control); padding-left: 12px; font-size: 13px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.memory-evidence .text-button { font-size: 12px; }
+.memory-history { padding: 0; margin: 0; list-style: none; }
+.memory-history li + li { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
+.memory-history p { font-size: 13px; }
+.memory-history-evidence > summary { cursor: pointer; font-size: 12px; color: var(--muted); margin: 8px 0; }
+.memory-history-evidence .memory-evidence { padding: 10px 0; }
+.memory-inspector-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.memory-delete { color: var(--negative); }
+.memory-conflict-current { font-size: 13px; padding: 12px; border-radius: var(--radius-small); background: var(--frame); white-space: pre-wrap; overflow-wrap: anywhere; }
+.memory-profile summary:focus-visible { outline: 2px solid var(--control); outline-offset: 2px; }

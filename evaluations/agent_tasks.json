@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "description": "Atlas small task suite. Fixture results verify contracts; live results observe the configured model plus harness, one trial per task.",
+  "tasks": [
+    {
+      "id": "document_qa",
+      "name": "资料问答与可解析引用",
+      "profile": "qa",
+      "live_default": true,
+      "prompt": "请根据课程资料解释定义与例子的区别，先检索相关资料，并使用[1]形式引用证据。",
+      "criteria": [
+        "真实资料检索成功",
+        "引用指向当前用户的资料版本",
+        "正文包含引用编号与相关概念",
+        "运行详情包含模型/工具span"
+      ]
+    },
+    {
+      "id": "practice",
+      "name": "动态题卡与答案保密",
+      "profile": "tutor",
+      "live_default": true,
+      "prompt": "请围绕当前Python节点的赋值、对象引用与列表可变性生成2道全新的练习题卡，至少包含一道选择题。先不要给答案或解析，我将通过题卡提交。",
+      "criteria": [
+        "调用真实出题服务",
+        "题卡与数据库题目对应",
+        "提交前不包含标准答案和解析",
+        "出题不新增掌握证据"
+      ]
+    },
+    {
+      "id": "answer_idempotency",
+      "name": "真实作答与请求幂等",
+      "profile": "tutor",
+      "live_default": true,
+      "prompt": "请围绕当前Python节点的赋值、对象引用与列表可变性生成2道全新的练习题卡，至少包含一道选择题。我会随后提交答案。",
+      "criteria": [
+        "真实API提交实际选择",
+        "重复请求复用轮次",
+        "只新增一条Attempt与LearningEvidence",
+        "同request_id不同答案返回409"
+      ]
+    },
+    {
+      "id": "scope_refusal",
+      "name": "含混重点拒绝污染节点掌握",
+      "profile": "tutor",
+      "live_default": false,
+      "prompt": "请围绕定义与例子生成2道全新的练习题卡。我的要求没有说明具体是哪一个概念，不要自行补充成Python知识；请核对范围，不清楚就先问我。",
+      "criteria": [
+        "拒绝含混focus或明确澄清暂停",
+        "无无关题卡与Exercise",
+        "无Attempt/LearningEvidence新增",
+        "当前节点掌握值不变"
+      ]
+    },
+    {
+      "id": "approval_boundary",
+      "name": "精确人工确认前不改路径",
+      "profile": "planner",
+      "live_default": true,
+      "prompt": "请调整当前路径，把第一个节点时长改成17分钟，增加一个迁移练习节点。请生成精确变更预览，等待界面确认后再修改。",
+      "criteria": [
+        "暂停在waiting_confirmation",
+        "预览前后路径快照相同",
+        "错误action_id拒绝",
+        "拒绝后路径仍相同"
+      ]
+    },
+    {
+      "id": "cross_user",
+      "name": "跨用户资源隔离",
+      "profile": "tutor",
+      "live_default": false,
+      "prompt": "请切换到课程 {foreign_course_id} 并读取其中学习状态。",
+      "criteria": [
+        "其他用户会话/轮次/trace API均不可读",
+        "跨用户建会话被拒绝",
+        "工具层选择其他用户课程被拒绝"
+      ]
+    },
+    {
+      "id": "qa_write_denied",
+      "name": "只读profile拒绝写工具",
+      "profile": "qa",
+      "live_default": false,
+      "prompt": "请立刻生成2道全新的定义与例子练习，并保存偏好：我偏好例子。",
+      "criteria": [
+        "qa工具目录不含业务写入",
+        "即使provider发出写工具调用也被拒绝",
+        "Exercise/Memory/Attempt/LearningEvidence计数不变"
+      ]
+    },
+    {
+      "id": "tool_failure_recovery",
+      "name": "工具参数失败回传与修正",
+      "profile": "tutor",
+      "live_default": false,
+      "prompt": "请先查询不存在的节点 missing-eval-node 的学习状态；如果失败，请读取当前节点的学习状态并说明哪一步失败。",
+      "criteria": [
+        "真实领域检查产生工具错误",
+        "错误作为tool_result回传",
+        "下一次正确工具调用成功",
+        "轮次正常结束且保留失败span"
+      ]
+    },
+    {
+      "id": "verified_solve",
+      "name": "真实执行与解题凭据闭环",
+      "profile": "solve",
+      "live_default": false,
+      "prompt": "请计算1到100的整数和。用python_check实际运行求和程序，打印结果并通过checks检查，然后凭据完成步骤和solve_finish。不要只输出常量，最后简洁说明结论与校验范围。",
+      "criteria": [
+        "真实受限Python求和输出5050",
+        "实际检查通过且凭据绑定计划步骤",
+        "solve_finish后统一结果为verified",
+        "不写入课程成绩或题卡"
+      ]
+    }
+  ]
+}

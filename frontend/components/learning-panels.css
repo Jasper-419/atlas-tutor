@@ -1,0 +1,59 @@
+/* Desktop learning tools use the existing Atlas surfaces and controls. */
+.learning-actions, .learning-feedback-actions, .source-document-toolbar, .source-document-toolbar > div, .learning-next-heading, .learning-notes-toolbar, .learning-note-heading { display: flex; align-items: center; gap: 10px; }
+.learning-actions { justify-content: flex-end; }
+.learning-status { color: #1b6e66; font-size: 12px; }
+.learning-next-action { padding: 16px 18px; margin: 20px 0; border: 1px solid rgba(15,17,21,.08); border-radius: 12px; background: #fafbfc; }
+.learning-next-heading { justify-content: space-between; align-items: flex-start; }
+.learning-next-action h3 { font-size: 14px; font-weight: 600; margin: 0; line-height: 1.6; }
+.learning-next-action > p { font-size: 13px; line-height: 1.7; color: var(--muted, #61666b); margin: 6px 0 0; }
+.learning-next-action .text-button, .learning-next-action a.text-button { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; }
+.learning-feedback-actions { margin-top: 12px; flex-wrap: wrap; gap: 16px; }
+.turn-note-action { margin-top: 16px; }
+.turn-note-action > .text-button, .question-dispute { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted, #61666b); }
+.question-dispute { margin-top: 12px; }
+.citation-open { display: inline-flex; margin-bottom: 8px; margin-right: 14px; font-size: 12px; }
+.citation-trigger { display: flex; align-items: center; gap: 9px; width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid rgba(15,17,21,.08); border-radius: 8px; background: #fafbfc; text-align: left; color: inherit; cursor: pointer; font: inherit; font-size: 12px; line-height: 1.7; }
+.citation-trigger:hover { background: #f1f3f4; }
+.citation-trigger > span:nth-child(2) { min-width: 0; overflow-wrap: anywhere; }
+.citation-trigger small { display: block; color: var(--muted, #61666b); font-size: 11px; }
+.citation-read-label { margin-left: auto; flex: none; color: var(--muted, #61666b); font-size: 11px; }
+.learning-next-action > .learning-teaching-status { font-size: 12px; margin-top: 10px; }
+.modal.source-document-modal { width: min(1040px, calc(100vw - 80px)); max-width: none; max-height: calc(100dvh - 64px); }
+.source-document-toolbar { justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; }
+.source-document-toolbar > span { font-size: 12px; color: var(--muted, #61666b); line-height: 34px; }
+.source-document-toolbar > div { flex-wrap: wrap; justify-content: flex-end; }
+.source-document-toolbar .button { min-height: 32px; padding: 6px 10px; font-size: 12px; }
+.source-document-toolbar a.text-button { font-size: 12px; margin-right: 6px; }
+.source-document-body { max-height: calc(100dvh - 240px); overflow: auto; overscroll-behavior: contain; padding-right: 10px; }
+.source-citation-location { margin: 0 0 24px; padding: 14px 16px; background: #f4f6f7; border-radius: 8px; font-size: 13px; line-height: 1.8; }
+.source-citation-location strong { font-weight: 500; }
+.source-citation-location p { margin: 6px 0 0; color: var(--muted, #61666b); }
+.source-page { padding: 18px 0 24px; border-top: 1px solid rgba(15,17,21,.08); scroll-margin-top: 16px; }
+.source-page h3 { font-size: 12px; font-weight: 500; color: var(--muted, #61666b); margin: 0 0 14px; }
+.source-plain-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.9; }
+.source-plain-text mark { background: #e1eeeb; color: inherit; padding: 2px 0; scroll-margin-top: 32px; }
+.source-document-editor textarea { max-height: calc(100dvh - 390px); min-height: 240px; }
+.modal.learning-notes-modal { width: min(1060px, calc(100vw - 80px)); max-width: none; height: min(780px, calc(100dvh - 64px)); max-height: calc(100dvh - 64px); margin-right: 32px; display: flex; flex-direction: column; }
+.learning-notes-modal:not([open]) { display: none; }
+.learning-notes-toolbar { flex: none; justify-content: space-between; margin-bottom: 16px; }
+/* 250px list + 24px gutter + remaining width = the dialog's inner width. */
+.learning-notes-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; min-height: 0; flex: 1; }
+.learning-notes-list { overflow: auto; min-height: 0; padding-right: 16px; border-right: 1px solid rgba(15,17,21,.08); }
+.learning-notes-list > button { display: block; width: 100%; border: 0; background: transparent; border-radius: 8px; text-align: left; padding: 12px; margin-bottom: 4px; color: inherit; cursor: pointer; }
+.learning-notes-list > button:hover, .learning-notes-list > button.selected { background: #f1f3f4; }
+.learning-notes-list strong { display: block; font-size: 13px; line-height: 1.6; font-weight: 500; overflow-wrap: anywhere; }
+.learning-notes-list small { display: block; margin-top: 5px; font-size: 11px; color: var(--muted, #61666b); }
+.learning-note-detail { min-width: 0; min-height: 0; overflow: auto; padding-right: 8px; }
+.learning-note-heading { justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.learning-note-heading h3 { font-size: 19px; line-height: 1.5; font-weight: 600; margin: 0 0 6px; }
+.learning-note-heading .learning-actions { flex: none; }
+.learning-note-detail .markdown { font-size: 14px; }
+.learning-note-detail .markdown h1, .learning-note-detail .markdown h2 { font-size: 18px; }
+.learning-note-detail textarea { min-height: 260px; }
+.lesson-stale-notice { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 13px 14px; margin: 16px 0; background: #f4f6f7; border-radius: 10px; font-size: 13px; line-height: 1.7; }
+.lesson-stale-notice > .button { flex: none; font-size: 12px; }
+.source-title-button { display: block; text-align: left; font: inherit; font-weight: 500; border: 0; padding: 0; background: transparent; color: var(--text, #0f1115); cursor: pointer; }
+.source-row .source-title-button { font-size: 13px; overflow-wrap: anywhere; }
+.source-title-button:hover { text-decoration: underline; }
+.source-row-tools { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.source-row-tools .text-button { font-size: 12px; }

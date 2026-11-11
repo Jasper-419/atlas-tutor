@@ -1,0 +1,357 @@
+{
+  "version": 1,
+  "path": "backend.retrieval_agent.retrieve",
+  "mode": "lexical",
+  "model_responses": "none",
+  "scope": "isolated_synthetic_corpus",
+  "matching": "exact_source_and_optional_quote_or_locator",
+  "limitations": "Small synthetic cases only; no semantic judge, answer quality, or general improvement claim.",
+  "k": 3,
+  "counts": {
+    "scored": 6,
+    "degraded": 0,
+    "failed": 0
+  },
+  "means": {
+    "recall": 1.0,
+    "precision": 0.8333333333333334,
+    "ndcg": 1.0,
+    "mrr": 1.0,
+    "average_precision": 1.0,
+    "hit": 1.0
+  },
+  "cases": [
+    {
+      "id": "dotted-identifier",
+      "query": "2.6.8",
+      "status": "scored",
+      "metrics": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "ndcg": 1.0,
+        "mrr": 1.0,
+        "average_precision": 1.0,
+        "hit": 1.0,
+        "gold_count": 1,
+        "matched_count": 1
+      },
+      "retrieval": {
+        "mode": "lexical",
+        "queries": [
+          {
+            "query": "2.6.8",
+            "kind": "original"
+          }
+        ],
+        "candidate_count": 1,
+        "rewrite": {
+          "status": "skipped"
+        },
+        "rerank": {
+          "status": "skipped"
+        },
+        "warnings": []
+      },
+      "citations": [
+        {
+          "id": "15b3ed4a-2e88-43e2-9758-7df760a136cc",
+          "source_id": "release",
+          "title": "发布说明",
+          "url": null,
+          "excerpt": "版本 2.6.8 修复了文档索引失败，并保留旧版原文。",
+          "chunk_index": 0,
+          "chunk_indices": [
+            0
+          ],
+          "kind": "text",
+          "source_version": 1,
+          "page_start": null,
+          "page_end": null,
+          "section": null
+        }
+      ]
+    },
+    {
+      "id": "single-han",
+      "query": "熵",
+      "status": "scored",
+      "metrics": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "ndcg": 1.0,
+        "mrr": 1.0,
+        "average_precision": 1.0,
+        "hit": 1.0,
+        "gold_count": 1,
+        "matched_count": 1
+      },
+      "retrieval": {
+        "mode": "lexical",
+        "queries": [
+          {
+            "query": "熵",
+            "kind": "original"
+          }
+        ],
+        "candidate_count": 1,
+        "rewrite": {
+          "status": "skipped"
+        },
+        "rerank": {
+          "status": "skipped"
+        },
+        "warnings": []
+      },
+      "citations": [
+        {
+          "id": "702edc4b-e6f2-45d3-872b-98b520165166",
+          "source_id": "entropy",
+          "title": "信息论",
+          "url": null,
+          "excerpt": "熵衡量信息的不确定性。平均信息量越大，熵越大。",
+          "chunk_index": 0,
+          "chunk_indices": [
+            0
+          ],
+          "kind": "text",
+          "source_version": 1,
+          "page_start": null,
+          "page_end": null,
+          "section": null
+        }
+      ]
+    },
+    {
+      "id": "single-latin",
+      "query": "x",
+      "status": "scored",
+      "metrics": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "ndcg": 1.0,
+        "mrr": 1.0,
+        "average_precision": 1.0,
+        "hit": 1.0,
+        "gold_count": 1,
+        "matched_count": 1
+      },
+      "retrieval": {
+        "mode": "lexical",
+        "queries": [
+          {
+            "query": "x",
+            "kind": "original"
+          }
+        ],
+        "candidate_count": 1,
+        "rewrite": {
+          "status": "skipped"
+        },
+        "rerank": {
+          "status": "skipped"
+        },
+        "warnings": []
+      },
+      "citations": [
+        {
+          "id": "aedf1d3b-c25a-46c6-9f96-92e7ffb89493",
+          "source_id": "variables",
+          "title": "变量定义",
+          "url": null,
+          "excerpt": "变量 x 表示模型输入，y 表示预测输出。",
+          "chunk_index": 0,
+          "chunk_indices": [
+            0
+          ],
+          "kind": "text",
+          "source_version": 1,
+          "page_start": null,
+          "page_end": null,
+          "section": null
+        }
+      ]
+    },
+    {
+      "id": "direct-question",
+      "query": "梯度下降怎样更新参数",
+      "status": "scored",
+      "metrics": {
+        "recall": 1.0,
+        "precision": 0.5,
+        "ndcg": 1.0,
+        "mrr": 1.0,
+        "average_precision": 1.0,
+        "hit": 1.0,
+        "gold_count": 1,
+        "matched_count": 1
+      },
+      "retrieval": {
+        "mode": "lexical",
+        "queries": [
+          {
+            "query": "梯度下降怎样更新参数",
+            "kind": "original"
+          }
+        ],
+        "candidate_count": 2,
+        "rewrite": {
+          "status": "skipped"
+        },
+        "rerank": {
+          "status": "skipped"
+        },
+        "warnings": []
+      },
+      "citations": [
+        {
+          "id": "5d79c964-f120-42af-be04-37333d9b1f85",
+          "source_id": "gradient",
+          "title": "梯度下降",
+          "url": null,
+          "excerpt": "梯度下降沿目标函数梯度的反方向更新参数以减小损失。",
+          "chunk_index": 0,
+          "chunk_indices": [
+            0
+          ],
+          "kind": "text",
+          "source_version": 1,
+          "page_start": null,
+          "page_end": null,
+          "section": null
+        },
+        {
+          "id": "0876aaf4-8be0-4355-8150-ee26ede7ce94",
+          "source_id": "numbers",
+          "title": "独立数字",
+          "url": null,
+          "excerpt": "数字 2、6、8 表示三个独立编号，与版本号无关。",
+          "chunk_index": 0,
+          "chunk_indices": [
+            0
+          ],
+          "kind": "text",
+          "source_version": 1,
+          "page_start": null,
+          "page_end": null,
+          "section": null
+        }
+      ]
+    },
+    {
+      "id": "context-reference",
+      "query": "它衡量什么",
+      "status": "scored",
+      "metrics": {
+        "recall": 1.0,
+        "precision": 0.5,
+        "ndcg": 1.0,
+        "mrr": 1.0,
+        "average_precision": 1.0,
+        "hit": 1.0,
+        "gold_count": 1,
+        "matched_count": 1
+      },
+      "retrieval": {
+        "mode": "lexical",
+        "queries": [
+          {
+            "query": "它衡量什么",
+            "kind": "original"
+          }
+        ],
+        "candidate_count": 2,
+        "rewrite": {
+          "status": "skipped"
+        },
+        "rerank": {
+          "status": "skipped"
+        },
+        "warnings": []
+      },
+      "citations": [
+        {
+          "id": "702edc4b-e6f2-45d3-872b-98b520165166",
+          "source_id": "entropy",
+          "title": "信息论",
+          "url": null,
+          "excerpt": "熵衡量信息的不确定性。平均信息量越大，熵越大。",
+          "chunk_index": 0,
+          "chunk_indices": [
+            0
+          ],
+          "kind": "text",
+          "source_version": 1,
+          "page_start": null,
+          "page_end": null,
+          "section": null
+        },
+        {
+          "id": "aedf1d3b-c25a-46c6-9f96-92e7ffb89493",
+          "source_id": "variables",
+          "title": "变量定义",
+          "url": null,
+          "excerpt": "变量 x 表示模型输入，y 表示预测输出。",
+          "chunk_index": 0,
+          "chunk_indices": [
+            0
+          ],
+          "kind": "text",
+          "source_version": 1,
+          "page_start": null,
+          "page_end": null,
+          "section": null
+        }
+      ]
+    },
+    {
+      "id": "filtered-source",
+      "query": "模型输入",
+      "status": "scored",
+      "metrics": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "ndcg": 1.0,
+        "mrr": 1.0,
+        "average_precision": 1.0,
+        "hit": 1.0,
+        "gold_count": 1,
+        "matched_count": 1
+      },
+      "retrieval": {
+        "mode": "lexical",
+        "queries": [
+          {
+            "query": "模型输入",
+            "kind": "original"
+          }
+        ],
+        "candidate_count": 1,
+        "rewrite": {
+          "status": "skipped"
+        },
+        "rerank": {
+          "status": "skipped"
+        },
+        "warnings": []
+      },
+      "citations": [
+        {
+          "id": "aedf1d3b-c25a-46c6-9f96-92e7ffb89493",
+          "source_id": "variables",
+          "title": "变量定义",
+          "url": null,
+          "excerpt": "变量 x 表示模型输入，y 表示预测输出。",
+          "chunk_index": 0,
+          "chunk_indices": [
+            0
+          ],
+          "kind": "text",
+          "source_version": 1,
+          "page_start": null,
+          "page_end": null,
+          "section": null
+        }
+      ]
+    }
+  ]
+}

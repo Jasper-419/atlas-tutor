@@ -1,0 +1,90 @@
+/* Atlas desktop tutor: available width = navigation + one conversation, or conversation + optional reading pane. */
+.tutor-sheet { height: 100dvh; min-height: 0; overflow: hidden; }
+.tutor-sheet > .canvas { height: 100%; max-width: none; margin: 0; padding: 0; }
+.atlas-tutor { --tutor-rule: rgba(15,17,21,.08); display: flex; flex-direction: column; height: 100%; min-width: 0; min-height: 0; background: var(--surface, #fff); color: var(--text); }
+.atlas-tutor .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.atlas-tutor-header { flex: none; display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 12px 28px; }
+.atlas-tutor-header h1 { font-family: inherit; font-size: 19px; font-weight: 600; margin: 0 auto 0 0; }
+.atlas-tutor-header select, .atlas-tutor-context select { width: auto; height: 34px; max-width: 250px; padding: 4px 28px 4px 10px; border: 1px solid var(--tutor-rule); border-radius: 8px; background: #fff; color: inherit; font-size: 13px; }
+.tutor-session-select { min-width: 0; }
+.tutor-session-select select { max-width: 240px; }
+.atlas-tutor-context { display: flex; flex: none; flex-wrap: wrap; gap: 8px; align-items: center; padding: 0 28px 14px; border-bottom: 1px solid var(--tutor-rule); }
+.atlas-tutor-context label { min-width: 0; }
+.atlas-tutor-context select { max-width: 230px; }
+.atlas-tutor-modes { display: inline-flex; align-items: center; padding: 3px; gap: 2px; border-radius: 8px; background: #f4f5f6; margin-left: auto; }
+.atlas-tutor-modes button { border: 0; background: transparent; border-radius: 6px; padding: 6px 10px; white-space: nowrap; color: var(--muted); font-size: 12px; cursor: pointer; }
+.atlas-tutor-modes button[aria-pressed=true] { background: #fff; color: var(--text); }
+.atlas-tutor-thread { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.atlas-tutor-measure { width: min(100%, 856px); padding: 22px 36px 32px; margin: 0 auto; }
+.atlas-tutor-welcome { padding: min(13vh,100px) 0 32px; }
+.atlas-tutor-welcome h2 { font-size: 28px; font-weight: 500; letter-spacing: -.025em; line-height: 1.4; margin: 0 0 12px; }
+.atlas-tutor-welcome p { font-size: 14px; color: var(--muted); line-height: 1.8; max-width: 560px; margin: 0; }
+.atlas-tutor-welcome > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.atlas-tutor-welcome button { border: 1px solid var(--tutor-rule); border-radius: 12px; padding: 9px 12px; background: #fff; color: var(--text); font-size: 13px; text-align: left; cursor: pointer; }
+.atlas-tutor-welcome button:hover { background: #f6f7f8; }
+.atlas-tutor-turn { margin-bottom: 32px; }
+.atlas-tutor-user { width: fit-content; max-width: 90%; margin: 0 0 25px auto; padding: 12px 18px; background: #f4f5f6; border-radius: 16px; }
+.atlas-tutor-user > span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.atlas-tutor-user .markdown > :first-child, .atlas-tutor-answer > .markdown > :first-child { margin-top: 0; }
+.atlas-tutor-user .markdown > :last-child { margin-bottom: 0; }
+.atlas-tutor-user .markdown { font-size: 14px; }
+.atlas-tutor-author { display: block; margin-bottom: 12px; font-size: 14px; font-weight: 600; }
+.atlas-tutor-answer > .markdown { font-size: 15px; line-height: 1.85; }
+.atlas-tutor-answer .markdown h1, .atlas-tutor-answer .markdown h2, .atlas-tutor-answer .markdown h3 { font-size: 18px; }
+.atlas-tutor-answer .markdown pre { max-width: 100%; overflow: auto; }
+.atlas-tutor-thinking { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; }
+.atlas-tutor-tools { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+.atlas-tutor-tools summary { cursor: pointer; padding: 7px 0; }
+.atlas-tutor-tools > details { padding-left: 14px; border-left: 1px solid var(--tutor-rule); margin-left: 4px; }
+.atlas-tutor-tools > details > summary { display: flex; gap: 7px; align-items: center; }
+.atlas-tutor-tool-result { padding: 2px 0 8px 20px; font-size: 13px; }
+.atlas-tutor-compose { flex: none; padding: 0 28px 22px; }
+.atlas-tutor-input { width: min(100%, 784px); margin: 0 auto; border: 1px solid rgba(15,17,21,.13); border-radius: 18px; padding: 12px 14px 8px; background: #fafbfc; }
+.atlas-tutor-input:focus-within { border-color: #92979d; }
+.atlas-tutor-input textarea { border: 0; background: transparent; width: 100%; outline: 0; box-shadow: none; padding: 2px 2px 10px; min-height: 62px; max-height: 220px; resize: vertical; font-size: 14px; line-height: 1.7; color: inherit; }
+.atlas-tutor-input textarea:focus { box-shadow: none; outline: 0; }
+.atlas-tutor-input-actions { display: flex; gap: 10px; align-items: center; }
+.atlas-tutor-input-actions > span { font-size: 11px; color: var(--muted); margin-right: auto; }
+.atlas-tutor-send { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border: 0; border-radius: 10px; background: #17191c; color: #fff; cursor: pointer; }
+.atlas-tutor-send:disabled { background: #e6e8ea; color: #6c7279; cursor: default; }
+.atlas-tutor button:focus-visible, .atlas-tutor select:focus-visible { outline: 2px solid #6a737d; outline-offset: 3px; }
+.atlas-tutor button:disabled { cursor: default; }
+.atlas-tutor-exercise, .atlas-tutor-assessment, .atlas-tutor-confirmation { margin-top: 18px; border: 1px solid var(--tutor-rule); border-radius: 12px; padding: 18px; }
+.atlas-tutor-exercise > .markdown { margin: 8px 0 12px; font-size: 14px; }
+.atlas-tutor-exercise > textarea { width: 100%; margin-bottom: 12px; font-size: 14px; }
+.atlas-tutor-options { display: grid; gap: 8px; margin-bottom: 14px; }
+.atlas-tutor-options label { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; line-height: 1.6; padding: 8px 10px; border-radius: 8px; background: #f7f8f9; }
+.atlas-tutor-options input { width: 16px; height: 16px; margin-top: 3px; flex: none; accent-color: #17191c; }
+.atlas-tutor-assessment > strong { display: flex; justify-content: space-between; font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+.atlas-tutor-assessment > strong > span { color: #1b6e66; font-variant-numeric: tabular-nums; }
+.atlas-tutor-assessment .markdown { font-size: 14px; }
+.atlas-tutor-assessment summary { cursor: pointer; font-size: 13px; }
+.atlas-tutor-prompt { background: #f6f7f8; margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 14px; }
+.atlas-tutor-prompt > span { font-size: 12px; color: var(--muted); }
+.atlas-tutor-confirmation h3 { font-size: 16px; font-weight: 500; margin: 0 0 8px; }
+.atlas-tutor-confirmation > p { font-size: 13px; color: var(--muted); }
+.atlas-tutor-changes { display: grid; gap: 16px; margin: 18px 0; }
+.atlas-tutor-changes > div > strong { font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
+.atlas-tutor-changes > div > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; margin-top: 8px; }
+.atlas-tutor-changes > div > div > div { background: #f7f8f9; border-radius: 8px; padding: 10px; min-width: 0; }
+.atlas-tutor-changes span { color: var(--muted); font-size: 12px; }
+.atlas-tutor-changes p, .atlas-tutor-changes pre { margin: 6px 0 0; font-family: inherit; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
+.atlas-tutor-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.atlas-tutor-retry { display: inline-flex; gap: 7px; margin-top: 10px; align-items: center; }
+.atlas-tutor-import { display: flex; align-items: flex-start; gap: 8px; padding: 14px; background: #f6f7f8; border-radius: 10px; font-size: 13px; margin: 14px 0; }
+.atlas-tutor-import > svg { flex: none; margin-top: 2px; }
+.atlas-tutor-import a { white-space: nowrap; margin-left: auto; }
+.tutor-learning { display: flex; height: 100%; flex-direction: column; min-height: 0; }
+.tutor-learning-top { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 24px; border-bottom: 1px solid rgba(15,17,21,.08); }
+.tutor-learning-top > a { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; min-width: 0; }
+.tutor-learning-top > a span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tutor-learning-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr); }
+.tutor-learning-body.with-reading { grid-template-columns: minmax(420px,1fr) minmax(340px,.8fr); }
+.tutor-learning-reading { min-width: 0; overflow: auto; overscroll-behavior: contain; padding: 26px 28px; border-left: 1px solid rgba(15,17,21,.08); }
+.tutor-learning-reading[hidden] { display: none; }
+.tutor-learning-reading h2 { font-size: 21px; line-height: 1.5; margin: 0 0 10px; font-weight: 500; }
+.tutor-learning-reading .markdown { font-size: 14px; line-height: 1.9; }
+.tutor-learning-reading .markdown h1, .tutor-learning-reading .markdown h2 { font-size: 18px; }
+.tutor-learning-reading > p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+.atlas-tutor-validation { font-size: 12px; color: var(--muted); line-height: 1.7; margin: 12px 0 0; }

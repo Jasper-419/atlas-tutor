@@ -1,0 +1,11 @@
+{
+  "name": "atlas-learning-os",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "python3 scripts/dev.py",
+    "dev:web": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "typecheck": "npm --prefix frontend run typecheck"
+  }
+}

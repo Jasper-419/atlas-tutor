@@ -1,0 +1,23 @@
+.atlas-solve-result { margin: 0 0 18px; padding: 15px 0; border-top: 1px solid var(--tutor-rule, var(--border)); border-bottom: 1px solid var(--tutor-rule, var(--border)); font-size: 13px; color: var(--text); }
+.atlas-solve-heading { display: flex; align-items: baseline; gap: 12px; }
+.atlas-solve-heading strong { font-size: 14px; font-weight: 500; }
+.atlas-solve-heading > span, .atlas-solve-goal { color: var(--muted); font-size: 12px; }
+.atlas-solve-goal { margin: 7px 0 12px; line-height: 1.7; }
+.atlas-solve-steps { margin: 0; padding-left: 20px; }
+.atlas-solve-steps li { padding: 7px 0 7px 3px; }
+.atlas-solve-steps li::marker { color: var(--muted); font-variant-numeric: tabular-nums; }
+.atlas-solve-steps li > div, .atlas-solve-checks li > div { display: flex; gap: 16px; align-items: baseline; justify-content: space-between; }
+.atlas-solve-steps small { flex: none; color: var(--muted); font-size: 12px; }
+.atlas-solve-steps li > p, .atlas-solve-checks p { color: var(--muted); font-size: 12px; margin: 5px 0 0; line-height: 1.7; overflow-wrap: anywhere; }
+.atlas-solve-result .is-verified { color: #1b6e66; }
+.atlas-solve-result.is-detailed { border: 0; padding: 4px 0 10px 20px; margin: 0; }
+.atlas-solve-execution { padding: 12px 0 4px; }
+.atlas-solve-execution > strong { display: block; font-size: 13px; font-weight: 500; margin-bottom: 10px; }
+.atlas-solve-execution > div > span { display: block; color: var(--muted); font-size: 12px; }
+.atlas-solve-execution pre { max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: #f7f8f9; color: var(--text); border-radius: 8px; padding: 10px 12px; font-size: 12px; margin: 5px 0 12px; }
+.atlas-solve-execution .atlas-solve-error > span { color: #8c3136; }
+.atlas-solve-checks { list-style: none; padding: 0; margin: 12px 0; }
+.atlas-solve-checks li { padding: 8px 0; border-bottom: 1px solid var(--tutor-rule, var(--border)); }
+.atlas-solve-checks code { min-width: 0; overflow-wrap: anywhere; font-size: 12px; }
+.atlas-solve-checks li > div > span { flex: none; font-size: 12px; }
+.atlas-solve-unverified { color: var(--muted); font-size: 12px; line-height: 1.7; margin: 12px 0 0; }
