@@ -18,6 +18,7 @@ from backend.llm import ModelError
 from backend.models.tutor import TutorSession, TutorTurn
 from backend.models.domain import now
 from backend.tutor import store
+from backend.tutor.citations import CITATION_GUIDANCE, normalize_citation_labels
 from backend.tutor.context import budget_messages, build_context, estimate_tokens
 from backend.tutor.mutations import mutation_scope
 from backend.tutor.providers import model_round
@@ -213,6 +214,8 @@ async def run_turn(identifier, token):
         messages = budget_messages(cp["messages"], available)
         messages.append(capability.prepare(cp))
         messages = messages + [{"role": "system", "content": "本轮能力为 " + policy.profile + "，仅使用提供的工具。工具返回 error 时不得声称成功；execution_review 表示中断操作没有完整回执，先核对现有状态，不得仅凭用户继续就假定操作已成功。"}]
+        if cp.get("citations"):
+            messages.append({"role": "system", "content": CITATION_GUIDANCE})
         await emit("context_budget", {"round": cp["rounds"] + 1, "estimated_tokens": estimate_tokens(messages) + estimate_tokens(available), "message_count": len(messages), "tool_count": len(available), "estimation": True})
         if not available:
             messages = messages + [
@@ -280,8 +283,15 @@ async def run_turn(identifier, token):
                 cp["messages"].append({"role": "system", "content": "当前solve计划尚未完成。必须依据实际执行凭据完成步骤并调用solve_finish；不能仅用文字声称完成。工具失败时先修正，确实无法完成时保留未完成状态。"})
                 store.checkpoint(identifier, token, cp)
                 continue
-            cp["stage"] = "complete"
-            store.checkpoint(identifier, token, cp)
+            citations = cp.get("citations", [])
+            if isinstance(result.get("content"), str):
+                result["content"] = normalize_citation_labels(result["content"], citations)
+            final_output = round_output + normalize_citation_labels(output[len(round_output):], citations)
+            cp.update(stage="complete", stable_output=final_output)
+            if final_output != output:
+                store.emit(identifier, "content_reset", {"text": final_output}, token, cp)
+            else:
+                store.checkpoint(identifier, token, cp)
             finish(identifier, token)
             return
         if not available:
