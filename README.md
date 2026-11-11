@@ -194,6 +194,8 @@ docker compose config --quiet
 
 Agent开发讲解与5分钟演示见 [AGENT_INTERVIEW](docs/AGENT_INTERVIEW.md)，小规模任务评估与真实模型记录见 [AGENT_EVALUATION](docs/AGENT_EVALUATION.md)。默认离线命令 `.venv-atlas/bin/python scripts/evaluate_agent.py` 使用明确标识的外部模型fixture和真实API/数据库；显式 `--mode live` 才请求配置模型。脚本契约通过不等同于模型回答质量或教学效果。
 
+PDF 证据页与首条引用的对照方法、完整公开样本和复现命令见 [FinanceBench 评测](evaluations/retrieval/FINANCEBENCH.md)。
+
 ## 项目结构
 
 ```text

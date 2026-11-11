@@ -1,0 +1,2173 @@
+{
+  "revision": "cc39aeb4afdf33909ee1412188bf89035950c2eb",
+  "annotation_sha256": "a5a2aa673e573e55675fc3c0f9aa38c1cf59d2abc91edb077534f71f10a71877",
+  "documents": {
+    "3M_2018_10K": {
+      "sha256": "faf10c53fc6f1a8aa346ec3db79145e3ae6fbb3753c8064924e174d0a973934d",
+      "bytes": 1252586,
+      "pages": 160,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "3M_2018_10K__pages-0001-0101.pdf",
+          "original_start": 1,
+          "original_end": 101,
+          "sha256": "083bde4ea8d49f63326ff5956fa840a9da0e5f601faeb107fa6835bfae2eb81d",
+          "bytes": 847730
+        },
+        {
+          "file": "3M_2018_10K__pages-0102-0160.pdf",
+          "original_start": 102,
+          "original_end": 160,
+          "sha256": "439be9b41e8e82c9bd88d879b888ebd79b368f3ae60f14fbf8d187170385bb95",
+          "bytes": 440421
+        }
+      ]
+    },
+    "3M_2022_10K": {
+      "sha256": "d5cf549543a24b04228fd2af979ff2ca94cf64fb008a789340cb9117fbcfde5d",
+      "bytes": 1655681,
+      "pages": 252,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "3M_2022_10K__pages-0001-0102.pdf",
+          "original_start": 1,
+          "original_end": 102,
+          "sha256": "638764365650d48b120e71f0c31097c79b3dccf2265723d6787529b45da7ed63",
+          "bytes": 848078
+        },
+        {
+          "file": "3M_2022_10K__pages-0103-0209.pdf",
+          "original_start": 103,
+          "original_end": 209,
+          "sha256": "53cdb0d8cb667bc58719580f7dcb4e91fb8fcb5e85dc3853ae2414c1ed4375c8",
+          "bytes": 640059
+        },
+        {
+          "file": "3M_2022_10K__pages-0210-0252.pdf",
+          "original_start": 210,
+          "original_end": 252,
+          "sha256": "4e8ac9533f3c4002e94b30de7812d8648ca8592d8361388d47c5b7e3f9e968d8",
+          "bytes": 262580
+        }
+      ]
+    },
+    "3M_2023Q2_10Q": {
+      "sha256": "3e66115793459f42185feeeab4e7f07dd27ab6dd465d0694ce415e861029cf93",
+      "bytes": 5287301,
+      "pages": 92,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "3M_2023Q2_10Q.pdf",
+          "original_start": 1,
+          "original_end": 92,
+          "sha256": "3e66115793459f42185feeeab4e7f07dd27ab6dd465d0694ce415e861029cf93",
+          "bytes": 5287301
+        }
+      ]
+    },
+    "ACTIVISIONBLIZZARD_2019_10K": {
+      "sha256": "017f1bbc1e37f2945a41fa2b5cf39d822e1e9d435a2c2b9c6b1cc76cd114a2df",
+      "bytes": 1274941,
+      "pages": 198,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "ACTIVISIONBLIZZARD_2019_10K__pages-0001-0117.pdf",
+          "original_start": 1,
+          "original_end": 117,
+          "sha256": "ff24dc033773777baf503ab317ae11a38b8f7bfad6de7cd481ef5a86aeff3f64",
+          "bytes": 917693
+        },
+        {
+          "file": "ACTIVISIONBLIZZARD_2019_10K__pages-0118-0198.pdf",
+          "original_start": 118,
+          "original_end": 198,
+          "sha256": "25d681541eae76b8d7fe149471ebc519def6d488b726d2ececb73a0716620a07",
+          "bytes": 450519
+        }
+      ]
+    },
+    "ADOBE_2015_10K": {
+      "sha256": "f9ddba652f19e20752d98b1b4cedcebcb1a9a6d11dd23ab2e2f00f009a164c24",
+      "bytes": 1457725,
+      "pages": 116,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "ADOBE_2015_10K__pages-0001-0089.pdf",
+          "original_start": 1,
+          "original_end": 89,
+          "sha256": "610adbab1b9e8fc18ca1191ed8507bdcaf2557fa6cab7ca7e41c3caabef8047f",
+          "bytes": 1362409
+        },
+        {
+          "file": "ADOBE_2015_10K__pages-0090-0116.pdf",
+          "original_start": 90,
+          "original_end": 116,
+          "sha256": "ea71db86041d334ef7cf0185e452f59ed489d7933516b9b3e3737101fa7dfa46",
+          "bytes": 900597
+        }
+      ]
+    },
+    "ADOBE_2016_10K": {
+      "sha256": "655153cdaed14d7093e98ff75595bf850a0d2299fa851ccf5b344ebc2d5038ae",
+      "bytes": 4171413,
+      "pages": 112,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "ADOBE_2016_10K__pages-0001-0102.pdf",
+          "original_start": 1,
+          "original_end": 102,
+          "sha256": "50fe240c7b4876de488efb108beb0c7f37c402ae1ea07c52efdda868f2b6f12b",
+          "bytes": 4026045
+        },
+        {
+          "file": "ADOBE_2016_10K__pages-0103-0112.pdf",
+          "original_start": 103,
+          "original_end": 112,
+          "sha256": "af790757214278c2b2e9ec0f35cd69dba05688fb0c9d1fe1351b8551cb078d4c",
+          "bytes": 691129
+        }
+      ]
+    },
+    "ADOBE_2017_10K": {
+      "sha256": "ace32580369138998de84a0d0e24943766aa8374a17b823fdfae980b9c1458bd",
+      "bytes": 4028448,
+      "pages": 107,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "ADOBE_2017_10K__pages-0001-0104.pdf",
+          "original_start": 1,
+          "original_end": 104,
+          "sha256": "80c62a01ad2b393a45b813f0660d74ec51a003a079fa02e2e8f3ee5d57bd0ced",
+          "bytes": 4006996
+        },
+        {
+          "file": "ADOBE_2017_10K__pages-0105-0107.pdf",
+          "original_start": 105,
+          "original_end": 107,
+          "sha256": "8b28358425359d58609b9c0adc762eb9b170d342db5ca1656a515b4c5933be04",
+          "bytes": 578781
+        }
+      ]
+    },
+    "ADOBE_2022_10K": {
+      "sha256": "ce8c716abac26bfa38ae6b71d703112852c8591a4bb19f7c1177beb1dfc87ad2",
+      "bytes": 620288,
+      "pages": 99,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "ADOBE_2022_10K__pages-0001-0099.pdf",
+          "original_start": 1,
+          "original_end": 99,
+          "sha256": "f464cde7802dea1fc84229dfc54d2c899968d30192fbb1f9c14ddd76d45ed26c",
+          "bytes": 732931
+        }
+      ]
+    },
+    "AES_2022_10K": {
+      "sha256": "9c5de2227534c4d6bf3d805f635bad5d82eddf8e4183a85a3d1311b48b50291d",
+      "bytes": 4479324,
+      "pages": 257,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "AES_2022_10K__pages-0001-0101.pdf",
+          "original_start": 1,
+          "original_end": 101,
+          "sha256": "651c88547251e0f87fa68a7ea8bbe67d1d679b9fa5a71041bf801d7db7b0f737",
+          "bytes": 2915579
+        },
+        {
+          "file": "AES_2022_10K__pages-0102-0201.pdf",
+          "original_start": 102,
+          "original_end": 201,
+          "sha256": "a2572c0bf5bbccd8417dbf5bb12df43c1e61441af2f98cd271d75f6559599492",
+          "bytes": 1320565
+        },
+        {
+          "file": "AES_2022_10K__pages-0202-0257.pdf",
+          "original_start": 202,
+          "original_end": 257,
+          "sha256": "989fbd863d89b2e9ffe9e46f19bb409164abdd65a84054c850689593e3d524d9",
+          "bytes": 487021
+        }
+      ]
+    },
+    "AMAZON_2017_10K": {
+      "sha256": "f8af08ff6c4147351ec3a6e5e2c74e104678ce68fb0d6d476b1e43f685c09a3f",
+      "bytes": 627047,
+      "pages": 85,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "AMAZON_2017_10K__pages-0001-0085.pdf",
+          "original_start": 1,
+          "original_end": 85,
+          "sha256": "a21eafc032e2c25edc2f344484dd96f29d48caaf6c12a4a96a8e2c5dc1fbb7e3",
+          "bytes": 615093
+        }
+      ]
+    },
+    "AMAZON_2019_10K": {
+      "sha256": "d7df8c6cf3e351a8d68c7473be4159723d545260a32dbc82a8dd11c254c5584a",
+      "bytes": 619184,
+      "pages": 83,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "AMAZON_2019_10K__pages-0001-0083.pdf",
+          "original_start": 1,
+          "original_end": 83,
+          "sha256": "f56674b451d21d4bb80ffcc0e3b812ff449244b82b70230e6d3373ccb0b8888e",
+          "bytes": 607322
+        }
+      ]
+    },
+    "AMCOR_2020_10K": {
+      "sha256": "da158d5c68835374bcc52205663aa7653af1c2a6b31b09ab775c6e02a40da026",
+      "bytes": 8364895,
+      "pages": 195,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "AMCOR_2020_10K__pages-0001-0128.pdf",
+          "original_start": 1,
+          "original_end": 128,
+          "sha256": "9c4e54b296a7aa138d1147bc5dd01732f858009329550702f270782639a260db",
+          "bytes": 1101293
+        },
+        {
+          "file": "AMCOR_2020_10K__pages-0129-0195.pdf",
+          "original_start": 129,
+          "original_end": 195,
+          "sha256": "13f538342ffa6b01c0168ee5b8b0c63f0502b70f4aa6ca89988be6bcae294a6e",
+          "bytes": 7402308
+        }
+      ]
+    },
+    "AMCOR_2022_8K_dated-2022-07-01": {
+      "sha256": "1de32e72c265486469f3b1c7cbfbe064a27055e60f7b43a81439986dda9025ad",
+      "bytes": 147921,
+      "pages": 9,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "AMCOR_2022_8K_dated-2022-07-01.pdf",
+          "original_start": 1,
+          "original_end": 9,
+          "sha256": "1de32e72c265486469f3b1c7cbfbe064a27055e60f7b43a81439986dda9025ad",
+          "bytes": 147921
+        }
+      ]
+    },
+    "AMCOR_2023Q2_10Q": {
+      "sha256": "71c39c3f338fc81a99e128e8e871e265818657670a7d29a62c454c905f94524c",
+      "bytes": 455017,
+      "pages": 57,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "AMCOR_2023Q2_10Q.pdf",
+          "original_start": 1,
+          "original_end": 57,
+          "sha256": "71c39c3f338fc81a99e128e8e871e265818657670a7d29a62c454c905f94524c",
+          "bytes": 455017
+        }
+      ]
+    },
+    "AMCOR_2023Q4_EARNINGS": {
+      "sha256": "d155b7808e78167831648f476b7e3578e2d98645dee30862bbef4ff50fa24bf4",
+      "bytes": 244702,
+      "pages": 14,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "AMCOR_2023Q4_EARNINGS.pdf",
+          "original_start": 1,
+          "original_end": 14,
+          "sha256": "d155b7808e78167831648f476b7e3578e2d98645dee30862bbef4ff50fa24bf4",
+          "bytes": 244702
+        }
+      ]
+    },
+    "AMCOR_2023_10K": {
+      "sha256": "84d7a0291a12f4e68352750dccda3754c78eefdf06e0b5462046357a1ed53332",
+      "bytes": 1108309,
+      "pages": 156,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "AMCOR_2023_10K__pages-0001-0133.pdf",
+          "original_start": 1,
+          "original_end": 133,
+          "sha256": "a89b91cc8f70bbb2f9078e903584758f61a5267160c6e59ccbcdf20978028a07",
+          "bytes": 996854
+        },
+        {
+          "file": "AMCOR_2023_10K__pages-0134-0156.pdf",
+          "original_start": 134,
+          "original_end": 156,
+          "sha256": "b4017de2b817f641147c90b5427e6f3604bc5518702082209d11cb0a784c6d3a",
+          "bytes": 261079
+        }
+      ]
+    },
+    "AMD_2015_10K": {
+      "sha256": "105fff1c4af84a3d974b0f3fa224122e782aedca60fa3609f2789c80549dd8f6",
+      "bytes": 2474122,
+      "pages": 215,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "AMD_2015_10K__pages-0001-0092.pdf",
+          "original_start": 1,
+          "original_end": 92,
+          "sha256": "9771290b04c5566f64386bba0894a9fe695bc147820090bf600baca999790066",
+          "bytes": 965275
+        },
+        {
+          "file": "AMD_2015_10K__pages-0093-0215.pdf",
+          "original_start": 93,
+          "original_end": 215,
+          "sha256": "0c2d7bc402bc3e8d642c24ebd850fe0dfe3a416d7649f4e3737c99a2eb6adb1d",
+          "bytes": 1618080
+        }
+      ]
+    },
+    "AMD_2022_10K": {
+      "sha256": "a3bd74088fae0ad4aa03d04998a1f4c64fd0b3c693841601b0ac49b46cf5c1f4",
+      "bytes": 5122473,
+      "pages": 121,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "AMD_2022_10K__pages-0001-0111.pdf",
+          "original_start": 1,
+          "original_end": 111,
+          "sha256": "18e9e5b6bc5cde190d3398bb7fd2522da5d0600829f6ff319a1ea32184b12ddb",
+          "bytes": 1243458
+        },
+        {
+          "file": "AMD_2022_10K__pages-0112-0121.pdf",
+          "original_start": 112,
+          "original_end": 121,
+          "sha256": "327fd30ab0f2637e152931257816c3e7e3c7359c96f04d7d795ea1d8c7372fbc",
+          "bytes": 409062
+        }
+      ]
+    },
+    "AMERICANEXPRESS_2022_10K": {
+      "sha256": "d3bbc7ab23d6160e07eab50a359e4d68c40efff9fde3baa168e7c40e06f568e6",
+      "bytes": 2436166,
+      "pages": 260,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "AMERICANEXPRESS_2022_10K__pages-0001-0106.pdf",
+          "original_start": 1,
+          "original_end": 106,
+          "sha256": "8475a621572e0ee4e13a069b0754dcf3e6c604a14d7cb9f9286bce969e9ab97d",
+          "bytes": 1320940
+        },
+        {
+          "file": "AMERICANEXPRESS_2022_10K__pages-0107-0248.pdf",
+          "original_start": 107,
+          "original_end": 248,
+          "sha256": "3652843b4da5e963226c607bd11c4486643aa1f0fb5f49587010d3d1e2a075a1",
+          "bytes": 1100788
+        },
+        {
+          "file": "AMERICANEXPRESS_2022_10K__pages-0249-0260.pdf",
+          "original_start": 249,
+          "original_end": 260,
+          "sha256": "4652317f12dbae57ebf1c05905d93e4101ab7cc5d520115c4a2ba17e2e3797e2",
+          "bytes": 204825
+        }
+      ]
+    },
+    "AMERICANWATERWORKS_2020_10K": {
+      "sha256": "6b43f1ed70b67c06483d28f8054270d597bce8507f298af2b1b6d9356d728602",
+      "bytes": 1437123,
+      "pages": 152,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "AMERICANWATERWORKS_2020_10K__pages-0001-0089.pdf",
+          "original_start": 1,
+          "original_end": 89,
+          "sha256": "4e1e21af56c365413b82038b82059d1186c09ae353a9bca567cd1ad969c5a1a7",
+          "bytes": 829043
+        },
+        {
+          "file": "AMERICANWATERWORKS_2020_10K__pages-0090-0152.pdf",
+          "original_start": 90,
+          "original_end": 152,
+          "sha256": "fc627e4fe368e87caff0a285b8eaf6983d1f55fee4bb576dd723fd5b56e81def",
+          "bytes": 733659
+        }
+      ]
+    },
+    "AMERICANWATERWORKS_2021_10K": {
+      "sha256": "701528ae6d14a77229468a829ee18f01ed439d5be012d0a915d2683335051029",
+      "bytes": 1975636,
+      "pages": 181,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "AMERICANWATERWORKS_2021_10K__pages-0001-0090.pdf",
+          "original_start": 1,
+          "original_end": 90,
+          "sha256": "ebf1938de182b00f8d11eb01a571bad9c6f0a06d6efefe122852263c00da2753",
+          "bytes": 825351
+        },
+        {
+          "file": "AMERICANWATERWORKS_2021_10K__pages-0091-0181.pdf",
+          "original_start": 91,
+          "original_end": 181,
+          "sha256": "7a78d007e0cae4568502164da4dcdd40fcd414f8a35beeeb361dcbdbb727d3cc",
+          "bytes": 1267311
+        }
+      ]
+    },
+    "AMERICANWATERWORKS_2022_10K": {
+      "sha256": "aea336531f1f8b10ecee1dd61066aab29794504f1f4a1407c857bd1e20d7da40",
+      "bytes": 2729077,
+      "pages": 306,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "AMERICANWATERWORKS_2022_10K__pages-0001-0090.pdf",
+          "original_start": 1,
+          "original_end": 90,
+          "sha256": "ef164758c28170c53b355f905375d521bdca7acd4eda9b0076d6498521ce3bf0",
+          "bytes": 1256557
+        },
+        {
+          "file": "AMERICANWATERWORKS_2022_10K__pages-0091-0216.pdf",
+          "original_start": 91,
+          "original_end": 216,
+          "sha256": "158da43dff0804df643a5ee069d16599af6005360f592fccfe52c17b867320fe",
+          "bytes": 1102833
+        },
+        {
+          "file": "AMERICANWATERWORKS_2022_10K__pages-0217-0306.pdf",
+          "original_start": 217,
+          "original_end": 306,
+          "sha256": "ed9bdcdea27c5dbdf712061c65728595d2903170ca501937e0fa65ee6841637f",
+          "bytes": 533156
+        }
+      ]
+    },
+    "BESTBUY_2017_10K": {
+      "sha256": "4570187fa697f252e08c8f99c409446fbcde05b08358851d34d4cb1c8bd1cec8",
+      "bytes": 776434,
+      "pages": 109,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "BESTBUY_2017_10K__pages-0001-0109.pdf",
+          "original_start": 1,
+          "original_end": 109,
+          "sha256": "e2bc11f22ea9d906a9f02aa31a6192aad8f4fcce46cf492acd814584b1d4c066",
+          "bytes": 766262
+        }
+      ]
+    },
+    "BESTBUY_2019_10K": {
+      "sha256": "d3228e9acd2ce498b97a9d2cb99c2330b9a04687b7947908646d205b3eadf30d",
+      "bytes": 782117,
+      "pages": 107,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "BESTBUY_2019_10K__pages-0001-0107.pdf",
+          "original_start": 1,
+          "original_end": 107,
+          "sha256": "c461be35a4baee7fa7a36b1aa4c21c9881a88e9af34e255e14a54da5cbd51281",
+          "bytes": 759872
+        }
+      ]
+    },
+    "BESTBUY_2023_10K": {
+      "sha256": "7ca465d31a08be29e8c08d756644d33d818c7254a1215720f265227005cda696",
+      "bytes": 703034,
+      "pages": 75,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "BESTBUY_2023_10K__pages-0001-0075.pdf",
+          "original_start": 1,
+          "original_end": 75,
+          "sha256": "7078557c8d809f414a8fdba1ca21ebd5da5ee2561c113984ca5a745e6c68b0a1",
+          "bytes": 673750
+        }
+      ]
+    },
+    "BESTBUY_2024Q2_10Q": {
+      "sha256": "cf9efb922bdd28d726d7e1605c5fa1f263dda72e033989e3bc9ee3a3bb356c03",
+      "bytes": 442386,
+      "pages": 30,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "BESTBUY_2024Q2_10Q__pages-0001-0030.pdf",
+          "original_start": 1,
+          "original_end": 30,
+          "sha256": "2c5d896758e92275db8d8fe7addec3fc8b0889fee691f4f2214b27d8868885a9",
+          "bytes": 437049
+        }
+      ]
+    },
+    "BLOCK_2016_10K": {
+      "sha256": "5ef866a19b1110dcdbd1b0bc3c513a04e3d05322384c754cf394ad63f9af8191",
+      "bytes": 864350,
+      "pages": 121,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "BLOCK_2016_10K__pages-0001-0121.pdf",
+          "original_start": 1,
+          "original_end": 121,
+          "sha256": "8a4236f393b40f6a8bd0f3c02b8f2a148be4a1cf0aa997f43d47862485feb5c6",
+          "bytes": 857465
+        }
+      ]
+    },
+    "BLOCK_2020_10K": {
+      "sha256": "c19a9fb25db3270e3a908c202855f4a54f000a06bf19a8b284331810228646fe",
+      "bytes": 1159158,
+      "pages": 158,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "BLOCK_2020_10K__pages-0001-0099.pdf",
+          "original_start": 1,
+          "original_end": 99,
+          "sha256": "08e322f18f56ed9914bea41d17ff8f11d67d81111ea8e7b5683be93363f96498",
+          "bytes": 831122
+        },
+        {
+          "file": "BLOCK_2020_10K__pages-0100-0158.pdf",
+          "original_start": 100,
+          "original_end": 158,
+          "sha256": "f31712c7c215271372d67944682119cc76a39f8fd6f3c6c732351968e7abbe03",
+          "bytes": 486047
+        }
+      ]
+    },
+    "BOEING_2018_10K": {
+      "sha256": "6f1ace34b3b01778ad7d92d43ccd2f76513d5159ef48fbc07b510296cf2d07dc",
+      "bytes": 967741,
+      "pages": 136,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "BOEING_2018_10K__pages-0001-0136.pdf",
+          "original_start": 1,
+          "original_end": 136,
+          "sha256": "4b1175b1746954122529f2662534e11bb71b350c942db079d90f38189bbcb15c",
+          "bytes": 931416
+        }
+      ]
+    },
+    "BOEING_2022_10K": {
+      "sha256": "09285ff7ee737d3302977104aa05cc53c9dfb0161f3461a89b583dc38b9f2ab6",
+      "bytes": 1366995,
+      "pages": 190,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "BOEING_2022_10K__pages-0001-0145.pdf",
+          "original_start": 1,
+          "original_end": 145,
+          "sha256": "3127031c15955d6ef926a5f93825e7efb7584526282f522d33521cd16ebe2f73",
+          "bytes": 1200801
+        },
+        {
+          "file": "BOEING_2022_10K__pages-0146-0190.pdf",
+          "original_start": 146,
+          "original_end": 190,
+          "sha256": "dae073c384a246029b32853f5da72b80092ef84c418097f9138d4d3e62731ef6",
+          "bytes": 285692
+        }
+      ]
+    },
+    "COCACOLA_2017_10K": {
+      "sha256": "b57c75cf20916904f31c6aa7644d6c110f019adf7c76782c7d0ede7b95c65ac1",
+      "bytes": 1790599,
+      "pages": 197,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "COCACOLA_2017_10K__pages-0001-0086.pdf",
+          "original_start": 1,
+          "original_end": 86,
+          "sha256": "431624ada7d806530a26171b6b5dcfdd6c7e8bbe4098c9c8af29bd07b0cf6095",
+          "bytes": 797068
+        },
+        {
+          "file": "COCACOLA_2017_10K__pages-0087-0197.pdf",
+          "original_start": 87,
+          "original_end": 197,
+          "sha256": "efe10592d27919bfb014188eedde5260079c0a6fff2ccaabf184da2095833f75",
+          "bytes": 1030574
+        }
+      ]
+    },
+    "COCACOLA_2021_10K": {
+      "sha256": "46a7059b9da795cd1ea9862d5b4f82a21e9b72e799351927a11f5cb4c528b592",
+      "bytes": 9762541,
+      "pages": 183,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "COCACOLA_2021_10K__pages-0001-0084.pdf",
+          "original_start": 1,
+          "original_end": 84,
+          "sha256": "ac6a6e9a98a79e2ceaa24a41171c562929504537e8005c7a747788676ad04c2d",
+          "bytes": 1120005
+        },
+        {
+          "file": "COCACOLA_2021_10K__pages-0085-0183.pdf",
+          "original_start": 85,
+          "original_end": 183,
+          "sha256": "858d9d65cd050b9ffb9d0897748c0a2b1bb4035c7e9aae6053bf03edd8d94e9e",
+          "bytes": 1756815
+        }
+      ]
+    },
+    "COCACOLA_2022_10K": {
+      "sha256": "9f91bb914d94d014cfca96e1021c932d5476d8b8ac2a933767bac4c438fd7a71",
+      "bytes": 9485744,
+      "pages": 183,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "COCACOLA_2022_10K__pages-0001-0084.pdf",
+          "original_start": 1,
+          "original_end": 84,
+          "sha256": "8682c63624164889ca0989967b17562653d250600809ecc016155c5b53ee598b",
+          "bytes": 1148263
+        },
+        {
+          "file": "COCACOLA_2022_10K__pages-0085-0183.pdf",
+          "original_start": 85,
+          "original_end": 183,
+          "sha256": "c112ff620629c6cc1d6286e5191ea19920fd0999f9321a54ffa566dcabc41add",
+          "bytes": 1570407
+        }
+      ]
+    },
+    "CORNING_2020_10K": {
+      "sha256": "ef471ab9ff6067f117977df6df8b4b5007066286b733981475ac2ccf48d91e59",
+      "bytes": 1180865,
+      "pages": 138,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "CORNING_2020_10K__pages-0001-0119.pdf",
+          "original_start": 1,
+          "original_end": 119,
+          "sha256": "66a0c6134f108d9d619a01232dcd99d5d086577fd761ac9a101c9b4b3a3305cf",
+          "bytes": 1037840
+        },
+        {
+          "file": "CORNING_2020_10K__pages-0120-0138.pdf",
+          "original_start": 120,
+          "original_end": 138,
+          "sha256": "46bc4f623d2c570cd0e4b700f064588b5cada89643b9884560e4f06405a82efc",
+          "bytes": 272297
+        }
+      ]
+    },
+    "CORNING_2021_10K": {
+      "sha256": "8023fac91ad417f996b692c506ee0e097effd091e698275288e4126cb8a2020e",
+      "bytes": 1131912,
+      "pages": 125,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "CORNING_2021_10K__pages-0001-0110.pdf",
+          "original_start": 1,
+          "original_end": 110,
+          "sha256": "15532c4f5d5855358ada60bc868f14f5e680f9bc94ed8ebc861b459e43ddb938",
+          "bytes": 1004573
+        },
+        {
+          "file": "CORNING_2021_10K__pages-0111-0125.pdf",
+          "original_start": 111,
+          "original_end": 125,
+          "sha256": "91d10628f13cd64508aef7677d729fafee38dae046e157223e8fd3ddb8ca2c34",
+          "bytes": 211317
+        }
+      ]
+    },
+    "CORNING_2022_10K": {
+      "sha256": "a63f102f045826b38ad21a606c33710f62932646fd7c0f1852ce411a4397a3ee",
+      "bytes": 1399926,
+      "pages": 159,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "CORNING_2022_10K__pages-0001-0119.pdf",
+          "original_start": 1,
+          "original_end": 119,
+          "sha256": "a7e1f5ddbcd5fb9538ff42c02d6ef5db1d938079897b0aeb88813498432b322f",
+          "bytes": 1183953
+        },
+        {
+          "file": "CORNING_2022_10K__pages-0120-0159.pdf",
+          "original_start": 120,
+          "original_end": 159,
+          "sha256": "4009a3439361a6964fd9b909e62134c5478c2bd1c5edc15702dde0bd910ffa9c",
+          "bytes": 256896
+        }
+      ]
+    },
+    "COSTCO_2021_10K": {
+      "sha256": "29e05b3862cf6ffa6cfda34ac82a9fa0fe76b67338c5924da3325c2ee3b08748",
+      "bytes": 765319,
+      "pages": 76,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "COSTCO_2021_10K__pages-0001-0076.pdf",
+          "original_start": 1,
+          "original_end": 76,
+          "sha256": "b52a18cde1fba3a6dae81258b33bd13745622ce9db95e8c27bf024710a7bbd0f",
+          "bytes": 743209
+        }
+      ]
+    },
+    "CVSHEALTH_2018_10K": {
+      "sha256": "bdc800e3f52a3e1d7a79c0973af3e94122fa08a76e335ea8305df60a09e1a0dc",
+      "bytes": 1868195,
+      "pages": 392,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "CVSHEALTH_2018_10K__pages-0001-0085.pdf",
+          "original_start": 1,
+          "original_end": 85,
+          "sha256": "8eade697ad435ff605254f55c07a0af8d640c896f7f218c5cb1b63d5a1878a9f",
+          "bytes": 625931
+        },
+        {
+          "file": "CVSHEALTH_2018_10K__pages-0086-0205.pdf",
+          "original_start": 86,
+          "original_end": 205,
+          "sha256": "b02b30d76f80137435b392aed2c65a2b8d59e2b4de1431fdf6e6a824fd11108e",
+          "bytes": 521649
+        },
+        {
+          "file": "CVSHEALTH_2018_10K__pages-0206-0315.pdf",
+          "original_start": 206,
+          "original_end": 315,
+          "sha256": "12d37b6dc3194107789e902f162e38ecd7f22decf2eed960b2eeed1d0329b1f0",
+          "bytes": 649341
+        },
+        {
+          "file": "CVSHEALTH_2018_10K__pages-0316-0392.pdf",
+          "original_start": 316,
+          "original_end": 392,
+          "sha256": "49c7ad420b3808f64236661eb0e8b40244700e8403458456c61bcc3dc0756dbf",
+          "bytes": 531059
+        }
+      ]
+    },
+    "CVSHEALTH_2022_10K": {
+      "sha256": "183c196a41793cd50002ff6b88f8c6d32e4fcb1117ab490a732414e1208cda8f",
+      "bytes": 1898137,
+      "pages": 213,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "CVSHEALTH_2022_10K__pages-0001-0081.pdf",
+          "original_start": 1,
+          "original_end": 81,
+          "sha256": "5a2d7ebd2d2ab443ab1995a46dc1e38155c8b50222ae6fc77101ec8f5b13de91",
+          "bytes": 913184
+        },
+        {
+          "file": "CVSHEALTH_2022_10K__pages-0082-0188.pdf",
+          "original_start": 82,
+          "original_end": 188,
+          "sha256": "45d4b18c617539d8da3dbe50d3011a2b2d9b7bf741a511cd4a209bbd01dbcfab",
+          "bytes": 910165
+        },
+        {
+          "file": "CVSHEALTH_2022_10K__pages-0189-0213.pdf",
+          "original_start": 189,
+          "original_end": 213,
+          "sha256": "a5b0ffed3fd4a1acf8aa4cfbb877cf09d690e9b80efbf35afd086f33665ba700",
+          "bytes": 298170
+        }
+      ]
+    },
+    "FOOTLOCKER_2022_8K_dated-2022-05-20": {
+      "sha256": "865f22331a5943a85e53e38d1753addbeb6c42270853cddd0abc73ab23d150e9",
+      "bytes": 116133,
+      "pages": 4,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "FOOTLOCKER_2022_8K_dated-2022-05-20.pdf",
+          "original_start": 1,
+          "original_end": 4,
+          "sha256": "865f22331a5943a85e53e38d1753addbeb6c42270853cddd0abc73ab23d150e9",
+          "bytes": 116133
+        }
+      ]
+    },
+    "FOOTLOCKER_2022_8K_dated_2022-08-19": {
+      "sha256": "70fd2d5bfc6955424196b372a5273ffbc74d2f0153f291e10e73edc37962a14e",
+      "bytes": 316459,
+      "pages": 31,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "FOOTLOCKER_2022_8K_dated_2022-08-19.pdf",
+          "original_start": 1,
+          "original_end": 31,
+          "sha256": "70fd2d5bfc6955424196b372a5273ffbc74d2f0153f291e10e73edc37962a14e",
+          "bytes": 316459
+        }
+      ]
+    },
+    "GENERALMILLS_2019_10K": {
+      "sha256": "e8120ce31b22136e15c14115cdfbf3ddc548e58f15b6febc350c422a4c12d9db",
+      "bytes": 920782,
+      "pages": 140,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "GENERALMILLS_2019_10K__pages-0001-0125.pdf",
+          "original_start": 1,
+          "original_end": 125,
+          "sha256": "b9d0de4468f35a0cf7773a29383a3ca4eafddec3a7048f34a9a5c09d15292577",
+          "bytes": 846946
+        },
+        {
+          "file": "GENERALMILLS_2019_10K__pages-0126-0140.pdf",
+          "original_start": 126,
+          "original_end": 140,
+          "sha256": "74e81f0516ab1b9ae87004421078082c21397a180f237b9af062d99a3adad35a",
+          "bytes": 221250
+        }
+      ]
+    },
+    "GENERALMILLS_2020_10K": {
+      "sha256": "626dd53f9b52e5895b7a7073e1c491008769970609c10e2f6cf8247ed85d6fae",
+      "bytes": 2342475,
+      "pages": 127,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "GENERALMILLS_2020_10K__pages-0001-0113.pdf",
+          "original_start": 1,
+          "original_end": 113,
+          "sha256": "f9bf4f262e223a69e0ee3d75f539a56f7229a6e665d3edc0cf17fa19d4906c1b",
+          "bytes": 1999295
+        },
+        {
+          "file": "GENERALMILLS_2020_10K__pages-0114-0127.pdf",
+          "original_start": 114,
+          "original_end": 127,
+          "sha256": "b72152a85940d6c3caac565e025c91a80645b3d042150ea9aed4a5e0b7f533be",
+          "bytes": 468556
+        }
+      ]
+    },
+    "GENERALMILLS_2022_10K": {
+      "sha256": "27f2cc507ffc056de3b679d124d51b80bd043ce7b8e867c59e2cdfe1d2ea5de3",
+      "bytes": 1083414,
+      "pages": 127,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "GENERALMILLS_2022_10K__pages-0001-0119.pdf",
+          "original_start": 1,
+          "original_end": 119,
+          "sha256": "684b6614e0ad69ffa78bd08fe388d1fbfcbb1ca1237bc25777ef58f0ad1db195",
+          "bytes": 1038206
+        },
+        {
+          "file": "GENERALMILLS_2022_10K__pages-0120-0127.pdf",
+          "original_start": 120,
+          "original_end": 127,
+          "sha256": "1dd59ba11f7f0650e2d5a832e2cb087fc2f74ccaf2261d4eb9e14cd967437bfc",
+          "bytes": 105259
+        }
+      ]
+    },
+    "JOHNSON_JOHNSON_2022Q4_EARNINGS": {
+      "sha256": "7ae6bf6f9a998d19e23fd796b58b0f2015085c74712253b78fb90174c12436a7",
+      "bytes": 729392,
+      "pages": 24,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "JOHNSON_JOHNSON_2022Q4_EARNINGS.pdf",
+          "original_start": 1,
+          "original_end": 24,
+          "sha256": "7ae6bf6f9a998d19e23fd796b58b0f2015085c74712253b78fb90174c12436a7",
+          "bytes": 729392
+        }
+      ]
+    },
+    "JOHNSON_JOHNSON_2022_10K": {
+      "sha256": "dba7d6cc97734abd6dcbc1a6a34f82b5d228e60d0a1a32425a90404fd4d3e290",
+      "bytes": 1941368,
+      "pages": 151,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "JOHNSON_JOHNSON_2022_10K__pages-0001-0104.pdf",
+          "original_start": 1,
+          "original_end": 104,
+          "sha256": "fed1f87ab8496352f31fa37286220bbf84f26ff3d321b4564d5cbb7ea3189ccd",
+          "bytes": 1119411
+        },
+        {
+          "file": "JOHNSON_JOHNSON_2022_10K__pages-0105-0151.pdf",
+          "original_start": 105,
+          "original_end": 151,
+          "sha256": "3afdf2814c54902000a9325e82dcad21607b243f8378a2ced196b537f1513378",
+          "bytes": 405878
+        }
+      ]
+    },
+    "JOHNSON_JOHNSON_2023Q2_EARNINGS": {
+      "sha256": "db1f3419d309440e644dc3cdfbb74758e67734dd181e5dbabc7479d0ab92d026",
+      "bytes": 1212840,
+      "pages": 24,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "JOHNSON_JOHNSON_2023Q2_EARNINGS.pdf",
+          "original_start": 1,
+          "original_end": 24,
+          "sha256": "db1f3419d309440e644dc3cdfbb74758e67734dd181e5dbabc7479d0ab92d026",
+          "bytes": 1212840
+        }
+      ]
+    },
+    "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30": {
+      "sha256": "0601a4b9f15e4400ced1b2ccb81c309cb66844fbac6b975a76dc490501bea95a",
+      "bytes": 455282,
+      "pages": 27,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30.pdf",
+          "original_start": 1,
+          "original_end": 27,
+          "sha256": "0601a4b9f15e4400ced1b2ccb81c309cb66844fbac6b975a76dc490501bea95a",
+          "bytes": 455282
+        }
+      ]
+    },
+    "JPMORGAN_2021Q1_10Q": {
+      "sha256": "62518c05b02265dc13ca257d9ec0be0aec4449dad53db0c77d93444e7e2cfe97",
+      "bytes": 2285253,
+      "pages": 179,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "JPMORGAN_2021Q1_10Q__pages-0001-0121.pdf",
+          "original_start": 1,
+          "original_end": 121,
+          "sha256": "259eafcdc89069b25f78cbcb6dbb547ab344924acde82c0fe5a25e2b92f2f71b",
+          "bytes": 1673833
+        },
+        {
+          "file": "JPMORGAN_2021Q1_10Q__pages-0122-0179.pdf",
+          "original_start": 122,
+          "original_end": 179,
+          "sha256": "2f8629cb7638d58a93adb44e7186ba38aa756be27c742d621b7bb26cacc42aaf",
+          "bytes": 621983
+        }
+      ]
+    },
+    "JPMORGAN_2022Q2_10Q": {
+      "sha256": "7d715f552d4eeb6b2a1ea8ae02237b5767306907e761270ac23d74ac5b7e44b5",
+      "bytes": 2290421,
+      "pages": 197,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "JPMORGAN_2022Q2_10Q__pages-0001-0123.pdf",
+          "original_start": 1,
+          "original_end": 123,
+          "sha256": "cf1dbb87ddafe5f0f0e2301ea45a79e2cc68c9e652b73474b1f5a6502c1b0ed8",
+          "bytes": 1451858
+        },
+        {
+          "file": "JPMORGAN_2022Q2_10Q__pages-0124-0197.pdf",
+          "original_start": 124,
+          "original_end": 197,
+          "sha256": "305ea509dcfe7c1e883d3d7717baa135816bd0f8cc1af33f056acd23bd26930c",
+          "bytes": 853875
+        }
+      ]
+    },
+    "JPMORGAN_2022_10K": {
+      "sha256": "c269899950f36edfa496e3c8447a51d86d0a206442a96dc24dcd9317d55b957c",
+      "bytes": 6947859,
+      "pages": 382,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "JPMORGAN_2022_10K__pages-0001-0097.pdf",
+          "original_start": 1,
+          "original_end": 97,
+          "sha256": "26e19545e4ebecd53c898f26e498226bc16126eddfbeb6a32b45af9fb62235f3",
+          "bytes": 3313463
+        },
+        {
+          "file": "JPMORGAN_2022_10K__pages-0098-0202.pdf",
+          "original_start": 98,
+          "original_end": 202,
+          "sha256": "bd8dc1ed9eef02217d414db2b6b79b2352b0f4b744a7de9f5fec5177710399c1",
+          "bytes": 1916679
+        },
+        {
+          "file": "JPMORGAN_2022_10K__pages-0203-0306.pdf",
+          "original_start": 203,
+          "original_end": 306,
+          "sha256": "e922a7cac951f50e826eee68838a2b44c765a0ae90f7d0fea1b7036c5e35a583",
+          "bytes": 1299754
+        },
+        {
+          "file": "JPMORGAN_2022_10K__pages-0307-0382.pdf",
+          "original_start": 307,
+          "original_end": 382,
+          "sha256": "1335f1f8e1d2fad39c4c38051ab446de485a446002987bc8ffe8666d0eb2a07e",
+          "bytes": 510626
+        }
+      ]
+    },
+    "JPMORGAN_2023Q2_10Q": {
+      "sha256": "eef2d9c1fdb5dc82be48166487a9e451c8544aec932a01fb06309ea7cd7122f5",
+      "bytes": 2573600,
+      "pages": 217,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "JPMORGAN_2023Q2_10Q__pages-0001-0117.pdf",
+          "original_start": 1,
+          "original_end": 117,
+          "sha256": "67b0c2d0185bb89f13f6c9d0ef5b7ba059ffea9edf1b146580cd4663d80b8f9b",
+          "bytes": 1419901
+        },
+        {
+          "file": "JPMORGAN_2023Q2_10Q__pages-0118-0217.pdf",
+          "original_start": 118,
+          "original_end": 217,
+          "sha256": "748d3af33b8ba8efc63f21f24cc6460dc14780bb83cf4c867248f146e342d731",
+          "bytes": 1158085
+        }
+      ]
+    },
+    "KRAFTHEINZ_2019_10K": {
+      "sha256": "df1340e7b002e5f412d4c9073292d0f48a2988fd347d5a4f44d017b9680fbae2",
+      "bytes": 1531923,
+      "pages": 152,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "KRAFTHEINZ_2019_10K__pages-0001-0098.pdf",
+          "original_start": 1,
+          "original_end": 98,
+          "sha256": "236cf9e6d0cbb59ecf7b661b9469414a53e848115cbb67da4ad7086ccf8d0edd",
+          "bytes": 1123994
+        },
+        {
+          "file": "KRAFTHEINZ_2019_10K__pages-0099-0152.pdf",
+          "original_start": 99,
+          "original_end": 152,
+          "sha256": "a386e3e92c4fe615f42843d3f1d75eb1e422c8b02c6be588028986fecda1fcdc",
+          "bytes": 497091
+        }
+      ]
+    },
+    "LOCKHEEDMARTIN_2020_10K": {
+      "sha256": "1e68051a649270779fc5cb68806612a28d7d81288ed75dd37aa1858717bf55a0",
+      "bytes": 1372193,
+      "pages": 132,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "LOCKHEEDMARTIN_2020_10K__pages-0001-0088.pdf",
+          "original_start": 1,
+          "original_end": 88,
+          "sha256": "beae2d49d1a1fefa5942889522082b59760ec944f260fe863f1ffae9defec0de",
+          "bytes": 1074784
+        },
+        {
+          "file": "LOCKHEEDMARTIN_2020_10K__pages-0089-0132.pdf",
+          "original_start": 89,
+          "original_end": 132,
+          "sha256": "8e88e87fb310d63a5140af59dbaa00b4d48738e13acc40815b605fe6550f43a8",
+          "bytes": 434487
+        }
+      ]
+    },
+    "LOCKHEEDMARTIN_2021_10K": {
+      "sha256": "d2486265fedea887bcc621f0b2dbb9670e66fe05203e1378b8e650c9564732fb",
+      "bytes": 1347017,
+      "pages": 136,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "LOCKHEEDMARTIN_2021_10K__pages-0001-0088.pdf",
+          "original_start": 1,
+          "original_end": 88,
+          "sha256": "7fc2acfc95bd124dfc039fd74135d3f10734d61a9a870c8367793aa2e5c2d6cd",
+          "bytes": 1026752
+        },
+        {
+          "file": "LOCKHEEDMARTIN_2021_10K__pages-0089-0136.pdf",
+          "original_start": 89,
+          "original_end": 136,
+          "sha256": "91ec76811928cb33d5f9ccb9f877b22eda3a5cba74a4e57cc3a333e32467eaa2",
+          "bytes": 421371
+        }
+      ]
+    },
+    "LOCKHEEDMARTIN_2022_10K": {
+      "sha256": "9a2317300d0f1e2623ba291fe9ec38fc779c1d1ad989dcfe6f862b77435c6923",
+      "bytes": 1398312,
+      "pages": 130,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "LOCKHEEDMARTIN_2022_10K__pages-0001-0087.pdf",
+          "original_start": 1,
+          "original_end": 87,
+          "sha256": "202ea4926ece3e14e9878abbc18d430508c111a6d18a4d5e3e4ac2219eeda93f",
+          "bytes": 793140
+        },
+        {
+          "file": "LOCKHEEDMARTIN_2022_10K__pages-0088-0130.pdf",
+          "original_start": 88,
+          "original_end": 130,
+          "sha256": "92a1f62c66d58c3840b6e90404a86a96f6d66934830a0c8327ff26d5574b7773",
+          "bytes": 690097
+        }
+      ]
+    },
+    "MGMRESORTS_2018_10K": {
+      "sha256": "1b540737f91716aaa23b062499e6cab9c51d258e151f37eb8c65646bb588a0da",
+      "bytes": 1421540,
+      "pages": 188,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "MGMRESORTS_2018_10K__pages-0001-0095.pdf",
+          "original_start": 1,
+          "original_end": 95,
+          "sha256": "c6a3d356a7edcd31dd6b9038bcf4c3809a9fad80dc4044ee14a2d8d30e5d311e",
+          "bytes": 852228
+        },
+        {
+          "file": "MGMRESORTS_2018_10K__pages-0096-0188.pdf",
+          "original_start": 96,
+          "original_end": 188,
+          "sha256": "804d84d5aebc1803e65c05f07f4728e652a1b2039059d1cc5e56b2198b6867ed",
+          "bytes": 716961
+        }
+      ]
+    },
+    "MGMRESORTS_2020_10K": {
+      "sha256": "98a9a55baf838309d16a730fd63efbcd146be1911b61abb3658b1774f360b099",
+      "bytes": 1383002,
+      "pages": 150,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "MGMRESORTS_2020_10K__pages-0001-0084.pdf",
+          "original_start": 1,
+          "original_end": 84,
+          "sha256": "b7bae516456d26f2b802f5dfad8d657d4318dfc7aecf4eabd26a0f789bb8d3de",
+          "bytes": 824462
+        },
+        {
+          "file": "MGMRESORTS_2020_10K__pages-0085-0150.pdf",
+          "original_start": 85,
+          "original_end": 150,
+          "sha256": "4600610832ec1a623620711ebd4f4d86d7f5469df036f0d737b2a3b5ec7ff697",
+          "bytes": 738439
+        }
+      ]
+    },
+    "MGMRESORTS_2022Q4_EARNINGS": {
+      "sha256": "fe9126b17c3656e50d53741b13cb5fb233d4adaf922e4d84072b1d5e564fbfbd",
+      "bytes": 737922,
+      "pages": 15,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "MGMRESORTS_2022Q4_EARNINGS.pdf",
+          "original_start": 1,
+          "original_end": 15,
+          "sha256": "fe9126b17c3656e50d53741b13cb5fb233d4adaf922e4d84072b1d5e564fbfbd",
+          "bytes": 737922
+        }
+      ]
+    },
+    "MGMRESORTS_2022_10K": {
+      "sha256": "130b96c1309c97aaedcabee2fa5d5421e54491e618273bd33c3b1aeddad323ec",
+      "bytes": 1755866,
+      "pages": 220,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "MGMRESORTS_2022_10K__pages-0001-0098.pdf",
+          "original_start": 1,
+          "original_end": 98,
+          "sha256": "6ebd3bc0656c9d8a0144abb115e44832676d29f7723dc55d89f36a06e15a7d5a",
+          "bytes": 1024882
+        },
+        {
+          "file": "MGMRESORTS_2022_10K__pages-0099-0220.pdf",
+          "original_start": 99,
+          "original_end": 220,
+          "sha256": "290aad70971f3bff519b00cba70dbd2d7ef798d315360f149a5983973eaec5e4",
+          "bytes": 828748
+        }
+      ]
+    },
+    "MGMRESORTS_2023Q2_10Q": {
+      "sha256": "09c02fd40073570ae0826d707674154a9cd55a895e94096a82fcf0a4447ea64d",
+      "bytes": 661891,
+      "pages": 62,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "MGMRESORTS_2023Q2_10Q__pages-0001-0062.pdf",
+          "original_start": 1,
+          "original_end": 62,
+          "sha256": "ec91c9db966158a102dd839c8615b312a8405d1fbb56cfe3e025bbedd3b63a34",
+          "bytes": 654765
+        }
+      ]
+    },
+    "MICROSOFT_2016_10K": {
+      "sha256": "f3555bd5ea1802770cc8f2a7ca766392e16fe6504f18688db681d852029404dc",
+      "bytes": 838415,
+      "pages": 121,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "MICROSOFT_2016_10K__pages-0001-0115.pdf",
+          "original_start": 1,
+          "original_end": 115,
+          "sha256": "f256cf1f55847fc8af0d4e94806c1f02aea8c60e9fd0eedde4e55e29a8b00097",
+          "bytes": 824980
+        },
+        {
+          "file": "MICROSOFT_2016_10K__pages-0116-0121.pdf",
+          "original_start": 116,
+          "original_end": 121,
+          "sha256": "b94444688195d5fd2400ea5cdaf2a2655c040d7dfa039f4df9a87a66927f0f1f",
+          "bytes": 65569
+        }
+      ]
+    },
+    "MICROSOFT_2023_10K": {
+      "sha256": "e534af371c824aab19b8d01f8bc0e9d1e0a3fb418a33119c5224a53d20a0d37b",
+      "bytes": 726155,
+      "pages": 116,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "MICROSOFT_2023_10K.pdf",
+          "original_start": 1,
+          "original_end": 116,
+          "sha256": "e534af371c824aab19b8d01f8bc0e9d1e0a3fb418a33119c5224a53d20a0d37b",
+          "bytes": 726155
+        }
+      ]
+    },
+    "NETFLIX_2015_10K": {
+      "sha256": "b22ca874ef08f383bd0b1071677d44f4a242af668f855f00dc9c6d4ac94148e2",
+      "bytes": 578489,
+      "pages": 72,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "NETFLIX_2015_10K__pages-0001-0072.pdf",
+          "original_start": 1,
+          "original_end": 72,
+          "sha256": "5995c6ce5ce9c86d98570b9cb334b48720cf302d024223af7bcba56f8fc35aef",
+          "bytes": 573336
+        }
+      ]
+    },
+    "NETFLIX_2017_10K": {
+      "sha256": "981a69bba010dd1709c74ccec9ca26c61635c02a4f22b76345d26021e88077d6",
+      "bytes": 651011,
+      "pages": 73,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "NETFLIX_2017_10K__pages-0001-0073.pdf",
+          "original_start": 1,
+          "original_end": 73,
+          "sha256": "1ec78091b1e74e0768fe9be594571bcdcb45ed6a28ed9c449a54b908d3faae42",
+          "bytes": 630600
+        }
+      ]
+    },
+    "NIKE_2018_10K": {
+      "sha256": "31de66f1e37cabf1785e0ffa66955bf003bf2a9dcf3f4ebe93732d063b7b6ebe",
+      "bytes": 962221,
+      "pages": 97,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "NIKE_2018_10K__pages-0001-0093.pdf",
+          "original_start": 1,
+          "original_end": 93,
+          "sha256": "609ad36a70dca02d06667d5ae6cb8e7b1e88fa906b1695a6806af5a4a5b86519",
+          "bytes": 936851
+        },
+        {
+          "file": "NIKE_2018_10K__pages-0094-0097.pdf",
+          "original_start": 94,
+          "original_end": 97,
+          "sha256": "f1f1e0a4b862ed51febd4738b855484c26aa754a70f89cd47c585c82cf8db496",
+          "bytes": 93710
+        }
+      ]
+    },
+    "NIKE_2019_10K": {
+      "sha256": "7dbdf1bcbf37dd6d6e694ce95bcb23cd6943d08cc9cd1e5ee9832ed8f7eebdc6",
+      "bytes": 909932,
+      "pages": 104,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "NIKE_2019_10K__pages-0001-0104.pdf",
+          "original_start": 1,
+          "original_end": 104,
+          "sha256": "a010794dae99f6d5ba500208f183baf1ba5460cb37f19da141103608e613e06b",
+          "bytes": 892811
+        }
+      ]
+    },
+    "NIKE_2021_10K": {
+      "sha256": "73b54e5e0b1b0b33e51ac314f6d9a9db0bcc286269feb24a3445a5f1ff0f7789",
+      "bytes": 877882,
+      "pages": 109,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "NIKE_2021_10K__pages-0001-0106.pdf",
+          "original_start": 1,
+          "original_end": 106,
+          "sha256": "70eea69074daca7d2b0e228200d8dab1757921d9a0d93431264094a17a54669b",
+          "bytes": 846570
+        },
+        {
+          "file": "NIKE_2021_10K__pages-0107-0109.pdf",
+          "original_start": 107,
+          "original_end": 109,
+          "sha256": "69026a5f9238030b0b1851b52025ea3bdf984504598ac5e44402831f12eac008",
+          "bytes": 85989
+        }
+      ]
+    },
+    "NIKE_2023_10K": {
+      "sha256": "51f5a0fc6ede20de4f5cfdeae8791a57bdd65c95db2ceb263eb120696ff90172",
+      "bytes": 3463188,
+      "pages": 106,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "NIKE_2023_10K.pdf",
+          "original_start": 1,
+          "original_end": 106,
+          "sha256": "51f5a0fc6ede20de4f5cfdeae8791a57bdd65c95db2ceb263eb120696ff90172",
+          "bytes": 3463188
+        }
+      ]
+    },
+    "PAYPAL_2022_10K": {
+      "sha256": "0c1dd6cd170261c6bd778de382a211a56a3bb1e009a429246370c97fa0defab3",
+      "bytes": 4371232,
+      "pages": 134,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "PAYPAL_2022_10K__pages-0001-0105.pdf",
+          "original_start": 1,
+          "original_end": 105,
+          "sha256": "3e7122fedbe904d80e217455c90bc12ac2dbb85a6ef4a7e7df15f488cb70f149",
+          "bytes": 4124598
+        },
+        {
+          "file": "PAYPAL_2022_10K__pages-0106-0134.pdf",
+          "original_start": 106,
+          "original_end": 134,
+          "sha256": "6d8ab68187f04ea3604ef33aa8cd45d58c1ddac728dbe9f6fb6c301016fdcc35",
+          "bytes": 423385
+        }
+      ]
+    },
+    "PEPSICO_2021_10K": {
+      "sha256": "f2c7cf1969c7f6dfc8c0596824e1d6b3cc70f662ee2dd06be84bb27af5635364",
+      "bytes": 2139398,
+      "pages": 549,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "PEPSICO_2021_10K__pages-0001-0126.pdf",
+          "original_start": 1,
+          "original_end": 126,
+          "sha256": "1098028d56dd7f65e93325ee8ed7d4f983ba8ab51d2cee679786fc76e533a762",
+          "bytes": 1108539
+        },
+        {
+          "file": "PEPSICO_2021_10K__pages-0127-0352.pdf",
+          "original_start": 127,
+          "original_end": 352,
+          "sha256": "6b9612490706821a98c598f2c9bea1ac31f172901b1499e642e7e591970f9ab3",
+          "bytes": 716051
+        },
+        {
+          "file": "PEPSICO_2021_10K__pages-0353-0549.pdf",
+          "original_start": 353,
+          "original_end": 549,
+          "sha256": "a5869fb02c3fd6350e799617e5be048cf21d8701f57b9ff6691e7d7310117761",
+          "bytes": 558983
+        }
+      ]
+    },
+    "PEPSICO_2022_10K": {
+      "sha256": "7d8a9f3374e429c58f101319e2da8a0e601a89859e1e4f6854163dd5f8ce6b47",
+      "bytes": 2993516,
+      "pages": 503,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "PEPSICO_2022_10K__pages-0001-0123.pdf",
+          "original_start": 1,
+          "original_end": 123,
+          "sha256": "300de768ac606fc43294982489cc615cdc4dec404d79dbdef0edb45f586db9ee",
+          "bytes": 1105620
+        },
+        {
+          "file": "PEPSICO_2022_10K__pages-0124-0310.pdf",
+          "original_start": 124,
+          "original_end": 310,
+          "sha256": "d2479e5219ebb635751ef2d4e481fe934d909a7afdabb1c0e5319cfdf021d670",
+          "bytes": 727870
+        },
+        {
+          "file": "PEPSICO_2022_10K__pages-0311-0503.pdf",
+          "original_start": 311,
+          "original_end": 503,
+          "sha256": "0927b51e9e9882480b489fce8890d1255cec4e9d8de437c133769af062361c40",
+          "bytes": 628300
+        }
+      ]
+    },
+    "PEPSICO_2023Q1_EARNINGS": {
+      "sha256": "a705483ea6c548a2f67c421bc24ced391a6beb8487600b44b54e9ae2aca1f31c",
+      "bytes": 987394,
+      "pages": 16,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "PEPSICO_2023Q1_EARNINGS.pdf",
+          "original_start": 1,
+          "original_end": 16,
+          "sha256": "a705483ea6c548a2f67c421bc24ced391a6beb8487600b44b54e9ae2aca1f31c",
+          "bytes": 987394
+        }
+      ]
+    },
+    "PEPSICO_2023_8K_dated-2023-05-05": {
+      "sha256": "e8591d6f83d810a0f9edfc540a1a21aa6269a6de4c756b5eb808d5dbbea330ed",
+      "bytes": 102321,
+      "pages": 5,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "PEPSICO_2023_8K_dated-2023-05-05.pdf",
+          "original_start": 1,
+          "original_end": 5,
+          "sha256": "e8591d6f83d810a0f9edfc540a1a21aa6269a6de4c756b5eb808d5dbbea330ed",
+          "bytes": 102321
+        }
+      ]
+    },
+    "PEPSICO_2023_8K_dated-2023-05-30": {
+      "sha256": "8e8f99f270b065e105636f54b2684f4c4170b3fc80845ae2f393bf66f3291d2c",
+      "bytes": 1460889,
+      "pages": 172,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "PEPSICO_2023_8K_dated-2023-05-30__pages-0001-0121.pdf",
+          "original_start": 1,
+          "original_end": 121,
+          "sha256": "77631d94fe3307ca84bcc66360178d155911a4f4f4b9c972306e935493744405",
+          "bytes": 837488
+        },
+        {
+          "file": "PEPSICO_2023_8K_dated-2023-05-30__pages-0122-0172.pdf",
+          "original_start": 122,
+          "original_end": 172,
+          "sha256": "bc2674ff0afafff84f016cf3c4b0cc9a68bb0486e04be3d1bcbe50d8ca01ea7b",
+          "bytes": 335066
+        }
+      ]
+    },
+    "PFIZER_2021_10K": {
+      "sha256": "ff3307d5f633c5dbe59a976f5ff5e086af04ba5a5135f2b6411c89538a22a665",
+      "bytes": 1171782,
+      "pages": 143,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "PFIZER_2021_10K__pages-0001-0074.pdf",
+          "original_start": 1,
+          "original_end": 74,
+          "sha256": "38abd44ca08204eb1eb3e272bdc68e4c47c7718c35e5448f6196f72c37b4937d",
+          "bytes": 741559
+        },
+        {
+          "file": "PFIZER_2021_10K__pages-0075-0143.pdf",
+          "original_start": 75,
+          "original_end": 143,
+          "sha256": "d130df4c9a187115883f50f079d28b55f8a57362ed200076602cb6a0e7d9e045",
+          "bytes": 568456
+        }
+      ]
+    },
+    "Pfizer_2023Q2_10Q": {
+      "sha256": "bf6c059a1dd71bd56581c94bce650bd85b56de2f4d0a25b45f05804a8bd6684d",
+      "bytes": 743533,
+      "pages": 72,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "Pfizer_2023Q2_10Q__pages-0001-0072.pdf",
+          "original_start": 1,
+          "original_end": 72,
+          "sha256": "09ac2e442df5fb7a8b500fb0d5c658f5b4f706e16cd5098d234427d65a79d44e",
+          "bytes": 732792
+        }
+      ]
+    },
+    "ULTABEAUTY_2023Q4_EARNINGS": {
+      "sha256": "c7df6210a627042e231c9579982648a43f3ff8b630b4020540330c2a85e0d781",
+      "bytes": 99758,
+      "pages": 9,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "ULTABEAUTY_2023Q4_EARNINGS.pdf",
+          "original_start": 1,
+          "original_end": 9,
+          "sha256": "c7df6210a627042e231c9579982648a43f3ff8b630b4020540330c2a85e0d781",
+          "bytes": 99758
+        }
+      ]
+    },
+    "ULTABEAUTY_2023_10K": {
+      "sha256": "cdf2ebcfbc2eb9ecf880126d38b186cac1f683dae5bcb50cad15176bfc449ff4",
+      "bytes": 4954215,
+      "pages": 105,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "ULTABEAUTY_2023_10K.pdf",
+          "original_start": 1,
+          "original_end": 105,
+          "sha256": "cdf2ebcfbc2eb9ecf880126d38b186cac1f683dae5bcb50cad15176bfc449ff4",
+          "bytes": 4954215
+        }
+      ]
+    },
+    "VERIZON_2021_10K": {
+      "sha256": "f7fcb508f920e3df9a07bc858a6d9f0d3cd1e976a46efe72375c9ffb983822ac",
+      "bytes": 2098068,
+      "pages": 120,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "VERIZON_2021_10K__pages-0001-0088.pdf",
+          "original_start": 1,
+          "original_end": 88,
+          "sha256": "35a329d9a1a3e6833b5273d8950aeaa376b08063942527faed68c7fdb04265f3",
+          "bytes": 1892355
+        },
+        {
+          "file": "VERIZON_2021_10K__pages-0089-0120.pdf",
+          "original_start": 89,
+          "original_end": 120,
+          "sha256": "cdc99e8b957e04f17e25582a6aeba234ff3f388d207063af4831784979d5c627",
+          "bytes": 1307346
+        }
+      ]
+    },
+    "VERIZON_2022_10K": {
+      "sha256": "403d7346e8a059472863d1789527f16e5127a61c2f6c4429012e6227f27576d7",
+      "bytes": 2315268,
+      "pages": 124,
+      "empty_password": false,
+      "parts": [
+        {
+          "file": "VERIZON_2022_10K__pages-0001-0090.pdf",
+          "original_start": 1,
+          "original_end": 90,
+          "sha256": "a18fb4eda291392a215f9cd11337559380e52755ad91d1be822b47f5bfe6e541",
+          "bytes": 732272
+        },
+        {
+          "file": "VERIZON_2022_10K__pages-0091-0124.pdf",
+          "original_start": 91,
+          "original_end": 124,
+          "sha256": "8c7d83e650cea2effbbf3136eccc7604936002e824ba21fb5e68e20343f0d341",
+          "bytes": 348200
+        }
+      ]
+    },
+    "WALMART_2018_10K": {
+      "sha256": "661512df698c895a4a5ab3d4ab879fd8ffc8f17a9038e27bcb208401982b6c15",
+      "bytes": 1599075,
+      "pages": 304,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "WALMART_2018_10K__pages-0001-0110.pdf",
+          "original_start": 1,
+          "original_end": 110,
+          "sha256": "ce16154c468b2403bdadcd344aeff64e93008fb2616a63b3704b9c2730b4c8a3",
+          "bytes": 830728
+        },
+        {
+          "file": "WALMART_2018_10K__pages-0111-0243.pdf",
+          "original_start": 111,
+          "original_end": 243,
+          "sha256": "8be65bc269afcccef63405d5e4d0e31f442688f5e3da20dfaa9156f499700d0d",
+          "bytes": 677869
+        },
+        {
+          "file": "WALMART_2018_10K__pages-0244-0304.pdf",
+          "original_start": 244,
+          "original_end": 304,
+          "sha256": "7b7fb92542593d3a7e05274571d6982e2ad0a6996409f70b7426171248e97678",
+          "bytes": 344852
+        }
+      ]
+    },
+    "WALMART_2019_10K": {
+      "sha256": "f1d1b052c2b68c5d68e3575de7069dc47914f03abb02771d2629b10bf7d9e377",
+      "bytes": 7211754,
+      "pages": 155,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "WALMART_2019_10K__pages-0001-0120.pdf",
+          "original_start": 1,
+          "original_end": 120,
+          "sha256": "c6e434ed000a0017cf8a49d3cb294660e44bc1eee764a9f1631ac926da345d53",
+          "bytes": 4449569
+        },
+        {
+          "file": "WALMART_2019_10K__pages-0121-0155.pdf",
+          "original_start": 121,
+          "original_end": 155,
+          "sha256": "3da8c38b7b3d43d215f1e19ddf23b78658238cfdfdaa107fb88ffb65c52b14f3",
+          "bytes": 2840364
+        }
+      ]
+    },
+    "WALMART_2020_10K": {
+      "sha256": "0f9e2ebc9432caef54fe932ec91ccc6fea3eac89f370073462ae002eabb71a34",
+      "bytes": 1132390,
+      "pages": 170,
+      "empty_password": true,
+      "parts": [
+        {
+          "file": "WALMART_2020_10K__pages-0001-0108.pdf",
+          "original_start": 1,
+          "original_end": 108,
+          "sha256": "be7eee7c09a7820c502a37ab021385cfe3b6c3bba2c08b4755c1e6342bd25a81",
+          "bytes": 823659
+        },
+        {
+          "file": "WALMART_2020_10K__pages-0109-0170.pdf",
+          "original_start": 109,
+          "original_end": 170,
+          "sha256": "9db329d7d4aab705b5f7dfb8b48bbb445c136ab155d7c3b2fb410eea7b6d4b5a",
+          "bytes": 462474
+        }
+      ]
+    }
+  },
+  "cases": {
+    "financebench_id_00005": {
+      "document": "CORNING_2022_10K"
+    },
+    "financebench_id_00070": {
+      "document": "AMERICANWATERWORKS_2022_10K"
+    },
+    "financebench_id_00080": {
+      "document": "PAYPAL_2022_10K"
+    },
+    "financebench_id_00206": {
+      "document": "JPMORGAN_2022_10K"
+    },
+    "financebench_id_00215": {
+      "document": "VERIZON_2022_10K"
+    },
+    "financebench_id_00216": {
+      "document": "VERIZON_2022_10K"
+    },
+    "financebench_id_00222": {
+      "document": "AMD_2022_10K"
+    },
+    "financebench_id_00283": {
+      "document": "Pfizer_2023Q2_10Q"
+    },
+    "financebench_id_00288": {
+      "document": "BESTBUY_2024Q2_10Q"
+    },
+    "financebench_id_00299": {
+      "document": "JPMORGAN_2021Q1_10Q"
+    },
+    "financebench_id_00302": {
+      "document": "PFIZER_2021_10K"
+    },
+    "financebench_id_00382": {
+      "document": "MGMRESORTS_2022Q4_EARNINGS"
+    },
+    "financebench_id_00394": {
+      "document": "JPMORGAN_2022Q2_10Q"
+    },
+    "financebench_id_00407": {
+      "document": "MGMRESORTS_2023Q2_10Q"
+    },
+    "financebench_id_00438": {
+      "document": "ADOBE_2022_10K"
+    },
+    "financebench_id_00460": {
+      "document": "BESTBUY_2024Q2_10Q"
+    },
+    "financebench_id_00464": {
+      "document": "BOEING_2022_10K"
+    },
+    "financebench_id_00476": {
+      "document": "AMERICANEXPRESS_2022_10K"
+    },
+    "financebench_id_00494": {
+      "document": "BOEING_2022_10K"
+    },
+    "financebench_id_00499": {
+      "document": "3M_2022_10K"
+    },
+    "financebench_id_00517": {
+      "document": "BOEING_2022_10K"
+    },
+    "financebench_id_00521": {
+      "document": "ULTABEAUTY_2023_10K"
+    },
+    "financebench_id_00540": {
+      "document": "AES_2022_10K"
+    },
+    "financebench_id_00552": {
+      "document": "MICROSOFT_2023_10K"
+    },
+    "financebench_id_00563": {
+      "document": "AMD_2022_10K"
+    },
+    "financebench_id_00566": {
+      "document": "VERIZON_2022_10K"
+    },
+    "financebench_id_00585": {
+      "document": "BOEING_2022_10K"
+    },
+    "financebench_id_00591": {
+      "document": "ADOBE_2022_10K"
+    },
+    "financebench_id_00601": {
+      "document": "ULTABEAUTY_2023Q4_EARNINGS"
+    },
+    "financebench_id_00603": {
+      "document": "ULTABEAUTY_2023Q4_EARNINGS"
+    },
+    "financebench_id_00605": {
+      "document": "ULTABEAUTY_2023Q4_EARNINGS"
+    },
+    "financebench_id_00606": {
+      "document": "ULTABEAUTY_2023Q4_EARNINGS"
+    },
+    "financebench_id_00651": {
+      "document": "JOHNSON_JOHNSON_2022Q4_EARNINGS"
+    },
+    "financebench_id_00669": {
+      "document": "JOHNSON_JOHNSON_2022_10K"
+    },
+    "financebench_id_00678": {
+      "document": "BOEING_2022_10K"
+    },
+    "financebench_id_00684": {
+      "document": "AMCOR_2023_10K"
+    },
+    "financebench_id_00685": {
+      "document": "BESTBUY_2023_10K"
+    },
+    "financebench_id_00702": {
+      "document": "PFIZER_2021_10K"
+    },
+    "financebench_id_00705": {
+      "document": "PEPSICO_2023_8K_dated-2023-05-30"
+    },
+    "financebench_id_00711": {
+      "document": "JOHNSON_JOHNSON_2022_10K"
+    },
+    "financebench_id_00720": {
+      "document": "AMERICANEXPRESS_2022_10K"
+    },
+    "financebench_id_00723": {
+      "document": "AMERICANEXPRESS_2022_10K"
+    },
+    "financebench_id_00724": {
+      "document": "Pfizer_2023Q2_10Q"
+    },
+    "financebench_id_00735": {
+      "document": "PEPSICO_2022_10K"
+    },
+    "financebench_id_00746": {
+      "document": "ULTABEAUTY_2023_10K"
+    },
+    "financebench_id_00757": {
+      "document": "AMD_2022_10K"
+    },
+    "financebench_id_00790": {
+      "document": "CVSHEALTH_2022_10K"
+    },
+    "financebench_id_00799": {
+      "document": "AMCOR_2023_10K"
+    },
+    "financebench_id_00807": {
+      "document": "3M_2023Q2_10Q"
+    },
+    "financebench_id_00822": {
+      "document": "FOOTLOCKER_2022_8K_dated-2022-05-20"
+    },
+    "financebench_id_00839": {
+      "document": "FOOTLOCKER_2022_8K_dated_2022-08-19"
+    },
+    "financebench_id_00859": {
+      "document": "VERIZON_2021_10K"
+    },
+    "financebench_id_00882": {
+      "document": "PEPSICO_2023_8K_dated-2023-05-30"
+    },
+    "financebench_id_00917": {
+      "document": "AMD_2022_10K"
+    },
+    "financebench_id_00941": {
+      "document": "3M_2023Q2_10Q"
+    },
+    "financebench_id_00956": {
+      "document": "JOHNSON_JOHNSON_2022_10K"
+    },
+    "financebench_id_00995": {
+      "document": "AMD_2022_10K"
+    },
+    "financebench_id_01009": {
+      "document": "PEPSICO_2022_10K"
+    },
+    "financebench_id_01028": {
+      "document": "AMERICANEXPRESS_2022_10K"
+    },
+    "financebench_id_01077": {
+      "document": "BESTBUY_2023_10K"
+    },
+    "financebench_id_01079": {
+      "document": "AMCOR_2023_10K"
+    },
+    "financebench_id_01091": {
+      "document": "BOEING_2022_10K"
+    },
+    "financebench_id_01107": {
+      "document": "CVSHEALTH_2022_10K"
+    },
+    "financebench_id_01148": {
+      "document": "AMCOR_2023_10K"
+    },
+    "financebench_id_01163": {
+      "document": "NIKE_2023_10K"
+    },
+    "financebench_id_01198": {
+      "document": "AMD_2022_10K"
+    },
+    "financebench_id_01226": {
+      "document": "3M_2022_10K"
+    },
+    "financebench_id_01244": {
+      "document": "CVSHEALTH_2022_10K"
+    },
+    "financebench_id_01254": {
+      "document": "MGMRESORTS_2022_10K"
+    },
+    "financebench_id_01275": {
+      "document": "BESTBUY_2023_10K"
+    },
+    "financebench_id_01279": {
+      "document": "AMD_2022_10K"
+    },
+    "financebench_id_01290": {
+      "document": "BOEING_2022_10K"
+    },
+    "financebench_id_01319": {
+      "document": "AES_2022_10K"
+    },
+    "financebench_id_01328": {
+      "document": "PEPSICO_2022_10K"
+    },
+    "financebench_id_01346": {
+      "document": "CORNING_2022_10K"
+    },
+    "financebench_id_01351": {
+      "document": "AMERICANEXPRESS_2022_10K"
+    },
+    "financebench_id_01474": {
+      "document": "PEPSICO_2023Q1_EARNINGS"
+    },
+    "financebench_id_01476": {
+      "document": "PEPSICO_2023Q1_EARNINGS"
+    },
+    "financebench_id_01482": {
+      "document": "PEPSICO_2023_8K_dated-2023-05-05"
+    },
+    "financebench_id_01484": {
+      "document": "JOHNSON_JOHNSON_2022Q4_EARNINGS"
+    },
+    "financebench_id_01487": {
+      "document": "JOHNSON_JOHNSON_2023Q2_EARNINGS"
+    },
+    "financebench_id_01488": {
+      "document": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30"
+    },
+    "financebench_id_01490": {
+      "document": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30"
+    },
+    "financebench_id_01491": {
+      "document": "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30"
+    },
+    "financebench_id_01858": {
+      "document": "3M_2023Q2_10Q"
+    },
+    "financebench_id_01865": {
+      "document": "3M_2022_10K"
+    },
+    "financebench_id_01902": {
+      "document": "BESTBUY_2024Q2_10Q"
+    },
+    "financebench_id_01911": {
+      "document": "MGMRESORTS_2022Q4_EARNINGS"
+    },
+    "financebench_id_01912": {
+      "document": "MGMRESORTS_2022Q4_EARNINGS"
+    },
+    "financebench_id_01928": {
+      "document": "AMCOR_2023Q4_EARNINGS"
+    },
+    "financebench_id_01930": {
+      "document": "AMCOR_2023Q4_EARNINGS"
+    },
+    "financebench_id_01935": {
+      "document": "AMCOR_2022_8K_dated-2022-07-01"
+    },
+    "financebench_id_01936": {
+      "document": "AMCOR_2023Q2_10Q"
+    },
+    "financebench_id_01964": {
+      "document": "AMERICANEXPRESS_2022_10K"
+    },
+    "financebench_id_01981": {
+      "document": "AMERICANEXPRESS_2022_10K"
+    },
+    "financebench_id_02024": {
+      "document": "VERIZON_2021_10K"
+    },
+    "financebench_id_02049": {
+      "document": "JPMORGAN_2023Q2_10Q"
+    },
+    "financebench_id_02119": {
+      "document": "JPMORGAN_2021Q1_10Q"
+    },
+    "financebench_id_02416": {
+      "document": "PFIZER_2021_10K"
+    },
+    "financebench_id_02419": {
+      "document": "Pfizer_2023Q2_10Q"
+    },
+    "financebench_id_02608": {
+      "document": "BESTBUY_2017_10K"
+    },
+    "financebench_id_02981": {
+      "document": "CORNING_2021_10K"
+    },
+    "financebench_id_02987": {
+      "document": "ACTIVISIONBLIZZARD_2019_10K"
+    },
+    "financebench_id_03029": {
+      "document": "3M_2018_10K"
+    },
+    "financebench_id_03031": {
+      "document": "LOCKHEEDMARTIN_2021_10K"
+    },
+    "financebench_id_03069": {
+      "document": "AMD_2015_10K"
+    },
+    "financebench_id_03282": {
+      "document": "NETFLIX_2017_10K"
+    },
+    "financebench_id_03471": {
+      "document": "GENERALMILLS_2020_10K"
+    },
+    "financebench_id_03473": {
+      "document": "COCACOLA_2017_10K"
+    },
+    "financebench_id_03531": {
+      "document": "NIKE_2019_10K"
+    },
+    "financebench_id_03620": {
+      "document": "PEPSICO_2022_10K"
+    },
+    "financebench_id_03718": {
+      "document": "LOCKHEEDMARTIN_2022_10K"
+    },
+    "financebench_id_03838": {
+      "document": "BLOCK_2020_10K"
+    },
+    "financebench_id_03849": {
+      "document": "MGMRESORTS_2020_10K"
+    },
+    "financebench_id_03856": {
+      "document": "ADOBE_2017_10K"
+    },
+    "financebench_id_03882": {
+      "document": "AMCOR_2020_10K"
+    },
+    "financebench_id_04080": {
+      "document": "NIKE_2021_10K"
+    },
+    "financebench_id_04103": {
+      "document": "GENERALMILLS_2019_10K"
+    },
+    "financebench_id_04171": {
+      "document": "MGMRESORTS_2018_10K"
+    },
+    "financebench_id_04209": {
+      "document": "COSTCO_2021_10K"
+    },
+    "financebench_id_04254": {
+      "document": "AMERICANWATERWORKS_2021_10K"
+    },
+    "financebench_id_04302": {
+      "document": "NIKE_2018_10K"
+    },
+    "financebench_id_04412": {
+      "document": "LOCKHEEDMARTIN_2020_10K"
+    },
+    "financebench_id_04417": {
+      "document": "BESTBUY_2019_10K"
+    },
+    "financebench_id_04458": {
+      "document": "NETFLIX_2015_10K"
+    },
+    "financebench_id_04481": {
+      "document": "PEPSICO_2022_10K"
+    },
+    "financebench_id_04660": {
+      "document": "BLOCK_2016_10K"
+    },
+    "financebench_id_04672": {
+      "document": "3M_2018_10K"
+    },
+    "financebench_id_04700": {
+      "document": "MICROSOFT_2016_10K"
+    },
+    "financebench_id_04735": {
+      "document": "ADOBE_2015_10K"
+    },
+    "financebench_id_04784": {
+      "document": "WALMART_2019_10K"
+    },
+    "financebench_id_04854": {
+      "document": "GENERALMILLS_2020_10K"
+    },
+    "financebench_id_04980": {
+      "document": "PEPSICO_2021_10K"
+    },
+    "financebench_id_05718": {
+      "document": "AMERICANWATERWORKS_2020_10K"
+    },
+    "financebench_id_05915": {
+      "document": "CVSHEALTH_2018_10K"
+    },
+    "financebench_id_06247": {
+      "document": "WALMART_2018_10K"
+    },
+    "financebench_id_06272": {
+      "document": "COCACOLA_2022_10K"
+    },
+    "financebench_id_06655": {
+      "document": "AMAZON_2017_10K"
+    },
+    "financebench_id_06741": {
+      "document": "WALMART_2020_10K"
+    },
+    "financebench_id_07507": {
+      "document": "ADOBE_2016_10K"
+    },
+    "financebench_id_07661": {
+      "document": "BLOCK_2020_10K"
+    },
+    "financebench_id_07966": {
+      "document": "ACTIVISIONBLIZZARD_2019_10K"
+    },
+    "financebench_id_08135": {
+      "document": "AMAZON_2017_10K"
+    },
+    "financebench_id_08286": {
+      "document": "AMAZON_2019_10K"
+    },
+    "financebench_id_09724": {
+      "document": "COCACOLA_2021_10K"
+    },
+    "financebench_id_10130": {
+      "document": "CORNING_2020_10K"
+    },
+    "financebench_id_10136": {
+      "document": "GENERALMILLS_2022_10K"
+    },
+    "financebench_id_10285": {
+      "document": "BOEING_2018_10K"
+    },
+    "financebench_id_10420": {
+      "document": "AES_2022_10K"
+    },
+    "financebench_id_10499": {
+      "document": "KRAFTHEINZ_2019_10K"
+    }
+  }
+}
