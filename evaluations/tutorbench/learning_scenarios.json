@@ -1,0 +1,47 @@
+[
+  {
+    "id": "python-chat", "course": "python-foundations", "source": "chat", "topic": "列表赋值",
+    "record": "我把列表赋值记成了给原列表拍快照。",
+    "options": {"A": "对照 b = a 与 b = a.copy()，各做一次 append 再观察原列表", "B": "练习把十进制转换成二进制", "C": "背诵字符串格式化的占位符"}, "next": "A"
+  },
+  {
+    "id": "python-note", "course": "python-foundations", "source": "note", "topic": "对象身份",
+    "record": "我的复习笔记里把两个空列表的对象身份与值相等混在了一起。",
+    "options": {"A": "练习计算列表的长度", "B": "比较两个分别创建的空列表的 == 和 is 结果", "C": "把列表元素依次转为字符串"}, "next": "B"
+  },
+  {
+    "id": "python-practice", "course": "python-foundations", "source": "practice", "topic": "值、变量与可变性",
+    "record": "[1]",
+    "options": {"A": "练习字符串转整数", "B": "数循环总次数", "C": "画出 a 和 b 的指向，再逐行预测 append 对原列表的影响"}, "next": "C"
+  },
+  {
+    "id": "langgraph-chat", "course": "langgraph-foundations", "source": "chat", "topic": "条件路由",
+    "record": "我总以为条件路由选中的每条边都会在同一轮执行。",
+    "options": {"A": "换一个模型供应商再试", "B": "用一个返回两种标签之一的路由函数追踪实际经过的边", "C": "增加模型回答的字数"}, "next": "B"
+  },
+  {
+    "id": "langgraph-note", "course": "langgraph-foundations", "source": "note", "topic": "状态 reducer",
+    "record": "我把状态 reducer 当成从模型输出里自动找下一步的函数。",
+    "options": {"A": "修改界面展示的节点名", "B": "反复练习模型提示词", "C": "用两次对同一字段的更新，对照覆盖与 reducer 合并"}, "next": "C"
+  },
+  {
+    "id": "langgraph-practice", "course": "langgraph-foundations", "source": "practice", "topic": "把任务建模为状态",
+    "record": "必须调用语言模型",
+    "options": {"A": "写一个普通 Python 节点，读取并更新计数字段", "B": "给每个节点配置更大的模型", "C": "给图加一张封面图"}, "next": "A"
+  },
+  {
+    "id": "rag-chat", "course": "rag-foundations", "source": "chat", "topic": "证据引用",
+    "record": "我一看见证据引用的页码正确就当正文事实也对了。",
+    "options": {"A": "把检索结果再加五条", "B": "把引用编号改成字母", "C": "用同页两段文本核对哪一段真正支持结论"}, "next": "C"
+  },
+  {
+    "id": "rag-note", "course": "rag-foundations", "source": "note", "topic": "混合检索",
+    "record": "我在混合检索笔记里把版本号的字面匹配和主题语义相似当成同一件事。",
+    "options": {"A": "对照一个精确版本号查询和一个同义改写查询的排名", "B": "练习修改 PDF 的封面", "C": "只改变回答字体"}, "next": "A"
+  },
+  {
+    "id": "rag-practice", "course": "rag-foundations", "source": "practice", "topic": "资料解析与分块",
+    "record": "保证没有重复文字",
+    "options": {"A": "删除每页的页码", "B": "切一个跨边界的定义，对比有无重叠时可检索到的内容", "C": "只增加最终回答的长度"}, "next": "B"
+  }
+]

@@ -196,6 +196,8 @@ Agent开发讲解与5分钟演示见 [AGENT_INTERVIEW](docs/AGENT_INTERVIEW.md)�
 
 PDF 证据页与首条引用的对照方法、完整公开样本和复现命令见 [FinanceBench 评测](evaluations/retrieval/FINANCEBENCH.md)。
 
+本地模型的教学对照与跨会话记忆评测见 [TutorBench 与学习场景](evaluations/tutorbench/README.md)。
+
 ## 项目结构
 
 ```text
