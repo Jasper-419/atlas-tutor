@@ -17,6 +17,8 @@
 
 `backend/tutor/runner.py:run` 是实际Agent Loop：模型返回原生工具调用→服务端执行工具→结构化结果作为tool消息加入上下文→再次请求模型，直到结束、等待用户或触及预算。`backend/tutor/` 包含API、上下文、模型协议、精确路径预览、持久事件和worker；`backend/agent/` 承载工具契约、策略、回执执行器、准入与运行观测。模型选择沿用用户AI连接，支持OpenAI Chat Completions、OpenAI Responses和Anthropic Messages原生工具调用；模型本身也需支持工具调用。
 
+未绑定课程或节点的学习模式中，Tutor 对可直接回答的概念解释、反馈和提示使用精简教学指令，按预算保留最多两轮近期对话，正常完成只需一次模型调用。课程会话、显式的资料或历史作答查询、出题及其他业务操作沿用完整 Agent Loop。路由决定随当轮 Checkpoint 保存，并在「运行详情」显示。相关评测见 [TutorBench 教学路由对照](../evaluations/tutorbench/README.md#教学路由优化的留出评测)。
+
 默认最多6次带工具的模型请求，另有无工具收尾，12个逻辑工具调用，480秒活跃执行上限。模型瞬时异常仅在未输出文本时最多重试1次；读取工具瞬时异常最多重试1次；进程恢复另外消耗冻结的max_tool_recoveries（默认1），总attempts也持久限额。写工具不做异常盲重试；成功/失败回执可复用，非重放安全写入的未知结果先暂停核对，用户续答不能将它标为成功。暂停等待不计作持续运行，以上不构成金额硬配额。
 
 33项工具分为独立handler并使用Pydantic参数契约。tutor/qa/research/planner/solve五种Capability声明指令、权限与结束核对，兼容旧profile；qa只读业务数据和必要会话控制。solve默认14次工具决策模型请求、20个逻辑工具调用，以容纳最多6步骤及收尾；服务端环境配置可降低或调整预算。schema筛选之外，执行器、dispatcher、领域服务分别检查策略、模式与用户归属。

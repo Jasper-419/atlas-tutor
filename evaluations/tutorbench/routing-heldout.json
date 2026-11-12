@@ -1,0 +1,58 @@
+{
+  "dataset": "ScaleAI/TutorBench",
+  "revision": "c70d2311cdca7129cab9376ba22eaa97c3cff3d7",
+  "source_sha256": {
+    "train-00000-of-00002.parquet": "b0fc57c6fc56ee4b7439a6bde6783e46b8e3db412f72154592f8fb0eda9a155f",
+    "train-00001-of-00002.parquet": "d23e82190f7bcfe7c74dc541de72374499106dbb8fee1303021ebba6d20af3df"
+  },
+  "selection": {
+    "subjects": [
+      "Biology",
+      "Calculus",
+      "Chemistry",
+      "Physics",
+      "Statistics"
+    ],
+    "batches": [
+      "USE_CASE_1_TEXT",
+      "USE_CASE_2_TEXT",
+      "USE_CASE_3_TEXT"
+    ],
+    "per_stratum": 2,
+    "order": "ascending SHA-256 of atlas-tutor-routing-heldout-v1/TASK_ID within each stratum"
+  },
+  "excluded_diagnostic_ids": 84,
+  "cohort_sha256": "c2da73e981d7a5025f0dbc94c774e68484d6f29ab9a52399b54d37da0c13b1cf",
+  "ids": [
+    "685454f0e6d053a2b0277fdd",
+    "684a8c40abab6ca3db430abb",
+    "684a8cd63b901ee3995f3936",
+    "683629235d0f139b4a3de775",
+    "680fb68e2a852554e1acc357",
+    "683870ef13dd25f48fb17e5e",
+    "685454eed47f86662cf32b11",
+    "6847710b6f616dc4cfed851b",
+    "681cfc8cd66359ff7194ddb1",
+    "684771b31b2bfa550f74964f",
+    "68477209e96863adfe492508",
+    "6843160bd3b2bfc3c344af98",
+    "6847710b25bf4abe09f74b97",
+    "68377546496507faa0915a87",
+    "681a876a89f259ad681c8dde",
+    "68377588ea57c951a0cca90b",
+    "681a852baeb6505680d41730",
+    "681cfcca5db7f3af72e157c0",
+    "684a8c403b901ee3995f3906",
+    "681cfb9f785e9bceace0e139",
+    "68362923bd1df5c44ef3112b",
+    "68545549f20ebbefd00e2ce5",
+    "684772099bc321f32d5b5b05",
+    "68477209d041366db0d095b3",
+    "681904ae3f170328e61a5e3c",
+    "685454eeb138b019d5728a96",
+    "685455483f42c0760b919367",
+    "6836292317ffad9b33f90f2c",
+    "685455c7c5d43a37be94b519",
+    "6843160a1c3b85b09bea6fd9"
+  ]
+}

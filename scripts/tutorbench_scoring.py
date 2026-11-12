@@ -128,7 +128,7 @@ async def judge(rows, output, jobs):
                 group.create_task(trial(row))
 
 def normalized_score(values, weights):
-    # The 22 negative criteria in this cohort are phrased as prohibitions.
+    # The selected text cohorts use prohibitions for negative criteria.
     # Only violating a prohibition incurs its negative weight.
     points = sum((value if weight > 0 else 1 - value) * weight for value, weight in zip(values, weights))
     return max(0.0, min(1.0, points / sum(weight for weight in weights if weight > 0)))
@@ -200,7 +200,7 @@ def checked_hint_leakage(rows, output, order):
     lookup = {record["id"]: record for record in records}
     expected = {row["TASK_ID"] for row in rows if TASKS[row["BATCH"]] == "hint"}
     if len(lookup) != len(records) or lookup.keys() != expected:
-        raise ValueError("Expected 25 unique explicit hint leakage judgments")
+        raise ValueError(f"Expected {len(expected)} unique explicit hint leakage judgments")
     metadata = read_json(output / "hint-scoring.json")
     if metadata["responses_sha256"] != sha_file(output / "responses.jsonl"):
         raise ValueError("Responses changed after hint scoring")
@@ -243,7 +243,7 @@ def group_summary(rows, answers):
             result["by_arm"][arm]["hint_trials"] = len(hints)
     return result
 
-def report(rows, output):
+def report(rows, output, *, labels=("Single call", "Atlas Tutor"), title="TutorBench CS paired evaluation"):
     answers = responses(rows, output)
     records = read_lines(output / "judgments.jsonl")
     judgments = {row["id"]: row for row in records}
@@ -290,8 +290,8 @@ def report(rows, output):
         "hint_scoring": hint_metadata, "hint_prohibitions": prohibitions,
         "groups": groups, "rubric_criteria": sum(row["criterion_count"] for row in cases), "cases": cases,
     })
-    lines = ["# TutorBench CS paired evaluation", "",
-             "| Task | Pairs | Single call | Atlas Tutor | Delta | Paired 95% interval |",
+    lines = [f"# {title}", "",
+             f"| Task | Pairs | {labels[0]} | {labels[1]} | Delta | Paired 95% interval |",
              "| --- | ---: | ---: | ---: | ---: | --- |"]
     for task, group in groups.items():
         left, right = (group["by_arm"][arm]["mean_rubric_score"] for arm in ARMS)

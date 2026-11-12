@@ -1,0 +1,54 @@
+[
+  {
+    "id": "course_text_retrieval",
+    "kind": "retrieval",
+    "course": "python-foundations",
+    "prompt": "请先检索本课程上传的《Python lab handoff》，告诉我变量别名实验的交接批次码，逐字给出批次码并附资料引用。",
+    "title": "Python lab handoff",
+    "source_text": "Python lab handoff. The list aliasing lab has handoff batch code MAPLE-482. Record the object identity comparison before mutating the list. Variables used by two names can still refer to a single list object.",
+    "fact": "MAPLE-482"
+  },
+  {
+    "id": "course_pdf_retrieval",
+    "kind": "retrieval",
+    "course": "rag-foundations",
+    "prompt": "Please search my course material Citation drill handbook. What is the submission key on page 2? Give the exact key and cite the PDF.",
+    "title": "Citation drill handbook.pdf",
+    "source_text": [
+      "Citation drill handbook. Page 1: use the original source page to verify an excerpt.",
+      "Citation drill handbook. Page 2: the submission key for the citation drill is ORCHID-731."
+    ],
+    "fact": "ORCHID-731",
+    "page": 2
+  },
+  {
+    "id": "python_attempt_lookup",
+    "kind": "attempt",
+    "course": "python-foundations",
+    "prompt": "先查我这门课程的实际历史作答。列表赋值和 append 的那道题里，我上次提交的答案原文是什么？请把我提交的原答案原样写出，再说明错因。",
+    "exercise_index": 0,
+    "submitted_answer": "[1]"
+  },
+  {
+    "id": "graph_attempt_lookup",
+    "kind": "attempt",
+    "course": "langgraph-foundations",
+    "prompt": "请查一下我本课程的历史答题记录。状态 reducer 的选择题里，我当时选了哪一句？先复述我实际提交的选项原文，再指出它为什么不对。",
+    "exercise_index": 1,
+    "submitted_answer": "决定浏览器颜色"
+  },
+  {
+    "id": "python_practice_creation",
+    "kind": "practice",
+    "course": "python-foundations",
+    "prompt": "请围绕 Python 中用 == 比较列表的值、用 is 比较对象身份，生成并保存 2 道新的练习题卡，至少一道选择题。先别给标准答案或解析，我会从题卡作答。",
+    "count": 2
+  },
+  {
+    "id": "graph_practice_creation",
+    "kind": "practice",
+    "course": "langgraph-foundations",
+    "prompt": "在当前 LangGraph 知识点，为我生成并保存 2 道新练习题卡，重点是状态保存信息、节点读取状态并返回更新，至少含一道选择题。我想先作答，请暂时隐藏标准答案与解析。",
+    "count": 2
+  }
+]

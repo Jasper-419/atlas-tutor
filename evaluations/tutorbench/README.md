@@ -51,3 +51,30 @@ python scripts/evaluate_tutorbench.py report
 ```
 
 默认输出目录为 `data/tutorbench/run/`。生成、跨会话和评审可在相同配置与代码下续跑，已落盘的试验不会重复。最终 `report` 核对 168 个响应和 84 份评分一一对应后计算聚合指标。原始响应、逐项判定与记忆来源只保留在本地输出。公开仓库保存评测代码、数据清单和人工设定的跨会话场景。
+
+## 教学路由优化的留出评测
+
+原有 84 道计算机科学题用于诊断。留出集在运行优化版前锁定，来自同一固定上游版本的 5 门其他学科。对每门学科的解释、反馈、提示任务分别按题目 ID 的加盐 SHA-256 排序，取前 2 道，共 30 道。清单 `routing-heldout.json` 保存选择规则、原始文件和题目切片校验和及全部题目 ID。该样本覆盖无 Atlas 课程上下文的纯文本教学。
+
+诊断时按实际工具事件检查开销。84 道旧题中，Atlas 有 50 道没有发起工具调用，两组在这些同题上均发出 50 次模型请求。单次调用组输入 70,285 Token，Atlas 输入 256,285 Token，约为 3.65 倍。这个对照说明开销在首次输入就已出现，完整 Agent 的指令、工具定义和应用上下文各自的贡献需单独分析。
+
+两组均通过真实的 FastAPI 和 Tutor worker 执行，相同本地 Qwen 模型、温度、种子、输出预算和问题顺序，每题使用独立账号及新会话。生成和评分分别保存代码、模型与题集标识。Gemma 使用匿名 A/B 顺序逐项评分，两个版本各占 15 个 A 位。报告保留失败、等待输入、可观测 Token、工具调用和优化版的实际路由。
+
+准备原始 Parquet 后，在本目录运行以下命令。`--atlas-root` 指向对应的干净后端提交。运行时使用各自的临时数据库和同一个本机 Ollama。
+
+```bash
+python scripts/evaluate_tutorbench_routing.py prepare
+python scripts/evaluate_tutorbench_routing.py generate --arm before --atlas-root /path/to/baseline-checkout
+python scripts/evaluate_tutorbench_routing.py generate --arm after --atlas-root /path/to/optimized-checkout
+python scripts/evaluate_tutorbench_routing.py judge
+python scripts/evaluate_tutorbench_routing.py report
+```
+
+逐题生成结果和评分报告保存在 `data/tutorbench/routing-heldout/`。需要读取课程、历史作答或写入题卡的任务由工具任务评测覆盖。
+
+工具任务清单 `routing_tool_tasks.json` 固定六个课程场景，分别验证资料检索与引用、历史作答读取和题卡入库。每版均经真实 Tutor API、工具处理器和临时数据库执行，使用相同本地模型。判断通过需要模型回答和实际业务结果满足对应断言，优化版另外核对走的是完整 Agent Loop。
+
+```bash
+python scripts/evaluate_tutor_routing_tools.py --atlas-source /path/to/baseline-checkout --output data/tutorbench/routing-tools/before
+python scripts/evaluate_tutor_routing_tools.py --atlas-source /path/to/optimized-checkout --output data/tutorbench/routing-tools/after --require-route
+```
