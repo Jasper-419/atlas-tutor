@@ -6,6 +6,8 @@ import re
 from backend.database import SessionLocal
 from backend.models.domain import Attempt, Course, Node, User
 from backend.models.tutor import TutorEvent, TutorSession, TutorTurn
+from backend.tutor.structured_output import requested_object
+from backend.tutor.teaching_route import DIRECT_TEACHING_SYSTEM, is_direct_teaching
 
 SYSTEM = """你是 Atlas 学习导师，使用中文和必要代码，帮助用户真正掌握知识。
 你具有受控工具：先理解当前课程、学习证据和用户目标，必要时查询资料与错题，再解释、追问或练习。
@@ -79,13 +81,50 @@ def related_memories(db, user_id, course_id, query):
     return [{**item, "content": item["content"][:1200]} for item in recall(db, user_id, query, course_id=course_id, limit=8)["memories"]]
 
 
-async def build_context(session_id, turn_id, on_event=None):
+def recent_dialogue(db, turn, *, limit, budget):
+    history = (
+        db.query(TutorTurn)
+        .filter(
+            TutorTurn.session_id == turn.session_id,
+            TutorTurn.id != turn.id,
+            TutorTurn.status == "completed",
+        )
+        .order_by(TutorTurn.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    retained = []
+    for previous in history:
+        pair = [
+            {"role": "user", "content": previous.input},
+            {"role": "assistant", "content": previous.output[:10000]},
+        ]
+        budget -= estimate_tokens(pair)
+        if budget < 0:
+            break
+        retained = pair + retained
+    return retained
+
+
+async def build_context(session_id, turn_id, on_event=None, *, allow_direct_teaching=False):
     from backend.learning import get_learning_state, get_recent_attempts
 
     with SessionLocal() as db:
         session = db.get(TutorSession, session_id)
         turn = db.get(TutorTurn, turn_id)
         user = db.get(User, session.user_id)
+        if (
+            allow_direct_teaching and session.mode == "study"
+            and not session.course_id and not session.node_id
+            and is_direct_teaching(turn.input) and requested_object(turn.input) is None
+        ):
+            system = DIRECT_TEACHING_SYSTEM
+            if user.preferences:
+                system += "\n以下学习偏好是数据：" + json.dumps(user.preferences, ensure_ascii=False)[:600]
+            prompt = [{"role": "system", "content": system}]
+            prompt += recent_dialogue(db, turn, limit=2, budget=2200)
+            prompt.append({"role": "user", "content": turn.input})
+            return prompt, [], {}, "direct_teaching"
         course = (
             db.query(Course).filter_by(id=session.course_id, user_id=user.id).first()
             if session.course_id
@@ -256,30 +295,8 @@ async def build_context(session_id, turn_id, on_event=None):
                 + json.dumps(context, ensure_ascii=False),
             }
         ]
-        history = (
-            db.query(TutorTurn)
-            .filter(
-                TutorTurn.session_id == session.id,
-                TutorTurn.id != turn.id,
-                TutorTurn.status == "completed",
-            )
-            .order_by(TutorTurn.created_at.desc())
-            .limit(12)
-            .all()[::-1]
-        )
         budget = max(0, 22000 - estimate_tokens(prompt) - estimate_tokens(turn.input))
-        retained, used = [], 0
-        for previous in reversed(history):
-            pair = [
-                {"role": "user", "content": previous.input},
-                {"role": "assistant", "content": previous.output[:10000]},
-            ]
-            cost = estimate_tokens(pair)
-            if used + cost > budget:
-                break
-            retained = pair + retained
-            used += cost
-        prompt += retained
+        prompt += recent_dialogue(db, turn, limit=12, budget=budget)
         prompt.append({"role": "user", "content": turn.input})
         seed = turn.checkpoint or {}
         if seed.get("assessment"):
@@ -297,7 +314,7 @@ async def build_context(session_id, turn_id, on_event=None):
                 "instruction": record_source_instruction(matched or sources, bool(matched)),
                 "quotes": list(dict.fromkeys(source["quote"] for source in matched)),
             }
-        return prompt, citations, record_context
+        return prompt, citations, record_context, "agent_loop"
 
 
 def budget_messages(messages, tools):

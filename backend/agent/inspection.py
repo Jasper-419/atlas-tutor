@@ -139,6 +139,8 @@ def agent_detail(db, user_id, identifier):
             sid = "context:" + str(event.seq)
             spans[sid] = {"id": sid, "kind": "context", "name": "上下文预算估算", "status": "succeeded", "started_at": event.created_at, "metadata": {key: payload[key] for key in ("round", "estimated_tokens", "message_count", "tool_count", "estimation") if key in payload}}
             public = dict(spans[sid]["metadata"])
+        elif kind == "answer_route" and payload.get("route") in ("direct_teaching", "agent_loop"):
+            public = {"route": payload["route"]}
         elif kind in {"confirmation", "input_required"}:
             for span in reversed(list(spans.values())):
                 if span["kind"] == "tool" and span.get("status") == "running":

@@ -161,12 +161,18 @@ async def run_turn(identifier, token):
                     )
             cp["assessment"] = result
             store.emit(identifier, "assessment", result, token, cp)
-        messages, citations, record_sources = await build_context(session_id, identifier, on_event=emit)
+        messages, citations, record_sources, route = await build_context(
+            session_id, identifier, on_event=emit,
+            allow_direct_teaching=policy.profile == "tutor" and not cp.get("grade_input"),
+        )
         cp.update(messages=messages, rounds=0, stage="model", stable_output=output)
+        cp["agent"]["answer_route"] = route
+        if route == "direct_teaching":
+            cp["agent"]["allowed_tools"] = []
         cp["record_sources"] = record_sources
         request = next(message["content"] for message in reversed(messages) if message["role"] == "user")
         cp["json_output"] = requested_object(request)
-        store.checkpoint(identifier, token, cp)
+        store.emit(identifier, "answer_route", {"route": route}, token, cp)
         if citations:
             await emit("citations", {"citations": citations})
     elif cp.get("stage") == "model" and output != cp.get("stable_output", ""):
@@ -179,6 +185,7 @@ async def run_turn(identifier, token):
     source_quotes = record_sources.get("quotes", [])
     exact_field = quote_field(json_output) if len(source_quotes) == 1 else None
     direct_record_answer = exact_field is not None and policy.profile == "qa"
+    direct_teaching = cp["agent"].get("answer_route") == "direct_teaching"
     await emit("status", {"status": "running", "message": "正在结合你的学习情况处理"})
     while True:
         if cp.get("stage") == "tools":
@@ -218,17 +225,21 @@ async def run_turn(identifier, token):
                 output += "\n\n"
             cp["stable_output"] = output
             store.checkpoint(identifier, token, cp)
-        allowed = set(cp["agent"]["allowed_tools"])
-        available = [schema for schema in registry.schemas(policy.profile) if schema["function"]["name"] in allowed] if cp["rounds"] < policy.max_rounds and len(cp.get("tool_receipts", {})) < policy.max_tool_calls else []
-        if cp["agent"].get("json_retry") or direct_record_answer:
-            available = []
+        available = []
+        if (
+            not direct_teaching and not direct_record_answer and not cp["agent"].get("json_retry")
+            and cp["rounds"] < policy.max_rounds and len(cp.get("tool_receipts", {})) < policy.max_tool_calls
+        ):
+            allowed = set(cp["agent"]["allowed_tools"])
+            available = [schema for schema in registry.schemas(policy.profile) if schema["function"]["name"] in allowed]
         messages = budget_messages(cp["messages"], available)
-        messages.append(capability.prepare(cp))
-        messages = messages + [{"role": "system", "content": "本轮能力为 " + policy.profile + "，仅使用提供的工具。工具返回 error 时不得声称成功；execution_review 表示中断操作没有完整回执，先核对现有状态，不得仅凭用户继续就假定操作已成功。"}]
+        if not direct_teaching:
+            messages.append(capability.prepare(cp))
+            messages.append({"role": "system", "content": "本轮能力为 " + policy.profile + "，仅使用提供的工具。工具返回 error 时不得声称成功；execution_review 表示中断操作没有完整回执，先核对现有状态，不得仅凭用户继续就假定操作已成功。"})
         if cp.get("citations"):
             messages.append({"role": "system", "content": CITATION_GUIDANCE})
         await emit("context_budget", {"round": cp["rounds"] + 1, "estimated_tokens": estimate_tokens(messages) + estimate_tokens(available), "message_count": len(messages), "tool_count": len(available), "estimation": True})
-        if not available and not direct_record_answer and not cp["agent"].get("json_retry"):
+        if not available and not direct_teaching and not direct_record_answer and not cp["agent"].get("json_retry"):
             messages = messages + [
                 {
                     "role": "system",

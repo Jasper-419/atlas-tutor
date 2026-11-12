@@ -136,12 +136,13 @@ function AgentRunDialog({ kind, runId, onClose }: { kind: RunKind; runId: string
     }
   }
 
+  const directTeaching = detail?.events.some((event) => event.type === "answer_route" && event.payload?.route === "direct_teaching");
   return <Modal title="运行详情" className="agent-run-modal" onClose={onClose}>
     <div className="agent-run-content">
       {error && <ErrorBox message={`${error}${detail ? " 下方保留最近一次读取的记录。" : ""}`} retry={() => setRevision((value) => value + 1)} />}
       {!detail ? !error && <Loading /> : <>
         <div className="agent-run-title">
-          <div><h3>{detail.run.title || "Atlas 学习任务"}</h3><p>{detail.run.capability === "solve" ? "解题 · 分步推理与受限 Python 计算" : kind === "agent" ? "Agent 自主工具循环 · 模型按当前任务选择工具" : "Workflow 固定流程 · 按预先定义的步骤执行"}</p></div>
+          <div><h3>{detail.run.title || "Atlas 学习任务"}</h3><p>{detail.run.capability === "solve" ? "解题 · 分步推理与受限 Python 计算" : directTeaching ? "直接教学回答 · 使用精简上下文" : kind === "agent" ? "Agent 自主工具循环 · 模型按当前任务选择工具" : "Workflow 固定流程 · 按预先定义的步骤执行"}</p></div>
           <RunStatus status={detail.run.status} />
         </div>
         <div className="agent-run-toolbar">
@@ -268,6 +269,7 @@ function accessLabel(access?: string) {
 }
 
 function eventLabel(type: string) {
+  if (type === "answer_route") return "选择回答方式";
   const learningLabels: Record<string, string> = { retrieval_result: "资料检索", memory_recalled: "读取学习记忆", memory_saved: "保存学习记忆", memory_forgotten: "忘记学习记忆", memory_profile: "整理学习画像" };
   if (learningLabels[type]) return learningLabels[type];
   return ({ model_operation_start: "内部模型调用开始", model_operation: "内部模型调用", solve_plan: "更新解题计划", solve_execution: "计算执行结果", solve_complete: "解题结果", practice_validation: "练习核验", model_start: "模型调用开始", model_end: "模型调用结束", model_error: "模型调用失败", tool_start: "工具开始", tool_result: "工具返回", tool_retry: "工具重试", tool_cached: "复用工具回执", context_budget: "上下文预算", status: "状态更新", content: "生成回答", content_reset: "更新回答", question: "准备练习", assessment: "作答评估", confirmation: "等待确认", input_required: "等待回答", user_response: "收到补充回答", citations: "补充来源", question_repaired: "题目修复完成", done: "本轮结束", error: "执行失败", cancelled: "已停止", workflow: "流程步骤" } as Record<string, string>)[type] || "执行事件";
@@ -275,6 +277,7 @@ function eventLabel(type: string) {
 
 function eventSummary(event: RunEvent) {
   const payload = event.payload || {};
+  if (event.type === "answer_route") return payload.route === "direct_teaching" ? "直接教学回答" : "Agent 工具循环";
   const parts: string[] = [];
   if (["retrieval_result", "memory_recalled", "memory_saved", "memory_forgotten", "memory_profile"].includes(event.type)) {
     // Summarize an explicit public allowlist, never raw queries, facts, quotations or tool results.

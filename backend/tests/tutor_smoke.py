@@ -50,6 +50,7 @@ from backend.models import (
     TutorTurn,
 )
 from backend.tutor import paths, store
+from backend.tutor.teaching_route import is_direct_teaching
 
 OPEN_REFERENCE = "在 Python 中，b = a 只建立名字到同一对象的新绑定，不会复制列表；若通过 a 修改该可变对象，b 会观察到同一对象的变化。"
 RECOVERY_MEMORY = "租约恢复测试：我偏好通过具体例子学习。"
@@ -62,6 +63,9 @@ model_contexts = []
 CANCEL_GRADE_ANSWER = "SMOKE_CANCEL_GRADE 我把赋值理解为复制列表。"
 PRACTICE_FOCUS = "Python 赋值、对象引用与列表可变性"
 CANCEL_GENERATION_FOCUS = PRACTICE_FOCUS + "（SMOKE_CANCEL_GENERATION）"
+DIRECT_TEACHING = "请解释为什么 Python 列表赋值后两个变量会看到同一次修改。"
+TEACHING_WITH_ACTION = "请解释一下我昨天的作答错在哪里。"
+COURSE_TEACHING = "请解释 Python 列表的赋值原理。"
 completion_gates = {
     name: {key: threading.Event() for key in ("started", "release", "returned")}
     for name in ("grade", "generation")
@@ -184,6 +188,11 @@ async def external_round(config, messages, tools, user_id):
         index for index, message in enumerate(messages) if message["role"] == "user"
     )
     request = messages[last_user]["content"]
+    if request == DIRECT_TEACHING:
+        assert not tools, "Standalone teaching still sent the tool catalog"
+        assert "以下为服务端提供的学习上下文" not in encoded
+    if request in (TEACHING_WITH_ACTION, COURSE_TEACHING):
+        assert any(tool["function"]["name"] == "get_recent_attempts" for tool in tools)
     current = messages[last_user + 1 :]
     results = [message for message in current if message["role"] == "tool"]
     calls = None
@@ -394,6 +403,16 @@ def finish_cancelled_completion(client, turn_id, gate_name):
 
 
 def run():
+    for request in (
+        "请解释为什么我的课程资料说引用要带页码。",
+        "请解释我的笔记里关于闭包的两点。",
+        "帮我讲解第一道错题。",
+        "讲解我第一次的作答。",
+        "请解释栈，再给一道判断题。",
+        "Explain queues and provide two practice questions.",
+        "How did I answer this last time?",
+    ):
+        assert not is_direct_teaching(request), request
     restart_turn = None
     persisted_frames = None
     cookies = None
@@ -419,9 +438,33 @@ def run():
                     ok(response)
                     assert "HttpOnly" in response.headers["set-cookie"]
                 template = ok(owner.get("/api/templates"))[0]
+                standalone = new_session(owner)
+                direct = new_turn(owner, standalone, DIRECT_TEACHING, "direct-teaching")
+                direct = wait_turn(owner, direct["id"])
+                assert direct["output"]
+                assert sum(event["type"] == "model_start" for event in direct["events"]) == 1
+                assert any(
+                    event["type"] == "answer_route"
+                    and event["payload"]["route"] == "direct_teaching"
+                    for event in direct["events"]
+                )
+                action = new_turn(owner, standalone, TEACHING_WITH_ACTION, "teaching-with-action")
+                action = wait_turn(owner, action["id"])
+                assert any(
+                    event["type"] == "answer_route"
+                    and event["payload"]["route"] == "agent_loop"
+                    for event in action["events"]
+                )
                 course = ok(owner.post(f"/api/templates/{template['id']}/enroll"))
                 course_id, node_id = course["id"], course["nodes"][0]["id"]
                 session = new_session(owner, course_id, node_id)
+                bound = new_turn(owner, session, COURSE_TEACHING, "course-teaching")
+                bound = wait_turn(owner, bound["id"])
+                assert any(
+                    event["type"] == "answer_route"
+                    and event["payload"]["route"] == "agent_loop"
+                    for event in bound["events"]
+                )
                 ok(other.get(f"/api/tutor/sessions/{session['id']}"), 404)
                 ok(
                     other.post(
