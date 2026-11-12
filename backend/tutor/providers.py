@@ -20,7 +20,9 @@ from backend.model_providers import (
 
 
 def wire_request(config, messages, tools):
-    url, headers, body = request_parts(config, messages, stream=True, max_tokens=3200)
+    json_mode = any(message.get("atlas_json_mode") for message in messages)
+    messages = [{key: value for key, value in message.items() if key != "atlas_json_mode"} for message in messages]
+    url, headers, body = request_parts(config, messages, json_mode=json_mode, stream=True, max_tokens=3200)
     if config.protocol == "anthropic-messages":
         converted = []
         for message in messages:

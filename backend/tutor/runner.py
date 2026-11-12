@@ -22,6 +22,7 @@ from backend.tutor.citations import CITATION_GUIDANCE, has_unknown_citations, no
 from backend.tutor.context import budget_messages, build_context, estimate_tokens
 from backend.tutor.mutations import mutation_scope
 from backend.tutor.providers import model_round
+from backend.tutor.structured_output import json_instruction, normalized_object, quote_field, requested_object
 from backend.tutor.tools import ToolContext, execute, get_registry
 
 logger = logging.getLogger(__name__)
@@ -160,8 +161,11 @@ async def run_turn(identifier, token):
                     )
             cp["assessment"] = result
             store.emit(identifier, "assessment", result, token, cp)
-        messages, citations = await build_context(session_id, identifier, on_event=emit)
+        messages, citations, record_sources = await build_context(session_id, identifier, on_event=emit)
         cp.update(messages=messages, rounds=0, stage="model", stable_output=output)
+        cp["record_sources"] = record_sources
+        request = next(message["content"] for message in reversed(messages) if message["role"] == "user")
+        cp["json_output"] = requested_object(request)
         store.checkpoint(identifier, token, cp)
         if citations:
             await emit("citations", {"citations": citations})
@@ -170,6 +174,11 @@ async def run_turn(identifier, token):
         # from events, then explicitly replaced before a safe new model call.
         output = cp.get("stable_output", "")
         await emit("content_reset", {"text": output})
+    json_output = cp.get("json_output")
+    record_sources = cp.get("record_sources") or {}
+    source_quotes = record_sources.get("quotes", [])
+    exact_field = quote_field(json_output) if len(source_quotes) == 1 else None
+    direct_record_answer = exact_field is not None and policy.profile == "qa"
     await emit("status", {"status": "running", "message": "正在结合你的学习情况处理"})
     while True:
         if cp.get("stage") == "tools":
@@ -211,19 +220,28 @@ async def run_turn(identifier, token):
             store.checkpoint(identifier, token, cp)
         allowed = set(cp["agent"]["allowed_tools"])
         available = [schema for schema in registry.schemas(policy.profile) if schema["function"]["name"] in allowed] if cp["rounds"] < policy.max_rounds and len(cp.get("tool_receipts", {})) < policy.max_tool_calls else []
+        if cp["agent"].get("json_retry") or direct_record_answer:
+            available = []
         messages = budget_messages(cp["messages"], available)
         messages.append(capability.prepare(cp))
         messages = messages + [{"role": "system", "content": "本轮能力为 " + policy.profile + "，仅使用提供的工具。工具返回 error 时不得声称成功；execution_review 表示中断操作没有完整回执，先核对现有状态，不得仅凭用户继续就假定操作已成功。"}]
         if cp.get("citations"):
             messages.append({"role": "system", "content": CITATION_GUIDANCE})
         await emit("context_budget", {"round": cp["rounds"] + 1, "estimated_tokens": estimate_tokens(messages) + estimate_tokens(available), "message_count": len(messages), "tool_count": len(available), "estimation": True})
-        if not available:
+        if not available and not direct_record_answer and not cp["agent"].get("json_retry"):
             messages = messages + [
                 {
                     "role": "system",
                     "content": "本次工具调用预算已用完，请根据已获得的真实结果简洁总结，明确尚未完成的事项，不得声称执行了未成功的操作。",
                 }
             ]
+        if record_sources:
+            messages.append({"role": "system", "content": record_sources["instruction"]})
+        if json_output is not None:
+            messages.append({
+                "role": "system", "content": json_instruction(json_output),
+                "atlas_json_mode": not available,
+            })
         result, buffer, last_flush = None, "", time.monotonic()
         round_output = output
         round_key = str(cp["rounds"])
@@ -244,6 +262,8 @@ async def run_turn(identifier, token):
                 async for part in model_round(config, messages, available, user_id):
                     if part["kind"] == "text":
                         received_text = received_text or bool(part["text"])
+                        if json_output is not None:
+                            continue
                         buffer += part["text"]
                         if len(buffer) >= 100 or time.monotonic() - last_flush >= 0.3:
                             await emit("content", {"text": buffer})
@@ -285,6 +305,25 @@ async def run_turn(identifier, token):
                 continue
             citations = cp.get("citations", [])
             answer = result.get("content")
+            if json_output is not None:
+                final = normalized_object(answer, json_output)
+                wrong_quote = (
+                    final is not None and exact_field is not None
+                    and json.loads(final)[exact_field] != source_quotes[0]
+                )
+                if final is None or wrong_quote:
+                    if cp["agent"].get("json_retry"):
+                        raise ModelError("模型未返回符合要求的 JSON 对象或核验原文，请重试。")
+                    cp["agent"]["json_retry"] = True
+                    issue = "引文字段与核验原文不一致。" if wrong_quote else "格式未通过校验。"
+                    cp["messages"].append({"role": "system", "content": "上一版" + issue + "根据已取得的证据重新生成完整 JSON 对象。"})
+                    store.checkpoint(identifier, token, cp)
+                    continue
+                result["content"] = final
+                cp.update(stage="complete", stable_output=final)
+                store.emit(identifier, "content_reset", {"text": final}, token, cp)
+                finish(identifier, token)
+                return
             suffix = normalize_citation_labels(output[len(round_output):], citations)
             if isinstance(answer, str):
                 result["content"] = normalize_citation_labels(answer, citations)

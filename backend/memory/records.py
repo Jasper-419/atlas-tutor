@@ -77,6 +77,7 @@ def _record(kind, row):
         ref = {
             "kind": "turn", "turn_id": turn.id, "session_id": session.id,
             "field": "event" if event else "input", "seq": event.seq if event else 0,
+            "recorded_at": event.created_at if event else turn.created_at,
             "source_course_id": course_id, "source_hash": _hash(text),
         }
         if event:
@@ -85,7 +86,7 @@ def _record(kind, row):
         note = row[0]
         identifier, version, course_id, text = note.id, note.version, note.course_id, note.content
         ref = {
-            "kind": "note", "note_id": identifier, "note_version": version,
+            "kind": "note", "note_id": identifier, "note_version": version, "recorded_at": note.updated_at,
             "source_course_id": course_id, "source_hash": _hash(text),
         }
     else:
@@ -96,7 +97,8 @@ def _record(kind, row):
         ref = {
             "kind": "assessment", "attempt_id": identifier, "exercise_id": exercise.id,
             "exercise_revision": exercise.revision, "score": float(attempt.score),
-            "grade_only": evidence is None,
+            "grade_only": evidence is None, "recorded_at": attempt.created_at,
+            "topic": topic, "passed": attempt.passed,
             "source_hash": _assessment_fingerprint(attempt, exercise, evidence),
         }
     if kind == "practice":

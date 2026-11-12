@@ -590,6 +590,42 @@ def recall(db, user_id, query, course_id=None, limit=8):
     return {"memories": selected, "profile": get_profile(db, user_id, course_id)}
 
 
+def recalled_record_sources(db, user_id, memories):
+    """Project only the currently verified source excerpts of recalled records."""
+    sources = []
+    for item in memories:
+        if item["origin"] != "record":
+            continue
+        memory = db.query(Memory).filter_by(id=item["id"], user_id=user_id).first()
+        if not memory:
+            continue
+        meta = _metadata(db, memory)
+        if not meta or meta.status != "active" or meta.current_revision != item["revision"]:
+            continue
+        revision = _revision(db, memory, meta)
+        if not revision or revision.content != memory.content or revision.category != memory.category:
+            continue
+        for ref in reversed(revision.evidence):
+            if _evidence_status(db, memory, ref) != "valid":
+                continue
+            source = {
+                "memory_id": memory.id, "course_id": memory.course_id,
+                **{key: ref[key] for key in (
+                    "kind", "quote", "recorded_at", "score", "attempt_id",
+                    "exercise_id", "turn_id", "note_id", "topic", "passed",
+                ) if key in ref},
+            }
+            if source["kind"] == "assessment" and "passed" not in source:
+                attempt = _owned(db, Attempt, ref["attempt_id"], user_id)
+                source.update(
+                    passed=attempt.passed, recorded_at=attempt.created_at,
+                    topic=memory.content.removeprefix("练习「").partition("」· ")[0],
+                )
+            sources.append(source)
+            break
+    return sources
+
+
 def _profile_candidates(facts):
     candidates, size = [], 0
     # An assessment diagnosis is not an explicit statement about the user's
